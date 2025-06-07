@@ -20,6 +20,10 @@ export const routes: Routes = [
     // canMatch: [canMatchGuardObtenerUsuario],
     loadComponent: () => import('./components/home/home.component').then(c => c.HomeComponent) 
   },
+  {
+    path: 'crear-admin',
+    loadComponent: () => import('./components/crear-admin/crear-admin.component').then(c => c.CrearAdminComponent)
+  }
   // { 
   //   path: 'juegos',
   //   canMatch: [canMatchGuardObtenerUsuario],

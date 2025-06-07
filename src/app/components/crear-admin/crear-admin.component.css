@@ -1,0 +1,17 @@
+input.ng-invalid.ng-touched {
+  border-color: red;
+}
+
+.btn-violet {
+  background-color: #8e44ad;
+  color: #ffffff;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-violet:hover {
+  background-color: #732d91;
+}

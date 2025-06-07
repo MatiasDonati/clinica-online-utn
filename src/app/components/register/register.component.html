@@ -3,13 +3,109 @@
 <div class="register-container">
   <h2>Registro</h2>
 
-  <label for="email">Email</label>
-  <input id="email" type="email" class="register-input" placeholder="Email" [(ngModel)]="email" required />
+  <form (submit)="register(); $event.preventDefault()" class="d-flex flex-column gap-3">
 
-  <label for="password">Contraseña</label>
-  <input id="password" type="password" class="register-input" placeholder="Contraseña" [(ngModel)]="password" required />
+    <!-- Tipo de usuario -->
+    <label>Tipo de usuario</label>
+    <select class="register-input" [(ngModel)]="tipo" name="tipo">
+      <option value="paciente">Paciente</option>
+      <option value="especialista">Especialista</option>
+    </select>
 
-  <button class="register-button" (click)="register()">Registrarse</button>
+    <!-- Nombre -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-person-fill"></i>
+      </span>
+      <input type="text" [(ngModel)]="nombre" name="nombre" class="form-control register-input" placeholder="Nombre" required />
+    </div>
 
-  <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+    <!-- Apellido -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-person-vcard-fill"></i>
+      </span>
+      <input type="text" [(ngModel)]="apellido" name="apellido" class="form-control register-input" placeholder="Apellido" required />
+    </div>
+
+    <!-- Edad -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-cake-fill"></i>
+      </span>
+      <input type="number" [(ngModel)]="edad" name="edad" class="form-control register-input" placeholder="Edad" required />
+    </div>
+
+    <!-- DNI -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-card-text"></i>
+      </span>
+      <input type="text" [(ngModel)]="dni" name="dni" class="form-control register-input" placeholder="DNI" required />
+    </div>
+
+    <!-- Obra Social -->
+    <div *ngIf="tipo === 'paciente'" class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-hospital-fill"></i>
+      </span>
+      <input type="text" [(ngModel)]="obraSocial" name="obraSocial" class="form-control register-input" placeholder="Obra Social" />
+    </div>
+
+    <!-- Especialidad -->
+    <div *ngIf="tipo === 'especialista'">
+      <label>Especialidad</label>
+      <select class="register-input" [(ngModel)]="especialidad" name="especialidad">
+        <option *ngFor="let esp of ['Cardiología', 'Pediatría', 'Dermatología']" [value]="esp">{{ esp }}</option>
+      </select>
+      <div class="input-group mt-2">
+        <span class="bg-violet text-white">
+          <i class="bi bi-plus-circle-fill"></i>
+        </span>
+        <input type="text" [(ngModel)]="nuevaEspecialidad" name="nuevaEspecialidad" class="form-control register-input" placeholder="O ingresá una nueva" />
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-envelope-fill"></i>
+      </span>
+      <input type="email" [(ngModel)]="email" name="email" class="form-control register-input" placeholder="Email" required />
+    </div>
+
+    <!-- Contraseña -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-lock-fill"></i>
+      </span>
+      <input type="password" [(ngModel)]="password" name="password" class="form-control register-input" placeholder="Contraseña" required />
+    </div>
+
+    <!-- Imagen 1 -->
+    <div class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-image-fill"></i>
+      </span>
+      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 1)" />
+    </div>
+
+    <!-- Imagen 2 -->
+    <div *ngIf="tipo === 'paciente'" class="input-group">
+      <span class="bg-violet text-white">
+        <i class="bi bi-image-fill"></i>
+      </span>
+      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" />
+    </div>
+
+    <!-- Boton -->
+    <button type="submit" class="register-button">Registrarse</button>
+
+    <!-- Mensaje de error o del otro acomodar ! -->
+    <!-- Mensaje de error o del otro acomodar ! -->
+    <!-- Mensaje de error o del otro acomodar ! -->
+    <!-- Mensaje de error o del otro acomodar ! -->
+    <!-- Mensaje de error o del otro acomodar ! -->
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+  </form>
 </div>

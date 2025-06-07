@@ -1,13 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { createClient } from '@supabase/supabase-js';
-import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
-
-
-const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,63 +13,52 @@ const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   imports: [FormsModule, CommonModule, HeaderComponent]
 })
 export class RegisterComponent {
-  email: string = '';
-  password: string = '';
-  mensaje: string = '';
+  tipo: 'paciente' | 'especialista' = 'paciente';
 
-  constructor(private router: Router) {}
+  nombre = '';
+  apellido = '';
+  edad!: number;
+  dni = '';
+  obraSocial = '';
+  especialidad = '';
+  nuevaEspecialidad = '';
+  email = '';
+  password = '';
+  imagen1!: File;
+  imagen2!: File;
+  mensaje = '';
 
-  
+  constructor(private router: Router, private authService: AuthService) {}
+
   async register() {
-    try {
+    const datos = {
+      tipo: this.tipo,
+      email: this.email,
+      password: this.password,
+      nombre: this.nombre,
+      apellido: this.apellido,
+      edad: this.edad,
+      dni: this.dni,
+      obraSocial: this.obraSocial || undefined,
+      especialidad: this.especialidad || undefined,
+      nuevaEspecialidad: this.nuevaEspecialidad || undefined,
+      imagen1: this.imagen1,
+      imagen2: this.tipo === 'paciente' ? this.imagen2 : undefined
+    };
 
-      const { data: usuarioEmailExistente } = await supabase
-        .from('users-data')
-        .select('mail')
-        .eq('mail', this.email)
-        .single();
+    const resultado = await this.authService.registrarUsuarioCompleto(datos);
 
-      if (usuarioEmailExistente) {
-        this.mensaje = 'El email ya se encuentra en uso.';
-        return;
-      }
+    this.mensaje = resultado.mensaje;
 
-      const { data, error } = await supabase.auth.signUp({
-        email: this.email,
-        password: this.password
-      });
-
-      if (error) {
-        this.mensaje = 'Error al registrarse: ' + error.message;
-        if (error.message === 'Password should be at least 6 characters.') {
-          this.mensaje = 'La contraseña debe tener al menos 6 caracteres.';
-        }
-        return;
-      }
-
-      // login Automatico
-      // login Automatico
-      
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email: this.email,
-        password: this.password
-      });
-
-      if (loginError) {
-        this.mensaje = 'Error al iniciar sesión automáticamente: ' + loginError.message;
-        return;
-      }
-
-      await supabase.from('users-data').insert([
-        { authId: data.user?.id, mail: data.user?.email }
-      ]);
-
-      //REGISTRO y LOGIN con EXITO
-      this.router.navigate(['/home']);
-
-    } catch (err) {
-      this.mensaje = 'Ocurrió un error.';
-      console.error('Error en el registro:', err);
+    if (resultado.exito) {
+      this.mensaje = resultado.mensaje + ' Por favor, confirmá tu email antes de iniciar sesión.';
     }
+
+  }
+
+  seleccionarArchivo(event: any, cual: number) {
+    const archivo = event.target.files[0];
+    if (cual === 1) this.imagen1 = archivo;
+    if (cual === 2) this.imagen2 = archivo;
   }
 }

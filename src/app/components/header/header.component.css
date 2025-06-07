@@ -5,7 +5,8 @@ h1 {
 }
 
 .bg-light-purple {
-  background-color: #e0b3ff;
+  background-color: rgba(224, 179, 255, 0.6);
+  backdrop-filter: blur(6px); 
 }
 
 .user-info {
