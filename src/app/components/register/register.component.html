@@ -1,0 +1,15 @@
+<app-header></app-header>
+
+<div class="register-container">
+  <h2>Registro</h2>
+
+  <label for="email">Email</label>
+  <input id="email" type="email" class="register-input" placeholder="Email" [(ngModel)]="email" required />
+
+  <label for="password">Contraseña</label>
+  <input id="password" type="password" class="register-input" placeholder="Contraseña" [(ngModel)]="password" required />
+
+  <button class="register-button" (click)="register()">Registrarse</button>
+
+  <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+</div>
