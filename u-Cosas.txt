@@ -1,13 +1,4 @@
-FALTA IMAGENES EN SUPABASE Y LOGICA 
-TODO LOS DE LAS IMAGENES !!!
-FALTA IMAGENES EN SUPABASE Y LOGICA 
-TODO LOS DE LAS IMAGENES !!!
-FALTA IMAGENES EN SUPABASE Y LOGICA 
-TODO LOS DE LAS IMAGENES !!!
 
-
-El especialista si no esta aprobado no puede iniciar sesion ok
-El especialista si no esta aprobado no puede iniciar sesion ok
 
 
 VALIDACIONES EN EL FORM - Validators

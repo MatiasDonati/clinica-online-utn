@@ -14,6 +14,8 @@ export class HeaderComponent implements OnInit {
   title = 'Clinica Online';
   userEmail: string | null = null;
   mostrarLoginRegister = false;
+  cargando: boolean = false;
+
 
   constructor(private authService: AuthService, private router: Router) {
     effect(() => {
@@ -40,7 +42,7 @@ export class HeaderComponent implements OnInit {
           console.log('Especialista no aprobado, cerrando sesión automáticamente');
           await this.authService.cerrarSesion();
           this.router.navigate(['/login']);
-          return; // <-- que no setee el signal
+          return; 
         }
       }
 
@@ -49,11 +51,16 @@ export class HeaderComponent implements OnInit {
   }
 
   async cerrarSesion() {
+    
+    this.cargando = true;
+
     try {
       await this.authService.cerrarSesion();
       this.router.navigate(['/login']);
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
+    }finally {
+      this.cargando = false;
     }
   }
 

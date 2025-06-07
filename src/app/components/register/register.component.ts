@@ -1,59 +1,48 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup,Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
+
+import { edadMayorA16Validator } from '../../validators/edad.validator';
+import { nombreApellidoValidator } from '../../validators/nombre-apellido.validator'; 
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [FormsModule, CommonModule, HeaderComponent]
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent]
 })
-export class RegisterComponent {
-  tipo: 'paciente' | 'especialista' = 'paciente';
-
-  nombre = '';
-  apellido = '';
-  edad!: number;
-  dni = '';
-  obraSocial = '';
-  especialidad = '';
-  nuevaEspecialidad = '';
-  email = '';
-  password = '';
+export class RegisterComponent implements OnInit {
+  form!: FormGroup;
+  mensaje = '';
   imagen1!: File;
   imagen2!: File;
-  mensaje = '';
 
-  constructor(private router: Router, private authService: AuthService) {}
+  cargando: boolean = false;
 
-  async register() {
-    const datos = {
-      tipo: this.tipo,
-      email: this.email,
-      password: this.password,
-      nombre: this.nombre,
-      apellido: this.apellido,
-      edad: this.edad,
-      dni: this.dni,
-      obraSocial: this.obraSocial || undefined,
-      especialidad: this.especialidad || undefined,
-      nuevaEspecialidad: this.nuevaEspecialidad || undefined,
-      imagen1: this.imagen1,
-      imagen2: this.tipo === 'paciente' ? this.imagen2 : undefined
-    };
 
-    const resultado = await this.authService.registrarUsuarioCompleto(datos);
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-    this.mensaje = resultado.mensaje;
-
-    if (resultado.exito) {
-      this.mensaje = resultado.mensaje + ' Por favor, confirmá tu email antes de iniciar sesión.';
-    }
-
+  ngOnInit(): void {
+    this.form = this.fb.group({
+      tipo: ['paciente', Validators.required],
+      nombre: ['', [Validators.required, nombreApellidoValidator]],
+      apellido: ['', [Validators.required, nombreApellidoValidator]],
+      edad: ['', [Validators.required, edadMayorA16Validator()]],
+      dni: ['', Validators.required],
+      obraSocial: [''],
+      especialidad: [''],
+      nuevaEspecialidad: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
   }
 
   seleccionarArchivo(event: any, cual: number) {
@@ -61,4 +50,46 @@ export class RegisterComponent {
     if (cual === 1) this.imagen1 = archivo;
     if (cual === 2) this.imagen2 = archivo;
   }
+
+  async register() {
+    this.mensaje = '';
+    this.cargando = true;
+
+    const tipo = this.form.value.tipo;
+
+    // Validar formulario y archivos
+    if (
+      this.form.invalid ||
+      !this.imagen1 ||
+      (tipo === 'paciente' && !this.imagen2)
+    ) {
+      this.mensaje = 'Todos los campos son obligatorios.';
+      return;
+    }
+
+    const datos = {
+      tipo,
+      nombre: this.form.value.nombre,
+      apellido: this.form.value.apellido,
+      edad: this.form.value.edad,
+      dni: this.form.value.dni,
+      email: this.form.value.email,
+      password: this.form.value.password,
+      obraSocial: tipo === 'paciente' ? this.form.value.obraSocial : undefined,
+      especialidad: tipo === 'especialista' ? this.form.value.especialidad : undefined,
+      nuevaEspecialidad: tipo === 'especialista' ? this.form.value.nuevaEspecialidad : undefined,
+      imagen1: this.imagen1,
+      imagen2: tipo === 'paciente' ? this.imagen2 : undefined
+    };
+
+    const resultado = await this.authService.registrarUsuarioCompleto(datos);
+
+    this.mensaje = resultado.exito
+      ? resultado.mensaje + ' Por favor, confirmá tu email antes de iniciar sesión.'
+      : resultado.mensaje;
+    
+    
+    this.cargando = false;
+  }
+  
 }

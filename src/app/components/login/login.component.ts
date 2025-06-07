@@ -20,11 +20,13 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   mensaje: string = '';
+  cargando: boolean = false;
 
   constructor(private router: Router, private authService: AuthService) {}
 
-  async login(loginBotonRapido: boolean = false) {
+  async login() {
     this.mensaje = '';
+    this.cargando = true;
 
     if (!this.username || !this.password) {
       this.mensaje = 'Todos los campos son obligatorios';
@@ -43,7 +45,6 @@ export class LoginComponent {
     }
 
     try {
-      // 🔍 Paso 1: Obtener tipo de usuario antes de loguear
       const { data: tipoData, error: tipoError } = await supabase
         .from('users_data')
         .select('tipo')
@@ -55,7 +56,7 @@ export class LoginComponent {
         return;
       }
 
-      // ✅ Paso 2: Si es especialista, verificar si está aprobado
+
       if (tipoData.tipo === 'especialista') {
         const { data: especialistaData, error: especialistaError } = await supabase
           .from('especialistas')
@@ -74,7 +75,6 @@ export class LoginComponent {
         }
       }
 
-      // 🔐 Paso 3: Si todo está ok, loguear
       const { data, error } = await supabase.auth.signInWithPassword({
         email: this.username,
         password: this.password,
@@ -104,29 +104,33 @@ export class LoginComponent {
       localStorage.setItem('tipoUsuario', tipoData.tipo);
       this.authService.userEmailSignal.set(email!);
 
-      // 🚀 Paso 4: Redirigir según tipo
+
+      console.log('Tipo de usuario:', tipoData.tipo);
+
       switch (tipoData.tipo) {
         case 'admin':
-          this.router.navigate(['/admin']);
+          this.router.navigate(['']);
           break;
         case 'especialista':
-          this.router.navigate(['/turnos-especialista']);
+          this.router.navigate(['']);
           break;
         case 'paciente':
         default:
-          this.router.navigate(['/usuarios']);
+          this.router.navigate(['']);
           break;
       }
     } catch (err) {
       this.mensaje = 'Error inesperado al intentar iniciar sesión.';
       console.error(err);
+    }finally {
+      this.cargando = false;
     }
   }
 
   loginRapido(email: string, password: string) {
     this.username = email;
     this.password = password;
-    this.login(true);
+    this.login();
   }
 
   irARegistrarse() {

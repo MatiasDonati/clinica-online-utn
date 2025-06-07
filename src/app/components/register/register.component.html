@@ -3,109 +3,107 @@
 <div class="register-container">
   <h2>Registro</h2>
 
-  <form (submit)="register(); $event.preventDefault()" class="d-flex flex-column gap-3">
+    <!-- Spinner -->
+  <div *ngIf="cargando" class="text-center my-3">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Registrando...</span>
+    </div>
+  </div>
+
+  <form *ngIf="!cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
 
     <!-- Tipo de usuario -->
     <label>Tipo de usuario</label>
-    <select class="register-input" [(ngModel)]="tipo" name="tipo">
+    <select class="register-input" formControlName="tipo">
       <option value="paciente">Paciente</option>
       <option value="especialista">Especialista</option>
     </select>
 
     <!-- Nombre -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-person-fill"></i>
-      </span>
-      <input type="text" [(ngModel)]="nombre" name="nombre" class="form-control register-input" placeholder="Nombre" required />
+      <span class="bg-violet text-white"><i class="bi bi-person-fill"></i></span>
+      <input type="text" formControlName="nombre" class="form-control register-input" placeholder="Nombre" />
+    </div>
+    <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched" class="text-danger small">
+      Nombre inválido.
     </div>
 
     <!-- Apellido -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-person-vcard-fill"></i>
-      </span>
-      <input type="text" [(ngModel)]="apellido" name="apellido" class="form-control register-input" placeholder="Apellido" required />
+      <span class="bg-violet text-white"><i class="bi bi-person-vcard-fill"></i></span>
+      <input type="text" formControlName="apellido" class="form-control register-input" placeholder="Apellido" />
+    </div>
+    <div *ngIf="form.get('apellido')?.invalid && form.get('apellido')?.touched" class="text-danger small">
+      Apellido inválido.
     </div>
 
     <!-- Edad -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-cake-fill"></i>
-      </span>
-      <input type="number" [(ngModel)]="edad" name="edad" class="form-control register-input" placeholder="Edad" required />
+      <span class="bg-violet text-white"><i class="bi bi-cake-fill"></i></span>
+      <input type="number" formControlName="edad" class="form-control register-input" placeholder="Edad" />
+    </div>
+    <div *ngIf="form.get('edad')?.hasError('edadInvalida') && form.get('edad')?.touched" class="text-danger small">
+      {{ form.get('edad')?.getError('edadInvalida') }}
     </div>
 
     <!-- DNI -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-card-text"></i>
-      </span>
-      <input type="text" [(ngModel)]="dni" name="dni" class="form-control register-input" placeholder="DNI" required />
+      <span class="bg-violet text-white"><i class="bi bi-card-text"></i></span>
+      <input type="text" formControlName="dni" class="form-control register-input" placeholder="DNI" />
     </div>
 
     <!-- Obra Social -->
-    <div *ngIf="tipo === 'paciente'" class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-hospital-fill"></i>
-      </span>
-      <input type="text" [(ngModel)]="obraSocial" name="obraSocial" class="form-control register-input" placeholder="Obra Social" />
+    <div *ngIf="form.get('tipo')?.value === 'paciente'" class="input-group">
+      <span class="bg-violet text-white"><i class="bi bi-hospital-fill"></i></span>
+      <input type="text" formControlName="obraSocial" class="form-control register-input" placeholder="Obra Social" />
     </div>
 
     <!-- Especialidad -->
-    <div *ngIf="tipo === 'especialista'">
+    <div *ngIf="form.get('tipo')?.value === 'especialista'">
       <label>Especialidad</label>
-      <select class="register-input" [(ngModel)]="especialidad" name="especialidad">
+      <select class="register-input" formControlName="especialidad">
         <option *ngFor="let esp of ['Cardiología', 'Pediatría', 'Dermatología']" [value]="esp">{{ esp }}</option>
       </select>
       <div class="input-group mt-2">
-        <span class="bg-violet text-white">
-          <i class="bi bi-plus-circle-fill"></i>
-        </span>
-        <input type="text" [(ngModel)]="nuevaEspecialidad" name="nuevaEspecialidad" class="form-control register-input" placeholder="O ingresá una nueva" />
+        <span class="bg-violet text-white"><i class="bi bi-plus-circle-fill"></i></span>
+        <input type="text" formControlName="nuevaEspecialidad" class="form-control register-input" placeholder="O ingresá una nueva" />
       </div>
     </div>
 
     <!-- Email -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-envelope-fill"></i>
-      </span>
-      <input type="email" [(ngModel)]="email" name="email" class="form-control register-input" placeholder="Email" required />
+      <span class="bg-violet text-white"><i class="bi bi-envelope-fill"></i></span>
+      <input type="email" formControlName="email" class="form-control register-input" placeholder="Email" />
+    </div>
+    <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger small">
+      Ingresá un email válido.
     </div>
 
     <!-- Contraseña -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-lock-fill"></i>
-      </span>
-      <input type="password" [(ngModel)]="password" name="password" class="form-control register-input" placeholder="Contraseña" required />
+      <span class="bg-violet text-white"><i class="bi bi-lock-fill"></i></span>
+      <input type="password" formControlName="password" class="form-control register-input" placeholder="Contraseña" />
+    </div>
+    <div *ngIf="form.get('password')?.hasError('minlength') && form.get('password')?.touched" class="text-danger small">
+      La contraseña debe tener al menos 6 caracteres.
     </div>
 
     <!-- Imagen 1 -->
     <div class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-image-fill"></i>
-      </span>
+      <span class="bg-violet text-white"><i class="bi bi-image-fill"></i></span>
       <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 1)" />
     </div>
 
     <!-- Imagen 2 -->
-    <div *ngIf="tipo === 'paciente'" class="input-group">
-      <span class="bg-violet text-white">
-        <i class="bi bi-image-fill"></i>
-      </span>
+    <div *ngIf="form.get('tipo')?.value === 'paciente'" class="input-group">
+      <span class="bg-violet text-white"><i class="bi bi-image-fill"></i></span>
       <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" />
     </div>
 
-    <!-- Boton -->
-    <button type="submit" class="register-button">Registrarse</button>
+    <!-- Botón -->
+    <button type="submit" class="register-button" [disabled]="form.invalid">Registrarse</button>
 
-    <!-- Mensaje de error o del otro acomodar ! -->
-    <!-- Mensaje de error o del otro acomodar ! -->
-    <!-- Mensaje de error o del otro acomodar ! -->
-    <!-- Mensaje de error o del otro acomodar ! -->
-    <!-- Mensaje de error o del otro acomodar ! -->
+    <!-- Mensaje final -->
     <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
   </form>
 </div>

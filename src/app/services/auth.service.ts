@@ -18,11 +18,13 @@ export class AuthService {
   constructor(private router: Router) {}
 
   async obtenerUsuarioActual(): Promise<string | null> {
+    await supabase.auth.getSession();
     const { data, error } = await supabase.auth.getUser();
     const email = data.user?.email || null;
     this.userEmailSignal.set(email);
     return email;
   }
+
 
   async cerrarSesion(): Promise<void> {
     try {
