@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/sala-de-juegos/browser",
+    "public": "dist/clinica-online/browser",
     "ignore": [
       "firebase.json",
       "**/.*",

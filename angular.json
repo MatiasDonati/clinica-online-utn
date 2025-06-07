@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "sala-de-juegos": {
+    "clinica-online": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/sala-de-juegos",
+            "outputPath": "dist/clinica-online",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -59,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "sala-de-juegos:build:production"
+              "buildTarget": "clinica-online:build:production"
             },
             "development": {
-              "buildTarget": "sala-de-juegos:build:development"
+              "buildTarget": "clinica-online:build:development"
             }
           },
           "defaultConfiguration": "development"

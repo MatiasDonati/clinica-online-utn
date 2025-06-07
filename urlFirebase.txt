@@ -1,8 +1,5 @@
-
-para actualizar el delpoy en Firebase
-
-Hacer el cambio de redireccionamiento de Firebase
-
+ng build --configuration production
 ng build --configuration production
 
+firebase deploy
 firebase deploy
