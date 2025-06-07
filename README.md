@@ -1,4 +1,4 @@
-# SalaDeJuegos
+# Clinica Online
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
 
@@ -23,7 +23,7 @@ ng generate component component-name
 For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
 ```bash
-ng generate --help
+ng generate --helpa
 ```
 
 ## Building
