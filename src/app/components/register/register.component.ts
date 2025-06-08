@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup,Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
 
 import { edadMayorA16Validator } from '../../validators/edad.validator';
-import { nombreApellidoValidator } from '../../validators/nombre-apellido.validator'; 
+import { nombreApellidoValidator } from '../../validators/nombre-apellido.validator';
 import { dniValidator } from '../../validators/dni.validator';
 import { obraSocialValidator } from '../../validators/obra-social.validator';
 
@@ -19,15 +19,16 @@ import { obraSocialValidator } from '../../validators/obra-social.validator';
 })
 export class RegisterComponent implements OnInit {
 
+  @Input() mostrarHeader: boolean = true;
+  @Input() desdeAdmin: boolean = false;
+
   form!: FormGroup;
   mensaje = '';
   imagen1!: File;
   imagen2!: File;
 
   cargando: boolean = false;
-
   registroExitoso: boolean = false;
-
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +43,7 @@ export class RegisterComponent implements OnInit {
       apellido: ['', [Validators.required, nombreApellidoValidator()]],
       edad: ['', [Validators.required, edadMayorA16Validator()]],
       dni: ['', [Validators.required, dniValidator()]],
-      obraSocial: ['',[Validators.required, obraSocialValidator()]],
+      obraSocial: ['', [obraSocialValidator()]], // solo paciente
       especialidad: [''],
       nuevaEspecialidad: [''],
       email: ['', [Validators.required, Validators.email]],
@@ -61,6 +62,13 @@ export class RegisterComponent implements OnInit {
       }
     });
 
+    this.form.get('tipo')?.valueChanges.subscribe(tipo => {
+      if (tipo === 'admin') {
+        this.form.get('obraSocial')?.reset();
+        this.form.get('especialidad')?.reset();
+        this.form.get('nuevaEspecialidad')?.reset();
+      }
+    });
   }
 
   seleccionarArchivo(event: any, cual: number) {
@@ -74,10 +82,15 @@ export class RegisterComponent implements OnInit {
     this.cargando = true;
     this.registroExitoso = false;
 
-    const tipo = this.form.value.tipo;
+    const tipo = this.form.getRawValue().tipo;
 
-    if (this.form.invalid || !this.imagen1 || (tipo === 'paciente' && !this.imagen2)) {
-      this.mensaje = 'Todos los campos son obligatorios.';
+    // Validaciones específicas por tipo
+    if (
+      this.form.invalid ||
+      (tipo !== 'admin' && !this.imagen1) ||
+      (tipo === 'paciente' && !this.imagen2)
+    ) {
+      this.mensaje = 'Todos los campos obligatorios deben estar completos.';
       this.cargando = false;
       return;
     }
@@ -93,7 +106,7 @@ export class RegisterComponent implements OnInit {
       obraSocial: tipo === 'paciente' ? this.form.value.obraSocial : undefined,
       especialidad: tipo === 'especialista' ? this.form.value.especialidad : undefined,
       nuevaEspecialidad: tipo === 'especialista' ? this.form.value.nuevaEspecialidad : undefined,
-      imagen1: this.imagen1,
+      imagen1: tipo !== 'admin' ? this.imagen1 : this.imagen1, // siempre opcional
       imagen2: tipo === 'paciente' ? this.imagen2 : undefined
     };
 
@@ -107,9 +120,7 @@ export class RegisterComponent implements OnInit {
     this.cargando = false;
   }
 
-
   irA(ruta: string) {
     this.router.navigate([ruta]);
   }
-
 }

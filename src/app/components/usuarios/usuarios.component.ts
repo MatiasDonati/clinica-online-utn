@@ -1,84 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { UsuariosService } from '../../services/usuarios.service';
-import { HeaderComponent } from '../header/header.component';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HeaderComponent } from '../header/header.component';
+import { UsuariosListaComponent } from './usuarios-lista/usuarios-lista.component';
+import { UsuariosCrearComponent } from './usuarios-crear/usuarios-crear.component';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [HeaderComponent, CommonModule],
+  imports: [CommonModule, HeaderComponent, UsuariosListaComponent, UsuariosCrearComponent],
   templateUrl: './usuarios.component.html',
-  styleUrl: './usuarios.component.css'
+  styleUrls: ['./usuarios.component.css']
 })
-export class UsuariosComponent implements OnInit {
-  usuarios: any[] = [];
-  cargando: boolean = false;
-  mensaje: string = '';
-
-  actualizandoEstado: string | null = null;
-
-  tipoMensaje: 'info' | 'danger' = 'info';
-
-  tipoFiltro: 'todos' | 'especialista' | 'paciente' | 'admin' = 'todos';
-
-
-
-  constructor(private usuariosService: UsuariosService) {}
-
-  async ngOnInit() {
-    this.cargando = true;
-
-    const usuariosData = await this.usuariosService.obtenerUsuarios();
-    const especialistasData = await this.usuariosService.obtenerEspecialistas();
-
-    this.usuarios = usuariosData.map(usuario => {
-      if (usuario.tipo === 'especialista') {
-        const datosEsp = especialistasData.find(e => e.mail === usuario.mail);
-        return { ...usuario, aprobado: datosEsp?.aprobado ?? false };
-      }
-      return usuario;
-    });
-
-    this.cargando = false;
-  }
-
-
-  async cambiarEstadoEspecialista(mail: string, aprobado: boolean) {
-    this.actualizandoEstado = mail;
-
-    const ok = await this.usuariosService.cambiarEstadoEspecialista(mail, aprobado);
-    if (ok) {
-      this.mensaje = `El Especialista ${mail} fue ${aprobado ? 'habilitado' : 'inhabilitado'}.`;
-      this.tipoMensaje = aprobado ? 'info' : 'danger';
-
-
-      const usuariosData = await this.usuariosService.obtenerUsuarios();
-      const especialistasData = await this.usuariosService.obtenerEspecialistas();
-
-      this.usuarios = usuariosData.map(usuario => {
-        if (usuario.tipo === 'especialista') {
-          const datosEsp = especialistasData.find(e => e.mail === usuario.mail);
-          return { ...usuario, aprobado: datosEsp?.aprobado ?? false };
-        }
-        return usuario;
-      });
-
-      setTimeout(() => {
-        this.mensaje = '';
-      }, 3000);
-    } else {
-      this.mensaje = 'Error al cambiar el estado.';
-      this.tipoMensaje = 'danger';
-
-    }
-
-    this.actualizandoEstado = null;
-  }
-
-  get usuariosFiltrados() {
-    if (this.tipoFiltro === 'todos') return this.usuarios;
-    return this.usuarios.filter(u => u.tipo === this.tipoFiltro);
-  }
-
-
+export class UsuariosComponent {
+  vistaActual: 'listado' | 'crear' = 'listado';
 }

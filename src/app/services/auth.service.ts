@@ -61,7 +61,7 @@ export class AuthService {
   }
 
   async registrarUsuarioCompleto(datos: {
-    tipo: 'paciente' | 'especialista',
+    tipo: 'paciente' | 'especialista' | 'admin',
     email: string,
     password: string,
     nombre: string,
@@ -81,7 +81,7 @@ export class AuthService {
       const yaExiste = await this.verificarUsuarioRegistrado(datos.email);
       if (yaExiste) return { exito: false, mensaje: 'El email ya está en uso.' };
 
-      // Crear usuario en auth
+      // Crear usuario en Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: datos.email,
         password: datos.password
@@ -94,54 +94,44 @@ export class AuthService {
       const authId = data.user.id;
       console.log('Usuario creado en auth con ID:', authId);
 
-      // Subir imágenes (opcional)
+      // Subir imágenes
       let imagen1Url: string | undefined;
       let imagen2Url: string | undefined;
 
-      // Imagen 1
-      if (datos.imagen1) {
-        console.log('📸 Subiendo imagen 1:', datos.imagen1);
-        const emailSanitizado = datos.email.replace(/[^a-zA-Z0-9]/g, '_');
-        const nombreArchivo1 = `${datos.tipo}_${Date.now()}_1_${emailSanitizado}`;
+      const emailSanitizado = datos.email.replace(/[^a-zA-Z0-9]/g, '_');
 
+      if (datos.imagen1) {
+        const nombreArchivo1 = `${datos.tipo}_${Date.now()}_1_${emailSanitizado}`;
         const { error: errorImg1 } = await supabase.storage
           .from('perfiles')
           .upload(nombreArchivo1, datos.imagen1);
 
-        if (errorImg1) {
-          console.error('Error al subir imagen1:', errorImg1.message);
-        } else {
+        if (!errorImg1) {
           const { data } = supabase.storage.from('perfiles').getPublicUrl(nombreArchivo1);
           imagen1Url = data.publicUrl;
           console.log('Imagen 1 subida correctamente. URL:', imagen1Url);
+        } else {
+          console.error('Error al subir imagen1:', errorImg1.message);
         }
-      } else {
-        console.warn('No se recibió imagen1.');
       }
 
-      // Imagen 2
       if (datos.tipo === 'paciente' && datos.imagen2) {
-        console.log('Subiendo imagen 2:', datos.imagen2);
-        const emailSanitizado = datos.email.replace(/[^a-zA-Z0-9]/g, '_');
         const nombreArchivo2 = `${datos.tipo}_${Date.now()}_2_${emailSanitizado}`;
-
         const { error: errorImg2 } = await supabase.storage
           .from('perfiles')
           .upload(nombreArchivo2, datos.imagen2);
 
-        if (errorImg2) {
-          console.error('Error al subir imagen2:', errorImg2.message);
-        } else {
+        if (!errorImg2) {
           const { data } = supabase.storage.from('perfiles').getPublicUrl(nombreArchivo2);
           imagen2Url = data.publicUrl;
           console.log('Imagen 2 subida correctamente. URL:', imagen2Url);
+        } else {
+          console.error('Error al subir imagen2:', errorImg2.message);
         }
-      } else if (datos.tipo === 'paciente') {
-        console.warn('No se recibió imagen2 para paciente.');
       }
 
-      // Armar objeto para la tabla específica
-      const tabla = datos.tipo === 'paciente' ? 'pacientes' : 'especialistas';
+      // Construir objeto para insertar según tipo
+      let tabla = '';
       const info: any = {
         authid: authId,
         mail: datos.email,
@@ -151,31 +141,40 @@ export class AuthService {
         dni: datos.dni
       };
 
-      if (imagen1Url) info.imagen1 = imagen1Url;
-      if (imagen2Url) info.imagen2 = imagen2Url;
+      switch (datos.tipo) {
+        case 'paciente':
+          tabla = 'pacientes';
+          if (imagen1Url) info.imagen1 = imagen1Url;
+          if (imagen2Url) info.imagen2 = imagen2Url;
+          info.obrasocial = datos.obraSocial;
+          break;
 
-      if (datos.tipo === 'paciente') {
-        info.obrasocial = datos.obraSocial;
-      } else {
-        info.especialidad = datos.nuevaEspecialidad || datos.especialidad;
+        case 'especialista':
+          tabla = 'especialistas';
+          if (imagen1Url) info.imagen1 = imagen1Url;
+          info.especialidad = datos.nuevaEspecialidad || datos.especialidad;
+          break;
+
+        case 'admin':
+          tabla = 'administradores';
+          if (imagen1Url) info.imagen = imagen1Url;
+          break;
       }
 
-      console.log('Objeto a insertar en tabla', tabla, ':', info);
+      console.log('Insertando en tabla:', tabla, info);
 
-      // Insertar en tabla específica
       const { error: insertError } = await supabase.from(tabla).insert([info]);
       if (insertError) {
         console.error('Error al insertar en tabla específica:', insertError.message);
         return { exito: false, mensaje: 'Error al guardar datos adicionales.' };
       }
 
-      // Insertar en tabla general de usuarios
+      // Insertar en users_data
       await supabase.from('users_data').insert([
         { authid: authId, mail: datos.email, tipo: datos.tipo }
       ]);
 
       console.log('Datos insertados correctamente.');
-
       return {
         exito: true,
         mensaje: 'Registro exitoso. Te enviamos un email para confirmar tu cuenta.'
@@ -187,25 +186,27 @@ export class AuthService {
     }
   }
 
-  async obtenerTipoUsuario(email: string): Promise<string | null> {
-  try {
-    const { data, error } = await this.supabase
-      .from('users_data')
-      .select('tipo')
-      .eq('mail', email)
-      .single();
 
-    if (error || !data) {
-      console.warn('No se pudo obtener el tipo de usuario:', error?.message);
+
+  async obtenerTipoUsuario(email: string): Promise<string | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('users_data')
+        .select('tipo')
+        .eq('mail', email)
+        .single();
+
+      if (error || !data) {
+        console.warn('No se pudo obtener el tipo de usuario:', error?.message);
+        return null;
+      }
+
+      return data.tipo;
+    } catch (err) {
+      console.error('Error al obtener tipo de usuario:', err);
       return null;
     }
-
-    return data.tipo;
-  } catch (err) {
-    console.error('Error al obtener tipo de usuario:', err);
-    return null;
   }
-}
 
 
 }

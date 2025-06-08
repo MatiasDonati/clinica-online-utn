@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/usuarios/usuarios.component').then(c => c.UsuariosComponent) 
   },
   // { 
+  //   path: 'usuarios/listado', 
+  //   // canMatch: [canMatchGuardObtenerUsuario],
+  //   loadComponent: () => import('./components/usuarios/usuarios-lista/usuarios-lista.component').then(c => c.UsuariosListaComponent) 
+  // },
+  // { 
   //   path: 'juegos',
   //   canMatch: [canMatchGuardObtenerUsuario],
   //   loadChildren: () => import('./components/juegos/juegos-modulo/juegos.module').then(m => m.JuegosModule)
