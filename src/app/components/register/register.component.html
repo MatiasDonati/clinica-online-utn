@@ -2,7 +2,8 @@
 
 <div class="register-container">
   <h2>Registro</h2>
-
+    <!-- Mensaje final -->
+    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
     <!-- Spinner -->
   <div *ngIf="cargando" class="text-center my-3">
     <div class="spinner-border text-primary" role="status">
@@ -10,7 +11,13 @@
     </div>
   </div>
 
-  <form *ngIf="!cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
+  <!-- Registro Exitoso, confirmar mail., -->
+  <div *ngIf="registroExitoso && !cargando" class="text-center">
+    <p class="fw-bold text-violet">{{ mensaje }}</p>
+      <!-- <button class="btn btn-violet mt-3" (click)="irA('/login')">Ir al Login</button> -->
+  </div>
+
+  <form *ngIf="!registroExitoso && !cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
 
     <!-- Tipo de usuario -->
     <label>Tipo de usuario</label>
@@ -24,18 +31,20 @@
       <span class="bg-violet text-white"><i class="bi bi-person-fill"></i></span>
       <input type="text" formControlName="nombre" class="form-control register-input" placeholder="Nombre" />
     </div>
-    <div *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched" class="text-danger small">
-      Nombre inválido.
+    <div *ngIf="form.get('nombre')?.hasError('nombreInvalido') && form.get('nombre')?.touched" class="text-danger small">
+      {{ form.get('nombre')?.getError('nombreInvalido') }}
     </div>
+
 
     <!-- Apellido -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-person-vcard-fill"></i></span>
       <input type="text" formControlName="apellido" class="form-control register-input" placeholder="Apellido" />
     </div>
-    <div *ngIf="form.get('apellido')?.invalid && form.get('apellido')?.touched" class="text-danger small">
-      Apellido inválido.
+    <div *ngIf="form.get('apellido')?.hasError('nombreInvalido') && form.get('apellido')?.touched" class="text-danger small">
+      {{ form.get('apellido')?.getError('nombreInvalido') }}
     </div>
+
 
     <!-- Edad -->
     <div class="input-group">
@@ -51,22 +60,41 @@
       <span class="bg-violet text-white"><i class="bi bi-card-text"></i></span>
       <input type="text" formControlName="dni" class="form-control register-input" placeholder="DNI" />
     </div>
+    <div *ngIf="form.get('dni')?.hasError('dniInvalido') && form.get('dni')?.touched" class="text-danger small">
+      {{ form.get('dni')?.getError('dniInvalido') }}
+    </div>
 
     <!-- Obra Social -->
     <div *ngIf="form.get('tipo')?.value === 'paciente'" class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-hospital-fill"></i></span>
       <input type="text" formControlName="obraSocial" class="form-control register-input" placeholder="Obra Social" />
     </div>
+    <div *ngIf="form.get('obraSocial')?.hasError('obraSocialInvalida') && form.get('obraSocial')?.touched" class="text-danger small">
+      {{ form.get('obraSocial')?.getError('obraSocialInvalida') }}
+    </div>
 
     <!-- Especialidad -->
     <div *ngIf="form.get('tipo')?.value === 'especialista'">
       <label>Especialidad</label>
-      <select class="register-input" formControlName="especialidad">
-        <option *ngFor="let esp of ['Cardiología', 'Pediatría', 'Dermatología']" [value]="esp">{{ esp }}</option>
+
+      <select class="register-input"
+              formControlName="especialidad"
+              [disabled]="form.get('nuevaEspecialidad')?.value">
+        <option *ngFor="let esp of ['Cardiología', 'Pediatría', 'Dermatología']" [value]="esp">
+          {{ esp }}
+        </option>
       </select>
+
+      <!-- Agregar especialidad -->
       <div class="input-group mt-2">
-        <span class="bg-violet text-white"><i class="bi bi-plus-circle-fill"></i></span>
-        <input type="text" formControlName="nuevaEspecialidad" class="form-control register-input" placeholder="O ingresá una nueva" />
+        <span class="bg-violet text-white">
+          <i class="bi bi-plus-circle-fill"></i>
+        </span>
+        <input type="text"
+              formControlName="nuevaEspecialidad"
+              class="form-control register-input ms-3"
+              placeholder="O ingresá una nueva"
+              [disabled]="form.get('especialidad')?.value" />
       </div>
     </div>
 
@@ -91,19 +119,18 @@
     <!-- Imagen 1 -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-image-fill"></i></span>
-      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 1)" />
+      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 1)" accept=".jpg, .jpeg, .png, .pdf" />
     </div>
 
     <!-- Imagen 2 -->
     <div *ngIf="form.get('tipo')?.value === 'paciente'" class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-image-fill"></i></span>
-      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" />
+      <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" accept=".jpg, .jpeg, .png, .pdf" />
     </div>
 
-    <!-- Botón -->
+    <!-- Boton -->
     <button type="submit" class="register-button" [disabled]="form.invalid">Registrarse</button>
 
-    <!-- Mensaje final -->
-    <p class="mensaje" *ngIf="mensaje">{{ mensaje }}</p>
+
   </form>
 </div>

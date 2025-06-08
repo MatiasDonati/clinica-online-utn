@@ -13,30 +13,58 @@
           </div>
         </div>
 
-        <!-- Formulario solo si no está cargando -->
-        <form *ngIf="!cargando" (submit)="login(); $event.preventDefault()" class="d-flex flex-column gap-3">
+        <!-- Formulario -->
+        <form #form="ngForm" *ngIf="!cargando" (submit)="login(); $event.preventDefault()" class="d-flex flex-column gap-3">
 
+          <!-- Email -->
           <div class="input-group">
             <span class="input-group-text bg-violet text-white">
               <i class="bi bi-envelope-fill"></i>
             </span>
-            <input type="email" [(ngModel)]="username" name="email" class="form-control" placeholder="Email" required />
+            <input type="email"
+                   [(ngModel)]="username"
+                   name="email"
+                   class="form-control"
+                   placeholder="Email"
+                   required
+                   email
+                   #emailCtrl="ngModel" />
+          </div>
+          <div *ngIf="emailCtrl.invalid && emailCtrl.touched" class="text-danger small">
+            <span *ngIf="emailCtrl.errors?.['required']">El email es obligatorio.</span>
+            <span *ngIf="emailCtrl.errors?.['email']">Formato de email incorrecto.</span>
           </div>
 
+          <!-- Contraseña -->
           <div class="input-group">
             <span class="input-group-text bg-violet text-white">
               <i class="bi bi-lock-fill"></i>
             </span>
-            <input type="password" [(ngModel)]="password" name="password" class="form-control" placeholder="Contraseña" required />
+            <input type="password"
+                   [(ngModel)]="password"
+                   name="password"
+                   class="form-control"
+                   placeholder="Contraseña"
+                   required
+                   minlength="6"
+                   #passCtrl="ngModel" />
+          </div>
+          <div *ngIf="passCtrl.invalid && passCtrl.touched" class="text-danger small">
+            <span *ngIf="passCtrl.errors?.['required']">La contraseña es obligatoria.</span>
+            <span *ngIf="passCtrl.errors?.['minlength']">Debe tener al menos 6 caracteres.</span>
           </div>
 
+          <!-- Botones de acceso rápido -->
           <div class="d-flex justify-content-center gap-2 mb-3">
             <button class="btn btn-info" (click)="loginRapido('matiaseduardodonati@gmail.com', '123123')">1</button>
             <button class="btn btn-info" (click)="loginRapido('libebe4505@linacit.com', '123123')">2</button>
             <button class="btn btn-info" (click)="loginRapido('jefoh39112@inkight.com', '123123')" disabled>3</button>
           </div>
 
-          <button type="submit" class="btn btn-violet mt-3" [disabled]="cargando">Iniciar Sesión</button>
+          <!-- Botón login -->
+          <button type="submit" class="btn btn-violet mt-3" [disabled]="form.invalid || cargando">
+            Iniciar Sesión
+          </button>
         </form>
 
         <!-- Mensaje de error -->

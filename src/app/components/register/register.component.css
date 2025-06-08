@@ -62,3 +62,23 @@
   font-weight: bold;
   text-align: center;
 }
+
+/* .text-violet {
+  color: #8e44ad;
+} */
+
+.btn-violet {
+  background-color: #8e44ad;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-violet:hover {
+  background-color: #732d91;
+  transform: scale(1.05);
+}

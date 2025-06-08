@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth.service';
 
 import { edadMayorA16Validator } from '../../validators/edad.validator';
 import { nombreApellidoValidator } from '../../validators/nombre-apellido.validator'; 
+import { dniValidator } from '../../validators/dni.validator';
+import { obraSocialValidator } from '../../validators/obra-social.validator';
 
 @Component({
   selector: 'app-register',
@@ -16,12 +18,15 @@ import { nombreApellidoValidator } from '../../validators/nombre-apellido.valida
   imports: [ReactiveFormsModule, CommonModule, HeaderComponent]
 })
 export class RegisterComponent implements OnInit {
+
   form!: FormGroup;
   mensaje = '';
   imagen1!: File;
   imagen2!: File;
 
   cargando: boolean = false;
+
+  registroExitoso: boolean = false;
 
 
   constructor(
@@ -33,16 +38,29 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       tipo: ['paciente', Validators.required],
-      nombre: ['', [Validators.required, nombreApellidoValidator]],
-      apellido: ['', [Validators.required, nombreApellidoValidator]],
+      nombre: ['', [Validators.required, nombreApellidoValidator()]],
+      apellido: ['', [Validators.required, nombreApellidoValidator()]],
       edad: ['', [Validators.required, edadMayorA16Validator()]],
-      dni: ['', Validators.required],
-      obraSocial: [''],
+      dni: ['', [Validators.required, dniValidator()]],
+      obraSocial: ['',[Validators.required, obraSocialValidator()]],
       especialidad: [''],
       nuevaEspecialidad: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    this.form.get('especialidad')?.valueChanges.subscribe(value => {
+      if (value) {
+        this.form.get('nuevaEspecialidad')?.setValue('');
+      }
+    });
+
+    this.form.get('nuevaEspecialidad')?.valueChanges.subscribe(value => {
+      if (value) {
+        this.form.get('especialidad')?.setValue('');
+      }
+    });
+
   }
 
   seleccionarArchivo(event: any, cual: number) {
@@ -54,16 +72,13 @@ export class RegisterComponent implements OnInit {
   async register() {
     this.mensaje = '';
     this.cargando = true;
+    this.registroExitoso = false;
 
     const tipo = this.form.value.tipo;
 
-    // Validar formulario y archivos
-    if (
-      this.form.invalid ||
-      !this.imagen1 ||
-      (tipo === 'paciente' && !this.imagen2)
-    ) {
+    if (this.form.invalid || !this.imagen1 || (tipo === 'paciente' && !this.imagen2)) {
       this.mensaje = 'Todos los campos son obligatorios.';
+      this.cargando = false;
       return;
     }
 
@@ -87,9 +102,14 @@ export class RegisterComponent implements OnInit {
     this.mensaje = resultado.exito
       ? resultado.mensaje + ' Por favor, confirmá tu email antes de iniciar sesión.'
       : resultado.mensaje;
-    
-    
+
+    this.registroExitoso = resultado.exito;
     this.cargando = false;
   }
-  
+
+
+  irA(ruta: string) {
+    this.router.navigate([ruta]);
+  }
+
 }

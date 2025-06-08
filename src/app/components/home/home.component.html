@@ -1,17 +1,27 @@
-<app-header>  </app-header>
-<div class="container my-5 text-center">
-  <h2 class="mb-4">Bienvenido a la Clínica Online</h2>
+<app-header></app-header>
 
-  <ng-container *ngIf="userEmail && tipoUsuario; else noLogin">
-    <p class="lead mb-3">Sesión iniciada como:</p>
-    <p><strong>{{ userEmail }}</strong> - ({{ tipoUsuario }})</p>
+<div class="container my-5 text-center">
+
+  <ng-container *ngIf="cargando; else contenido">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
   </ng-container>
 
-  <ng-template #noLogin>
-    <p class="lead mb-5">Iniciá sesión o registrate para acceder a la plataforma</p>
-    <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
-      <button class="btn btn-primary" (click)="irA('/login')">Login</button>
-      <button class="btn btn-secondary" (click)="irA('/register')">Registrarse</button>
-    </div>
+  <ng-template #contenido>
+    <h2 class="mb-4">Bienvenido a la Clínica Online</h2>
+
+    <ng-container *ngIf="userEmail && tipoUsuario; else noLogin">
+      <p class="lead mb-3">Sesión iniciada como:</p>
+      <p><strong>{{ userEmail }}</strong> - ({{ tipoUsuario }})</p>
+    </ng-container>
+
+    <ng-template #noLogin>
+      <p class="lead mb-5">Iniciá sesión o registrate para acceder a la plataforma</p>
+      <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+        <button class="btn btn-primary" (click)="irA('/login')">Login</button>
+        <button class="btn btn-secondary" (click)="irA('/register')">Registrarse</button>
+      </div>
+    </ng-template>
   </ng-template>
 </div>

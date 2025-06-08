@@ -1,0 +1,85 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center">
+
+  <ng-container *ngIf="cargando; else contenido">
+    <div class="spinner-border text-primary" role="status">
+    </div>
+  </ng-container>
+
+  <ng-template #contenido>
+    <h2 class="mb-4">Gestión de Usuarios</h2>
+
+    <div class="btn-group mb-4" role="group" aria-label="Filtro de usuarios">
+      <button class="btn btn-outline-light" [class.active]="tipoFiltro === 'todos'" (click)="tipoFiltro = 'todos'">
+        Todos
+      </button>
+      <button class="btn btn-outline-light" [class.active]="tipoFiltro === 'especialista'" (click)="tipoFiltro = 'especialista'">
+        Especialistas
+      </button>
+      <button class="btn btn-outline-light" [class.active]="tipoFiltro === 'paciente'" (click)="tipoFiltro = 'paciente'">
+        Pacientes
+      </button>
+      <button class="btn btn-outline-light" [class.active]="tipoFiltro === 'admin'" (click)="tipoFiltro = 'admin'">
+        Administradores
+      </button>
+    </div>
+
+
+    <div *ngIf="mensaje"
+        class="alert text-center"
+        [ngClass]="{
+        'alert-info': tipoMensaje === 'info',
+        'alert-danger': tipoMensaje === 'danger'
+        }"
+        [innerHTML]="mensaje">
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-dark table-bordered table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuariosFiltrados">
+            <td>{{ usuario.mail }}</td>
+            <td>{{ usuario.tipo }}</td>
+            <td>
+                <ng-container *ngIf="usuario.tipo === 'especialista'; else sinAccion">
+                <ng-container *ngIf="actualizandoEstado === usuario.mail; else botones">
+
+                <div class="spinner-border text-light spinner-border-sm" role="status">
+                    <span class="visually-hidden">Actualizando...</span>
+                </div>
+                </ng-container>
+
+                <ng-template #botones>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-success btn-sm"
+                                [disabled]="usuario.aprobado"
+                                (click)="cambiarEstadoEspecialista(usuario.mail, true)">
+                        Habilitar
+                        </button>
+
+                        <button class="btn btn-danger btn-sm"
+                                [disabled]="!usuario.aprobado"
+                                (click)="cambiarEstadoEspecialista(usuario.mail, false)">
+                        Inhabilitar
+                        </button>
+                    </div>
+                </ng-template>
+
+              </ng-container>
+              <ng-template #sinAccion>–</ng-template>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+</div>

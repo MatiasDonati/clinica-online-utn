@@ -92,7 +92,7 @@ export class AuthService {
       }
 
       const authId = data.user.id;
-      console.log('✅ Usuario creado en auth con ID:', authId);
+      console.log('Usuario creado en auth con ID:', authId);
 
       // Subir imágenes (opcional)
       let imagen1Url: string | undefined;
@@ -109,19 +109,19 @@ export class AuthService {
           .upload(nombreArchivo1, datos.imagen1);
 
         if (errorImg1) {
-          console.error('❌ Error al subir imagen1:', errorImg1.message);
+          console.error('Error al subir imagen1:', errorImg1.message);
         } else {
           const { data } = supabase.storage.from('perfiles').getPublicUrl(nombreArchivo1);
           imagen1Url = data.publicUrl;
-          console.log('✅ Imagen 1 subida correctamente. URL:', imagen1Url);
+          console.log('Imagen 1 subida correctamente. URL:', imagen1Url);
         }
       } else {
-        console.warn('⚠️ No se recibió imagen1.');
+        console.warn('No se recibió imagen1.');
       }
 
       // Imagen 2
       if (datos.tipo === 'paciente' && datos.imagen2) {
-        console.log('📸 Subiendo imagen 2:', datos.imagen2);
+        console.log('Subiendo imagen 2:', datos.imagen2);
         const emailSanitizado = datos.email.replace(/[^a-zA-Z0-9]/g, '_');
         const nombreArchivo2 = `${datos.tipo}_${Date.now()}_2_${emailSanitizado}`;
 
@@ -130,14 +130,14 @@ export class AuthService {
           .upload(nombreArchivo2, datos.imagen2);
 
         if (errorImg2) {
-          console.error('❌ Error al subir imagen2:', errorImg2.message);
+          console.error('Error al subir imagen2:', errorImg2.message);
         } else {
           const { data } = supabase.storage.from('perfiles').getPublicUrl(nombreArchivo2);
           imagen2Url = data.publicUrl;
-          console.log('✅ Imagen 2 subida correctamente. URL:', imagen2Url);
+          console.log('Imagen 2 subida correctamente. URL:', imagen2Url);
         }
       } else if (datos.tipo === 'paciente') {
-        console.warn('⚠️ No se recibió imagen2 para paciente.');
+        console.warn('No se recibió imagen2 para paciente.');
       }
 
       // Armar objeto para la tabla específica
@@ -160,12 +160,12 @@ export class AuthService {
         info.especialidad = datos.nuevaEspecialidad || datos.especialidad;
       }
 
-      console.log('📦 Objeto a insertar en tabla', tabla, ':', info);
+      console.log('Objeto a insertar en tabla', tabla, ':', info);
 
       // Insertar en tabla específica
       const { error: insertError } = await supabase.from(tabla).insert([info]);
       if (insertError) {
-        console.error('❌ Error al insertar en tabla específica:', insertError.message);
+        console.error('Error al insertar en tabla específica:', insertError.message);
         return { exito: false, mensaje: 'Error al guardar datos adicionales.' };
       }
 
@@ -174,7 +174,7 @@ export class AuthService {
         { authid: authId, mail: datos.email, tipo: datos.tipo }
       ]);
 
-      console.log('✅ Datos insertados correctamente.');
+      console.log('Datos insertados correctamente.');
 
       return {
         exito: true,
@@ -182,7 +182,7 @@ export class AuthService {
       };
 
     } catch (err: any) {
-      console.error('❌ Excepción en el registro:', err);
+      console.error('Excepción en el registro:', err);
       return { exito: false, mensaje: 'Ocurrió un error inesperado.' };
     }
   }

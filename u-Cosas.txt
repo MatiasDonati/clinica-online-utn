@@ -1,32 +1,9 @@
 
-
-
-VALIDACIONES EN EL FORM - Validators
-VALIDACIONES EN EL FORM - Validators
-
-
-TODOS LPOS CAMPOS OBLIGATORIOS !!!!
-IMAGEN TAMBIEN !!
-
-
 Sprint 1:
 Sprint 1:
-Falta Imagenes y Seccion Usuarios
+
+Seccion Usuarios
 
 seccion usuarios:  un guard para perfil usuario!
 Aca es donde el admin aprueba a los especialistas o deshabilita
 
-
-Cuando se crea especialista se comnfirma mail, se cierra la sesion porq tiene q aprobarlo el Admin !!
-Cuando se crea especialista se comnfirma mail, se cierra la sesion porq tiene q aprobarlo el Admin !!
-creo q esto esta andando, lalogia cierra la sesion en el header !
-creo q esto esta andando, lalogia cierra la sesion en el header !
-
-ACOMODAR MENSAJE DE CONFIRMAR MAIL EN REGISTER !
-ACOMODAR MENSAJE DE CONFIRMAR MAIL EN REGISTER !
-ACOMODAR MENSAJE DE CONFIRMAR MAIL EN REGISTER !
-
-
-Lipiar auth.service.ts 
-Lipiar auth.service.ts 
-Lipiar auth.service.ts 
