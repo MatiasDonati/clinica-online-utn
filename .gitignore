@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Txt's mios
+u-Cosas.txt
+u-Supabase.txt
+urlFirebase.txt
