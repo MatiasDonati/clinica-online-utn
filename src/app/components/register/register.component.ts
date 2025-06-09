@@ -43,7 +43,7 @@ export class RegisterComponent implements OnInit {
       apellido: ['', [Validators.required, nombreApellidoValidator()]],
       edad: ['', [Validators.required, edadMayorA16Validator()]],
       dni: ['', [Validators.required, dniValidator()]],
-      obraSocial: ['', [obraSocialValidator()]], // solo paciente
+      obraSocial: ['', [obraSocialValidator()]],
       especialidad: [''],
       nuevaEspecialidad: [''],
       email: ['', [Validators.required, Validators.email]],
@@ -84,7 +84,9 @@ export class RegisterComponent implements OnInit {
 
     const tipo = this.form.getRawValue().tipo;
 
-    // Validaciones específicas por tipo
+    // Validaciones por Tiop usuario!
+    // Validaciones por Tiop usuario!
+    
     if (
       this.form.invalid ||
       (tipo !== 'admin' && !this.imagen1) ||
@@ -106,7 +108,7 @@ export class RegisterComponent implements OnInit {
       obraSocial: tipo === 'paciente' ? this.form.value.obraSocial : undefined,
       especialidad: tipo === 'especialista' ? this.form.value.especialidad : undefined,
       nuevaEspecialidad: tipo === 'especialista' ? this.form.value.nuevaEspecialidad : undefined,
-      imagen1: tipo !== 'admin' ? this.imagen1 : this.imagen1, // siempre opcional
+      imagen1: tipo !== 'admin' ? this.imagen1 : this.imagen1,
       imagen2: tipo === 'paciente' ? this.imagen2 : undefined
     };
 

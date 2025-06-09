@@ -11,8 +11,6 @@
     {{ mensaje }}
   </p>
 
-
-
   <!-- Spinner -->
   <div *ngIf="cargando" class="text-center my-3">
     <div class="spinner-border text-primary" role="status">
@@ -21,7 +19,7 @@
   </div>
 
 
-    <form *ngIf="!registroExitoso && !cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
+  <form *ngIf="!registroExitoso && !cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
 
     <!-- Tipo de usuario -->
     <label>Tipo de usuario</label>

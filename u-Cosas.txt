@@ -1,9 +1,6 @@
 
 Sprint 1:
-Sprint 1:
 
-Seccion Usuarios
+Hacer validator de imagenes ??
 
-seccion usuarios:  un guard para perfil usuario!
-Aca es donde el admin aprueba a los especialistas o deshabilita
 

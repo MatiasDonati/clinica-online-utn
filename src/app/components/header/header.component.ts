@@ -16,6 +16,11 @@ export class HeaderComponent implements OnInit {
   mostrarLoginRegister = false;
   cargando: boolean = false;
 
+  esAdmin: boolean = false;
+
+  cargandoUsuario: boolean = true;
+
+
 
   constructor(private authService: AuthService, private router: Router) {
     effect(() => {
@@ -25,6 +30,10 @@ export class HeaderComponent implements OnInit {
   }
 
   async ngOnInit() {
+
+    const tipo = localStorage.getItem('tipoUsuario');
+    this.esAdmin = tipo === 'admin';
+
     const email = await this.authService.obtenerUsuarioActual();
 
     if (email) {
@@ -44,25 +53,35 @@ export class HeaderComponent implements OnInit {
           this.router.navigate(['/login']);
           return; 
         }
+      }else if (tipo === 'admin') {
+        this.esAdmin = true;
       }
 
       this.authService.userEmailSignal.set(email);
     }
+
+    this.cargandoUsuario = false;
+
   }
 
   async cerrarSesion() {
-    
     this.cargando = true;
+    this.esAdmin = false;
 
     try {
       await this.authService.cerrarSesion();
       this.router.navigate(['/login']);
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
-    }finally {
+    } finally {
       this.cargando = false;
+
+      localStorage.removeItem('authId');
+      localStorage.removeItem('email');
+      localStorage.removeItem('tipoUsuario');
     }
   }
+
 
   irA(ruta: string) {
     this.router.navigate([ruta]);

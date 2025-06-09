@@ -10,7 +10,7 @@ const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   providedIn: 'root',
 })
 export class AuthService {
-  public supabase = supabase; // Para usarlo desde otros componentes si hace falta
+  public supabase = supabase;
 
   userEmailSignal = signal<string | null>(null);
   private userEmail: string | null = null;
@@ -185,7 +185,6 @@ export class AuthService {
       return { exito: false, mensaje: 'Ocurrió un error inesperado.' };
     }
   }
-
 
 
   async obtenerTipoUsuario(email: string): Promise<string | null> {

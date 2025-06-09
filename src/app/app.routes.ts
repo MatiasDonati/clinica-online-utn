@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { canMatchGuardObtenerUsuario } from './guards/can-match.guard';
+import { canMatchGuardSoloAdmin } from './guards/can-match.guard';
 
 export const routes: Routes = [
   { 
@@ -16,15 +16,17 @@ export const routes: Routes = [
     loadComponent: () => import('./components/register/register.component').then(c => c.RegisterComponent) 
   },
   { 
-    path: 'home', 
-    // canMatch: [canMatchGuardObtenerUsuario],
+    path: 'home',
     loadComponent: () => import('./components/home/home.component').then(c => c.HomeComponent) 
   },
   { 
     path: 'usuarios', 
-    // canMatch: [canMatchGuardObtenerUsuario],
+    canMatch: [canMatchGuardSoloAdmin],
     loadComponent: () => import('./components/usuarios/usuarios.component').then(c => c.UsuariosComponent) 
   },
+    
+  { path: '**', redirectTo: 'home' }
+
   // { 
   //   path: 'usuarios/listado', 
   //   // canMatch: [canMatchGuardObtenerUsuario],

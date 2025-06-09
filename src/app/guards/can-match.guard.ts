@@ -2,21 +2,26 @@ import { inject } from '@angular/core';
 import { CanMatchFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const canMatchGuardObtenerUsuario: CanMatchFn = async (route, segments) => {
-
+export const canMatchGuardSoloAdmin: CanMatchFn = async () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  
-  const usuario = await auth.obtenerUsuarioActual();
 
-  if (usuario) {
-    console.log('canMatchGuard Te deja entrar!');
+  const email = await auth.obtenerUsuarioActual();
+
+  if (!email) {
+    console.log('No logueado. chau');
+    router.navigate(['/login']);
+    return false;
+  }
+
+  const tipo = await auth.obtenerTipoUsuario(email);
+
+  if (tipo === 'admin') {
+    console.log('Es admin, puede pasar');
     return true;
   }
 
-  console.log('canMatchGuard No te deja entrar! Deberas loguearte primero.');
-  // alert('Debes loguearte!')
-  router.navigate(['/login']);
-  // router.navigate(['/login'], { queryParams: { mensaje: 'loguearte para acceder' } });
+  console.log('No es admin es usuario de tipo:', tipo);
+  router.navigate(['/']);
   return false;
 };
