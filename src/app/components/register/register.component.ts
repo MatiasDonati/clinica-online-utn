@@ -109,6 +109,8 @@ export class RegisterComponent implements OnInit {
       especialidad: tipo === 'especialista' ? this.form.value.especialidad : undefined,
       nuevaEspecialidad: tipo === 'especialista' ? this.form.value.nuevaEspecialidad : undefined,
       imagen1: tipo !== 'admin' ? this.imagen1 : this.imagen1,
+      // Ver esto
+      // imagen1: this.imagen1,
       imagen2: tipo === 'paciente' ? this.imagen2 : undefined
     };
 

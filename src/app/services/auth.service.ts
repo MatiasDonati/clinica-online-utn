@@ -36,7 +36,7 @@ export class AuthService {
       localStorage.removeItem('tipoUsuario');
       this.router.navigate(['']);
     } catch (err) {
-      console.error('Error al cerrar sesión:', err);
+      console.log('Error al cerrar sesión:', err);
     }
   }
 
@@ -49,13 +49,13 @@ export class AuthService {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error al verificar el email:', error.message);
+        console.log('Error al verificar el email:', error.message);
         return false;
       }
 
       return !!data;
     } catch (err) {
-      console.error('Excepción al verificar el email:', err);
+      console.log('Excepción al verificar el email:', err);
       return false;
     }
   }
@@ -75,13 +75,12 @@ export class AuthService {
     imagen2?: File
   }): Promise<{ exito: boolean; mensaje: string }> {
     try {
-      console.log('📝 Datos recibidos para registrar:', datos);
+      console.log('Datos recibidos para registrar:', datos);
 
-      // Verificar si ya existe el email
       const yaExiste = await this.verificarUsuarioRegistrado(datos.email);
       if (yaExiste) return { exito: false, mensaje: 'El email ya está en uso.' };
 
-      // Crear usuario en Supabase Auth
+      // crea usuario en Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: datos.email,
         password: datos.password
@@ -94,7 +93,7 @@ export class AuthService {
       const authId = data.user.id;
       console.log('Usuario creado en auth con ID:', authId);
 
-      // Subir imágenes
+      // imagenes
       let imagen1Url: string | undefined;
       let imagen2Url: string | undefined;
 
@@ -111,7 +110,7 @@ export class AuthService {
           imagen1Url = data.publicUrl;
           console.log('Imagen 1 subida correctamente. URL:', imagen1Url);
         } else {
-          console.error('Error al subir imagen1:', errorImg1.message);
+          console.log('Error al subir imagen1:', errorImg1.message);
         }
       }
 
@@ -126,11 +125,11 @@ export class AuthService {
           imagen2Url = data.publicUrl;
           console.log('Imagen 2 subida correctamente. URL:', imagen2Url);
         } else {
-          console.error('Error al subir imagen2:', errorImg2.message);
+          console.log('Error al subir imagen2:', errorImg2.message);
         }
       }
 
-      // Construir objeto para insertar según tipo
+      // objeto para insertar en la tabla q crresponda
       let tabla = '';
       const info: any = {
         authid: authId,
@@ -165,11 +164,11 @@ export class AuthService {
 
       const { error: insertError } = await supabase.from(tabla).insert([info]);
       if (insertError) {
-        console.error('Error al insertar en tabla específica:', insertError.message);
+        console.log('Error al insertar en tabla específica:', insertError.message);
         return { exito: false, mensaje: 'Error al guardar datos adicionales.' };
       }
 
-      // Insertar en users_data
+      // users_data
       await supabase.from('users_data').insert([
         { authid: authId, mail: datos.email, tipo: datos.tipo }
       ]);
@@ -181,7 +180,7 @@ export class AuthService {
       };
 
     } catch (err: any) {
-      console.error('Excepción en el registro:', err);
+      console.log('Excepción en el registro:', err);
       return { exito: false, mensaje: 'Ocurrió un error inesperado.' };
     }
   }
@@ -196,13 +195,13 @@ export class AuthService {
         .single();
 
       if (error || !data) {
-        console.warn('No se pudo obtener el tipo de usuario:', error?.message);
+        console.log('No se pudo obtener el tipo de usuario:', error?.message);
         return null;
       }
 
       return data.tipo;
     } catch (err) {
-      console.error('Error al obtener tipo de usuario:', err);
+      console.log('Error al obtener tipo de usuario:', err);
       return null;
     }
   }
