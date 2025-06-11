@@ -35,7 +35,7 @@ export class RegisterComponent implements OnInit {
 
   /////
   captchaToken: string = '';
-  siteKey: string = '6LfW41wrAAAAACWnI1YohCaQTLRt-SbKn40a88jF';
+  siteKey: string = '6LdY5VwrAAAAAFk__WuJUdZZuM5PhwOveV-B47B7';
 
 
   constructor(
