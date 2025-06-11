@@ -24,6 +24,10 @@ export const routes: Routes = [
     canMatch: [canMatchGuardSoloAdmin],
     loadComponent: () => import('./components/usuarios/usuarios.component').then(c => c.UsuariosComponent) 
   },
+  {
+    path: 'acceso-denegado',
+    loadComponent: () => import('./components/acceso-denegado/acceso-denegado.component').then(c => c.AccesoDenegadoComponent)
+  },
     
   { path: '**', redirectTo: 'home' }
 

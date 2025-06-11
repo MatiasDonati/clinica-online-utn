@@ -10,12 +10,15 @@ import { nombreApellidoValidator } from '../../validators/nombre-apellido.valida
 import { dniValidator } from '../../validators/dni.validator';
 import { obraSocialValidator } from '../../validators/obra-social.validator';
 
+//////
+import { RecaptchaModule } from 'ng-recaptcha';
+
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, HeaderComponent]
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, RecaptchaModule]
 })
 export class RegisterComponent implements OnInit {
 
@@ -29,6 +32,11 @@ export class RegisterComponent implements OnInit {
 
   cargando: boolean = false;
   registroExitoso: boolean = false;
+
+  /////
+  captchaToken: string = '';
+  siteKey: string = '6LfW41wrAAAAACWnI1YohCaQTLRt-SbKn40a88jF';
+
 
   constructor(
     private fb: FormBuilder,
@@ -71,6 +79,11 @@ export class RegisterComponent implements OnInit {
     });
   }
 
+  ///
+  onCaptchaResolved(token: string | null) {
+    this.captchaToken = token ?? '';
+  }
+
   seleccionarArchivo(event: any, cual: number) {
     const archivo = event.target.files[0];
     if (cual === 1) this.imagen1 = archivo;
@@ -93,6 +106,13 @@ export class RegisterComponent implements OnInit {
       (tipo === 'paciente' && !this.imagen2)
     ) {
       this.mensaje = 'Todos los campos obligatorios deben estar completos.';
+      this.cargando = false;
+      return;
+    }
+
+    // validar CAPTCHA
+    if (!this.captchaToken) {
+      this.mensaje = 'Por favor completá el captcha antes de registrarte.';
       this.cargando = false;
       return;
     }

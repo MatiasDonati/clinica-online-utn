@@ -70,15 +70,15 @@ export class HeaderComponent implements OnInit {
 
     try {
       await this.authService.cerrarSesion();
-      this.router.navigate(['/login']);
+      this.authService.userEmailSignal.set(null);
+      localStorage.clear();
+      window.location.href = '/home';
+      // this.router.navigate(['/home']);
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
     } finally {
       this.cargando = false;
-
-      localStorage.removeItem('authId');
-      localStorage.removeItem('email');
-      localStorage.removeItem('tipoUsuario');
+      // localStorage.clear()
     }
   }
 

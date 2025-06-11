@@ -130,6 +130,15 @@
       <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" accept=".jpg,.jpeg,.png" />
     </div>
 
+    <!-- CAPTCHA -->
+    <div class="text-center">
+      <re-captcha
+        [siteKey]="siteKey"
+        (resolved)="onCaptchaResolved($event)">
+      </re-captcha>
+    </div>
+
+
     <!-- Botón -->
     <button type="submit" class="register-button" [disabled]="form.invalid">
       Registrarse

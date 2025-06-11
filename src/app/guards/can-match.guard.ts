@@ -10,7 +10,8 @@ export const canMatchGuardSoloAdmin: CanMatchFn = async () => {
 
   if (!email) {
     console.log('No logueado. chau');
-    router.navigate(['/login']);
+    // router.navigate(['/login']);
+    router.navigate(['/acceso-denegado']);
     return false;
   }
 
@@ -22,6 +23,8 @@ export const canMatchGuardSoloAdmin: CanMatchFn = async () => {
   }
 
   console.log('No es admin es usuario de tipo:', tipo);
-  router.navigate(['/']);
+  // router.navigate(['/']);
+    router.navigate(['/acceso-denegado']);
+
   return false;
 };

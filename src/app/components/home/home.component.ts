@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
   async ngOnInit() {
+    
     const emailGuardado = localStorage.getItem('email');
     const tipoGuardado = localStorage.getItem('tipoUsuario');
 

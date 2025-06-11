@@ -1,0 +1,7 @@
+:host {
+  display: block;
+  background-image: url('/fondo-acceso-denegado.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
