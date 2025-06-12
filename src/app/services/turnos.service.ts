@@ -20,9 +20,38 @@ export class TurnosService {
     if (error) throw error;
     return data;
   }
+  
+  async cancelarTurno(id: number, motivo: string) {
+    const { error } = await supabase
+      .from('turnos')
+      .update({
+        estado: 'cancelado',
+        comentario_cancelacion: motivo
+      })
+      .eq('id', id);
 
-  // Más adelante:
-  // async cancelarTurno(id: number, motivo: string) { ... }
-  // async aceptarTurno(...) { ... }
-  // async finalizarTurno(...) { ... }
+    if (error) throw error;
+  }
+
+  async completarEncuesta(id: number) {
+    const { error } = await supabase
+      .from('turnos')
+      .update({ encuesta_completada: true })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  async calificarTurno(id: number, comentario: string, calificacion: number) {
+    const { error } = await supabase
+      .from('turnos')
+      .update({
+        comentario_paciente: comentario,
+        calificacion: calificacion
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
 }
