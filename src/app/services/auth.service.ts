@@ -73,6 +73,8 @@ export class AuthService {
     nuevaEspecialidad?: string,
     imagen1?: File,
     imagen2?: File
+    especialidades?: string[]
+
   }): Promise<{ exito: boolean; mensaje: string }> {
     try {
       console.log('Datos recibidos para registrar:', datos);
@@ -168,6 +170,24 @@ export class AuthService {
         return { exito: false, mensaje: 'Error al guardar datos adicionales.' };
       }
 
+      // TABLA ESPECILIDADES !!!A
+      // TABLA ESPECILIDADES !!!A
+      // TABLA ESPECILIDADES !!!A
+      if (datos.tipo === 'especialista') {
+        const especialidad = datos.nuevaEspecialidad || datos.especialidad;
+        if (especialidad) {
+          const { error: errorEspecialidad } = await supabase
+            .from('especialistas_especialidades')
+            .insert([{ especialista_email: datos.email, especialidad }]);
+
+          if (errorEspecialidad) {
+            console.log('Error al insertar especialidad:', errorEspecialidad.message);
+            return { exito: false, mensaje: 'Error al guardar la especialidad del especialista.' };
+          }
+        }
+      }
+
+
       // users_data
       await supabase.from('users_data').insert([
         { authid: authId, mail: datos.email, tipo: datos.tipo }
@@ -184,7 +204,6 @@ export class AuthService {
       return { exito: false, mensaje: 'Ocurrió un error inesperado.' };
     }
   }
-
 
   async obtenerTipoUsuario(email: string): Promise<string | null> {
     try {
@@ -205,6 +224,8 @@ export class AuthService {
       return null;
     }
   }
+
+  
 
 
 }

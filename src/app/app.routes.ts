@@ -28,6 +28,11 @@ export const routes: Routes = [
     path: 'acceso-denegado',
     loadComponent: () => import('./components/acceso-denegado/acceso-denegado.component').then(c => c.AccesoDenegadoComponent)
   },
+  {
+    path: 'mis-turnos',
+    // canMatch: [canMatchGuardSoloAdmin],
+    loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(c => c.MisTurnosComponent)
+  },
     
   { path: '**', redirectTo: 'home' }
 

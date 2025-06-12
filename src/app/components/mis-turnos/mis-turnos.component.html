@@ -1,0 +1,55 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center">
+
+  <!-- Spinner -->
+  <ng-container *ngIf="cargando; else contenido">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando turnos...</span>
+    </div>
+  </ng-container>
+
+  <ng-template #contenido>
+    <h2 class="mb-4">Mis Turnos</h2>
+
+    <!-- filtro -->
+    <input
+      type="text"
+      class="form-control mb-3"
+      placeholder="Filtrar por especialidad o especialista..."
+      [(ngModel)]="filtro"
+      (input)="aplicarFiltro()"
+    />
+
+
+    <!-- hay turnos -->
+    <div *ngIf="turnos.length > 0; else sinTurnos" class="table-responsive">
+      <table class="table table-dark table-striped table-bordered">
+        <thead>
+          <tr>
+            <th class="th-violeta">Fecha</th>
+            <th class="th-violeta">Hora</th>
+            <th class="th-violeta">Especialidad</th>
+            <th class="th-violeta">Especialista</th>
+            <th class="th-violeta">Estado</th>
+
+          </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let turno of turnosFiltrados">
+            <td>{{ turno.fecha }}</td>
+            <td>{{ turno.hora }}</td>
+            <td>{{ turno.especialidad }}</td>
+            <td>{{ turno.especialista_email }}</td>
+            <td>{{ turno.estado }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- no hay turnos -->
+    <ng-template #sinTurnos>
+      <p class="lead mt-4">No tenés turnos registrados por el momento.</p>
+    </ng-template>
+  </ng-template>
+</div>
