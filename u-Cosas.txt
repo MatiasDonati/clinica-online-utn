@@ -1,6 +1,0 @@
-
-Sprint 1:
-
-Hacer validator de imagenes ??
-
-
