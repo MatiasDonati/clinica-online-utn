@@ -76,3 +76,30 @@
 .text-danger {
   color: #FF6B6B !important;
 }
+
+
+.btn-acceso-rapido {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+  border: 3px solid #8A2BE2;
+  background-color: transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-acceso-rapido:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #8A2BE2;
+}
+
+.btn-acceso-rapido img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.acceso-rapido-container {
+  flex-wrap: wrap;
+}

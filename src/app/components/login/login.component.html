@@ -54,17 +54,22 @@
             <span *ngIf="passCtrl.errors?.['minlength']">Debe tener al menos 6 caracteres.</span>
           </div>
 
-          <!-- Botones de acceso rápido -->
-          <div class="d-flex justify-content-center gap-2 mb-3">
-            <button class="btn btn-info" (click)="loginRapido('matiaseduardodonati@gmail.com', '123123')">1</button>
-            <button class="btn btn-info" (click)="loginRapido('libebe4505@linacit.com', '123123')">2</button>
-            <button class="btn btn-info" (click)="loginRapido('cerem40656@pngzero.com', '123123')" >3</button>
-          </div>
-
           <!-- Botón login -->
           <button type="submit" class="btn btn-violet mt-3" [disabled]="form.invalid || cargando">
             Iniciar Sesión
           </button>
+          
+          <!-- Botones de acceso rápido -->
+          <div class="acceso-rapido-container d-flex justify-content-center flex-wrap gap-3 my-4">
+            <div *ngFor="let user of usuariosRapidos" class="d-flex flex-column align-items-center">
+              <button class="btn-acceso-rapido" (click)="loginRapido(user.email, user.password)">
+                <img [src]="user.imagenUrl" [alt]="user.alt" />
+              </button>
+              <span class="text-white small mt-1 text-center">{{ user.alt }}</span>
+            </div>
+          </div>
+
+
         </form>
 
         <!-- Mensaje de error -->
