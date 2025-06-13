@@ -2,15 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { HeaderComponent } from "../header/header.component";
 import { TurnosService } from '../../services/turnos.service';
 import { AuthService } from '../../services/auth.service';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import Swal from 'sweetalert2';
 import Moment from 'moment';
+
+import { FiltrarTurnosPipe } from '../../pipes/filtrar-turnos.pipe';
+import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
+
+import { HoverResaltadoDirective } from '../../directivas/hover-resaltado.directive';
+
 
 @Component({
   selector: 'app-mis-turnos',
   standalone: true,
-  imports: [HeaderComponent, NgIf, NgFor, FormsModule],
+  imports: [HeaderComponent, NgIf, NgFor, FormsModule, UpperCasePipe, FiltrarTurnosPipe, FormatearFechaPipe, HoverResaltadoDirective],
   templateUrl: './mis-turnos.component.html',
   styleUrls: ['./mis-turnos.component.css']
 })
@@ -140,8 +147,5 @@ export class MisTurnosComponent implements OnInit {
     });
   }
 
-  formatearFecha(fecha: string): string {
-    return Moment(fecha).format('DD/MM/YYYY');
-  }
 
 }
