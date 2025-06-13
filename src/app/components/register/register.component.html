@@ -18,16 +18,40 @@
     </div>
   </div>
 
+  <!-- 🔹 Selección de tipo de usuario -->
+  <div *ngIf="!tipoSeleccionado && !cargando && !registroExitoso"
+       class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
 
-  <form *ngIf="!registroExitoso && !cargando" [formGroup]="form" (ngSubmit)="register()" class="d-flex flex-column gap-3">
+    <!-- Paciente -->
+    <div class="tipo-usuario-wrapper text-center">
+      <button class="btn-tipo-usuario" (click)="elegirTipo('paciente')" type="button">
+        <img src="/paciente-register-img.jpg" alt="Paciente" />
+      </button>
+      <span class="tipo-usuario-label">Paciente</span>
+    </div>
 
-    <!-- Tipo de usuario -->
-    <label>Tipo de usuario</label>
-    <select class="register-input" formControlName="tipo">
-      <option value="paciente">Paciente</option>
-      <option value="especialista">Especialista</option>
-      <option *ngIf="desdeAdmin" value="admin">Administrador</option>
-    </select>
+    <!-- Especialista -->
+    <div class="tipo-usuario-wrapper text-center">
+      <button class="btn-tipo-usuario" (click)="elegirTipo('especialista')" type="button">
+        <img src="/especialista-register.jpg" alt="Especialista" />
+      </button>
+      <span class="tipo-usuario-label">Especialista</span>
+    </div>
+
+    <!-- Administrador (solo si sos admin) -->
+    <div *ngIf="desdeAdmin" class="tipo-usuario-wrapper text-center">
+      <button class="btn-tipo-usuario" (click)="elegirTipo('admin')" type="button">
+        <img src="/admin-register.jpeg" alt="Administrador" />
+      </button>
+      <span class="tipo-usuario-label">Administrador</span>
+    </div>
+  </div>
+
+  <!-- 🔹 Formulario completo -->
+  <form *ngIf="tipoSeleccionado && !registroExitoso && !cargando"
+        [formGroup]="form"
+        (ngSubmit)="register()"
+        class="d-flex flex-column gap-3">
 
     <!-- Nombre -->
     <div class="input-group">
@@ -138,12 +162,10 @@
       </re-captcha>
     </div>
 
-
     <!-- Botón -->
     <button type="submit" class="register-button" [disabled]="form.invalid">
       Registrarse
     </button>
 
   </form>
-
 </div>

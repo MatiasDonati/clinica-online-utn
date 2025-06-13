@@ -1,5 +1,5 @@
 .register-container {
-  max-width: 400px;
+  max-width: 800px;
   margin: 60px auto;
   padding: 30px;
   background-color: rgba(0, 0, 0, 0.6);
@@ -85,5 +85,42 @@
 
 .text-violet {
   color: #f3edf5;
+}
+
+.tipo-usuario-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-tipo-usuario {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 4px solid #8A2BE2;
+  overflow: hidden;
+  padding: 0;
+  background-color: transparent;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.btn-tipo-usuario:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #8A2BE2;
+}
+
+.btn-tipo-usuario img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tipo-usuario-label {
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1.2rem;
 }
 

@@ -37,6 +37,8 @@ export class RegisterComponent implements OnInit {
   captchaToken: string = '';
   siteKey: string = '6LdY5VwrAAAAAFk__WuJUdZZuM5PhwOveV-B47B7';
 
+tipoSeleccionado: 'paciente' | 'especialista' | 'admin' | null = null;
+
 
   constructor(
     private fb: FormBuilder,
@@ -78,6 +80,11 @@ export class RegisterComponent implements OnInit {
       }
     });
   }
+
+elegirTipo(tipo: 'paciente' | 'especialista' | 'admin') {
+this.tipoSeleccionado = tipo;
+this.form.get('tipo')?.setValue(tipo);
+}
 
   ///
   onCaptchaResolved(token: string | null) {
