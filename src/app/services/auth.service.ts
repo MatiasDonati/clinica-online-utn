@@ -172,20 +172,19 @@ export class AuthService {
 
       // TABLA ESPECILIDADES !!!A
       // TABLA ESPECILIDADES !!!A
-      // TABLA ESPECILIDADES !!!A
-      if (datos.tipo === 'especialista') {
-        const especialidad = datos.nuevaEspecialidad || datos.especialidad;
-        if (especialidad) {
+
+      if (datos.tipo === 'especialista' && Array.isArray(datos.especialidades) && datos.especialidades.length > 0) {
+        for (const esp of datos.especialidades) {
           const { error: errorEspecialidad } = await supabase
             .from('especialistas_especialidades')
-            .insert([{ especialista_email: datos.email, especialidad }]);
+            .insert([{ especialista_email: datos.email, especialidad: esp }]);
 
           if (errorEspecialidad) {
-            console.log('Error al insertar especialidad:', errorEspecialidad.message);
-            return { exito: false, mensaje: 'Error al guardar la especialidad del especialista.' };
+            console.log(`Error al insertar especialidad '${esp}':`, errorEspecialidad.message);
           }
         }
       }
+
 
 
       // users_data

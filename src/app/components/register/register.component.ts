@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ import { RecaptchaModule } from 'ng-recaptcha';
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, RecaptchaModule]
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, RecaptchaModule, FormsModule]
 })
 export class RegisterComponent implements OnInit {
 
@@ -39,6 +39,10 @@ export class RegisterComponent implements OnInit {
 
 tipoSeleccionado: 'paciente' | 'especialista' | 'admin' | null = null;
 
+especialidadesDisponibles = ['Cardiología', 'Pediatría', 'Dermatología'];
+especialidadesSeleccionadas: string[] = [];
+nuevaEspecialidad: string = '';
+
 
   constructor(
     private fb: FormBuilder,
@@ -47,44 +51,36 @@ tipoSeleccionado: 'paciente' | 'especialista' | 'admin' | null = null;
   ) {}
 
   ngOnInit(): void {
+
+    
     this.form = this.fb.group({
-      tipo: ['paciente', Validators.required],
+      tipo: [null, Validators.required],
       nombre: ['', [Validators.required, nombreApellidoValidator()]],
       apellido: ['', [Validators.required, nombreApellidoValidator()]],
       edad: ['', [Validators.required, edadMayorA16Validator()]],
       dni: ['', [Validators.required, dniValidator()]],
       obraSocial: ['', [obraSocialValidator()]],
-      especialidad: [''],
-      nuevaEspecialidad: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-
-    this.form.get('especialidad')?.valueChanges.subscribe(value => {
-      if (value) {
-        this.form.get('nuevaEspecialidad')?.setValue('');
-      }
-    });
-
-    this.form.get('nuevaEspecialidad')?.valueChanges.subscribe(value => {
-      if (value) {
-        this.form.get('especialidad')?.setValue('');
-      }
     });
 
     this.form.get('tipo')?.valueChanges.subscribe(tipo => {
       if (tipo === 'admin') {
         this.form.get('obraSocial')?.reset();
-        this.form.get('especialidad')?.reset();
-        this.form.get('nuevaEspecialidad')?.reset();
       }
+
+      this.imagen1 = undefined!;
+      this.imagen2 = undefined!;
+      this.especialidadesSeleccionadas = [];
+      this.nuevaEspecialidad = '';
     });
   }
 
-elegirTipo(tipo: 'paciente' | 'especialista' | 'admin') {
-this.tipoSeleccionado = tipo;
-this.form.get('tipo')?.setValue(tipo);
-}
+
+  elegirTipo(tipo: 'paciente' | 'especialista' | 'admin') {
+    this.tipoSeleccionado = tipo;
+    this.form.get('tipo')?.setValue(tipo);
+  }
 
   ///
   onCaptchaResolved(token: string | null) {
@@ -133,13 +129,12 @@ this.form.get('tipo')?.setValue(tipo);
       email: this.form.value.email,
       password: this.form.value.password,
       obraSocial: tipo === 'paciente' ? this.form.value.obraSocial : undefined,
-      especialidad: tipo === 'especialista' ? this.form.value.especialidad : undefined,
-      nuevaEspecialidad: tipo === 'especialista' ? this.form.value.nuevaEspecialidad : undefined,
       imagen1: tipo !== 'admin' ? this.imagen1 : this.imagen1,
-      // Ver esto
-      // imagen1: this.imagen1,
-      imagen2: tipo === 'paciente' ? this.imagen2 : undefined
+      imagen2: tipo === 'paciente' ? this.imagen2 : undefined,
+      especialidades: tipo === 'especialista' ? this.especialidadesSeleccionadas : undefined
     };
+
+
 
     const resultado = await this.authService.registrarUsuarioCompleto(datos);
 
@@ -154,4 +149,29 @@ this.form.get('tipo')?.setValue(tipo);
   irA(ruta: string) {
     this.router.navigate([ruta]);
   }
+
+  volverAElegirTipo() {
+    this.tipoSeleccionado = null;
+    this.form.reset();
+    this.imagen1 = undefined!;
+    this.imagen2 = undefined!;
+  }
+
+  toggleEspecialidad(esp: string, event: any) {
+    if (event.target.checked) {
+      this.especialidadesSeleccionadas.push(esp);
+    } else {
+      this.especialidadesSeleccionadas = this.especialidadesSeleccionadas.filter(e => e !== esp);
+    }
+  }
+
+  agregarEspecialidadManual() {
+    const esp = this.nuevaEspecialidad.trim();
+    if (esp && !this.especialidadesDisponibles.includes(esp)) {
+      this.especialidadesDisponibles.push(esp);
+    }
+    this.nuevaEspecialidad = '';
+  }
+
+
 }

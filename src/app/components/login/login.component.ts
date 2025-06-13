@@ -32,11 +32,11 @@ export class LoginComponent {
   async ngOnInit() {
     this.usuariosRapidos = (await Promise.all([
       this.accesoRapido('matiaseduardodonati@gmail.com', 'paciente'),
-      this.accesoRapido('rowohig992@pngzero.com', 'paciente'),
-      this.accesoRapido('xefah44057@linacit.com', 'paciente'),
-      this.accesoRapido('xifokil440@pngzero.com', 'especialista'),
-      this.accesoRapido('nakiya7067@pngzero.com', 'especialista'),
-      this.accesoRapido('cerem40656@pngzero.com', 'admin'),
+      this.accesoRapido('hifolif397@linacit.com', 'paciente'),
+      this.accesoRapido('pabija2042@pngzero.com', 'paciente'),
+      this.accesoRapido('tejokak266@linacit.com', 'especialista'),
+      this.accesoRapido('ripeb54041@pngzero.com', 'especialista'),
+      this.accesoRapido('befino7826@linacit.com', 'admin'),
     ])).filter(Boolean);
   }
 

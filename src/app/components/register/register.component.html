@@ -1,7 +1,8 @@
 <app-header *ngIf="mostrarHeader"></app-header>
 
 <div class="register-container">
-  <h2>Registro</h2>
+  <h2 *ngIf="!tipoSeleccionado">Registro</h2>
+  <h2 *ngIf="tipoSeleccionado">Registro {{ tipoSeleccionado | titlecase }}</h2>
 
   <!-- Solo mostrar mensaje de error -->
   <p class="mensaje text-danger" *ngIf="mensaje && !registroExitoso">{{ mensaje }}</p>
@@ -90,7 +91,7 @@
     </div>
 
     <!-- Obra Social (solo paciente) -->
-    <div *ngIf="form.get('tipo')?.value === 'paciente'">
+    <div *ngIf="tipoSeleccionado === 'paciente'">
       <div class="input-group">
         <span class="bg-violet text-white"><i class="bi bi-hospital-fill"></i></span>
         <input type="text" formControlName="obraSocial" class="form-control register-input" placeholder="Obra Social" />
@@ -100,28 +101,38 @@
       </div>
     </div>
 
-    <!-- Especialidad (solo especialista) -->
-    <div *ngIf="form.get('tipo')?.value === 'especialista'">
-      <label>Especialidad</label>
-      <select class="register-input"
-              formControlName="especialidad"
-              [disabled]="form.get('nuevaEspecialidad')?.value">
-        <option *ngFor="let esp of ['Cardiología', 'Pediatría', 'Dermatología']" [value]="esp">
-          {{ esp }}
-        </option>
-      </select>
+    <!-- Especialidades (solo especialista) -->
+    <div *ngIf="tipoSeleccionado === 'especialista'">
+      <label>Seleccioná una o más especialidades:</label>
 
-      <!-- Nueva Especialidad -->
-      <div class="input-group mt-2">
-        <span class="bg-violet text-white">
-          <i class="bi bi-plus-circle-fill"></i>
-        </span>
-        <input type="text"
-              formControlName="nuevaEspecialidad"
-              class="form-control register-input ms-3"
-              placeholder="O ingresá una nueva"
-              [disabled]="form.get('especialidad')?.value" />
+      <div class="form-check" *ngFor="let esp of especialidadesDisponibles">
+        <input class="form-check-input"
+              type="checkbox"
+              [value]="esp"
+              (change)="toggleEspecialidad(esp, $event)" />
+        <label class="form-check-label">{{ esp }}</label>
       </div>
+
+      <!-- Nueva especialidad -->
+      <form #formEspecialidad="ngForm" (ngSubmit)="agregarEspecialidadManual()" class="input-group mt-2">
+        <input type="text"
+              name="nuevaEspecialidad"
+              [(ngModel)]="nuevaEspecialidad"
+              placeholder="Agregar nueva especialidad"
+              class="form-control"
+              required />
+        <button type="submit"
+                class="btn btn-outline-light">
+          Agregar
+        </button>
+      </form>
+
+
+      <!-- Mostrar seleccionadas -->
+      <p class="text-white mt-2" *ngIf="especialidadesSeleccionadas.length > 0">
+        Seleccionadas: {{ especialidadesSeleccionadas.join(', ') }}
+      </p>
+
     </div>
 
     <!-- Email -->
@@ -149,23 +160,33 @@
     </div>
 
     <!-- Imagen 2 (solo paciente) -->
-    <div *ngIf="form.get('tipo')?.value === 'paciente'" class="input-group">
+    <div *ngIf="tipoSeleccionado === 'paciente'" class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-image-fill"></i></span>
       <input type="file" class="form-control register-input" (change)="seleccionarArchivo($event, 2)" accept=".jpg,.jpeg,.png" />
     </div>
 
     <!-- CAPTCHA -->
-    <div class="text-center">
+    <div class="text-center" *ngIf="tipoSeleccionado">
       <re-captcha
         [siteKey]="siteKey"
         (resolved)="onCaptchaResolved($event)">
       </re-captcha>
     </div>
 
+
     <!-- Botón -->
     <button type="submit" class="register-button" [disabled]="form.invalid">
       Registrarse
     </button>
+
+    <!-- Volver a elegir tipo usuario -->
+    <div class="text-center mt-2">
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="volverAElegirTipo()">
+        Cambiar tipo de usuario
+      </button>
+    </div>
 
   </form>
 </div>
