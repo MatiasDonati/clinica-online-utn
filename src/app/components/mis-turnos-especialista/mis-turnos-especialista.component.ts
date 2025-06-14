@@ -126,44 +126,54 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   }
 
 
-async cancelarTurno(turno: any) {
-  let { value: motivo } = await Swal.fire({
-    title: 'Motivo de cancelación',
-    input: 'text',
-    inputPlaceholder: 'Ingresá el motivo',
-    showCancelButton: true
-  });
+  async cancelarTurno(turno: any) {
+    let { value: motivo } = await Swal.fire({
+      title: 'Motivo de cancelación',
+      input: 'text',
+      inputPlaceholder: 'Ingresá el motivo',
+      showCancelButton: true
+    });
 
-  if (!motivo) return;
+    if (!motivo) return;
 
-  motivo = 'Especialista canceló el turno: ' + motivo;
+    motivo = 'Especialista canceló el turno: ' + motivo;
 
-  try {
-    await this.turnosService.cancelarTurno(turno.id, motivo);
-    await Swal.fire('Turno cancelado', '', 'warning');
-    await this.cargarTurnos(); // 👈 mejor que llamar a ngOnInit()
-  } catch (error) {
-    console.error(error);
-    Swal.fire('Error', 'No se pudo cancelar el turno.', 'error');
+    try {
+      await this.turnosService.cancelarTurno(turno.id, motivo);
+      await Swal.fire('Turno cancelado', '', 'warning');
+      await this.cargarTurnos(); // 👈 mejor que llamar a ngOnInit()
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'No se pudo cancelar el turno.', 'error');
+    }
   }
-}
 
 
   verResena(turno: any) {
+    const calificacionHTML = turno.calificacion
+      ? `
+        <br><strong>Calificación del Paciente:</strong> ${turno.calificacion}/5<br>
+        <strong>Comentario del Paciente:</strong><br>
+        ${turno.comentario_paciente || '—'}
+      `
+      : '';
+
     Swal.fire({
       title: 'Resumen del Turno Realizado',
       html: `
         <div style="text-align:left">
-          <strong>Comentario del especialista:</strong><br>
+          <strong>Comentario del Especialista:</strong><br>
           ${turno.resena_especialista || '—'}<br><br>
           <strong>Diagnóstico:</strong><br>
           ${turno.diagnostico || '—'}
+          ${calificacionHTML}
         </div>
       `,
       icon: 'info',
       confirmButtonText: 'Cerrar'
     });
   }
+
 
   async cargarTurnos() {
     this.cargando = true;

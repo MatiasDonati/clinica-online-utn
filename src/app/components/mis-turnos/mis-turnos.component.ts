@@ -23,6 +23,7 @@ import { EstadoTurnoDirective } from '../../directivas/estado-turno.directive';
   styleUrls: ['./mis-turnos.component.css']
 })
 export class MisTurnosComponent implements OnInit {
+  
 
   turnos: any[] = [];
   userEmail: string | null = null;

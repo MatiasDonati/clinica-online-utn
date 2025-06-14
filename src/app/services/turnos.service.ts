@@ -1,25 +1,21 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-
-import { BehaviorSubject } from 'rxjs';
-
 
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class TurnosService {
+
+  private turnosSignal = signal<any[]>([]);
+  turnos$ = this.turnosSignal.asReadonly();
 
   constructor() {}
 
-  // BehaviorSubject
-  // BehaviorSubject
-  // private _turnos$ = new BehaviorSubject<any[]>([]);
-  // turnos$ = this._turnos$.asObservable();
-  
+
+
   async obtenerTurnosDelPaciente(email: string) {
     const { data, error } = await supabase
       .from('turnos')
@@ -28,7 +24,9 @@ export class TurnosService {
     if (error) throw error;
     return data;
   }
-  
+
+
+
   async cancelarTurno(id: number, motivo: string) {
     const { error } = await supabase
       .from('turnos')
@@ -84,7 +82,8 @@ export class TurnosService {
   async rechazarTurno(id: number, comentario: string) {
     const { error } = await supabase
       .from('turnos')
-      .update({ estado: 'cancelado', comentario_cancelacion: comentario })
+      // .update({ estado: 'cancelado', comentario_cancelacion: comentario })
+      .update({ estado: 'rechazado', comentario_cancelacion: comentario })
       .eq('id', id);
     if (error) throw error;
   }
@@ -100,7 +99,6 @@ export class TurnosService {
       .eq('id', id);
   }
 
-
   async guardarEncuesta(turnoId: number, pacienteEmail: string, facilidad: string, volverias: string, comentario: string) {
     await supabase
       .from('encuestas')
@@ -113,8 +111,27 @@ export class TurnosService {
       }]);
   }
 
+  async cargarTurnosPara(email: string, tipo: 'paciente' | 'especialista') {
+    const campo = tipo === 'paciente' ? 'paciente_email' : 'especialista_email';
 
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq(campo, email);
 
+    if (error) {
+      console.error('Error al cargar turnos:', error.message);
+      return;
+    }
 
+    this.turnosSignal.set(data || []);
+  }
 
-}
+  obtenerTurnosActuales() {
+    return this.turnosSignal();
+  }
+
+  actualizarTurnosEnMemoria(nuevosTurnos: any[]) {
+    this.turnosSignal.set(nuevosTurnos);
+  }
+} 

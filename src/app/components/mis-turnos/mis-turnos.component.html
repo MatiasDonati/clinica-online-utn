@@ -5,7 +5,6 @@
   <!-- Spinner -->
   <ng-container *ngIf="cargando; else contenido">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando turnos...</span>
     </div>
   </ng-container>
 
@@ -53,37 +52,40 @@
             <td>{{ turno.resena_especialista }}</td>
             <td>{{ turno.encuesta_completada ? 'Si' : 'No' }}</td>
             <td>{{ turno.calificacion }}</td>
-            <td>
-            <!-- Cancelar -->
-            <button class="btn btn-danger btn-sm me-1"
-                    *ngIf="turno.estado !== 'realizado' && turno.estado !== 'cancelado'"
-                    (click)="cancelarTurno(turno)">
-              Cancelar
-            </button>
+           <td>
+            <div class="d-flex flex-column align-items-center gap-1">
 
-            <!-- Ver reseña -->
-            <button class="btn btn-secondary btn-sm me-1"
-                    *ngIf="turno.resena_especialista"
-                    (click)="verResena(turno)">
-              Ver Reseña
-            </button>
+              <!-- Cancelar -->
+              <button class="btn btn-danger btn-sm"
+                      *ngIf="turno.estado !== 'realizado' && turno.estado !== 'cancelado' && turno.estado !== 'rechazado'"
+                      (click)="cancelarTurno(turno)">
+                Cancelar
+              </button>
 
+              <!-- reseña -->
+              <button class="btn btn-secondary btn-sm"
+                      *ngIf="turno.resena_especialista"
+                      (click)="verResena(turno)">
+                      Reseña
+              </button>
 
+              <!-- encuesta -->
+              <button class="btn btn-success btn-sm"
+                      *ngIf="turno.estado === 'realizado' && turno.resena_especialista && !turno.encuesta_completada"
+                      (click)="completarEncuesta(turno)">
+                      Encuesta
+              </button>
 
-            <!-- Completar encuesta -->
-            <button class="btn btn-success btn-sm me-1"
-                    *ngIf="turno.estado === 'realizado' && turno.resena_especialista && !turno.encuesta_completada"
-                    (click)="completarEncuesta(turno)">
-              Completar Encuesta
-            </button>
+              <!-- Calificar -->
+              <button class="btn btn-primary btn-sm"
+                      *ngIf="turno.estado === 'realizado' && !turno.calificacion"
+                      (click)="calificar(turno)">
+                      Calificar
+              </button>
 
-            <!-- Calificar -->
-            <button class="btn btn-primary btn-sm"
-                    *ngIf="turno.estado === 'realizado' && !turno.calificacion"
-                    (click)="calificar(turno)">
-              Calificar
-            </button>
+            </div>
           </td>
+
 
           </tr>
         </tbody>
