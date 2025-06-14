@@ -8,6 +8,28 @@
   <ng-template #contenido>
     <h2 class="mb-4 titulo-violeta">Seleccioná una especialidad</h2>
 
+    <!-- Selector de paciente solo si es ADMIN -->
+    <!-- <div *ngIf="tipoUsuario === 'admin' && pacientes.length > 0" class="mb-4">
+      <h4 class="titulo-violeta">Seleccioná un paciente</h4>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <button
+          *ngFor="let p of pacientes"
+          class="btn btn-outline-violet"
+          [ngClass]="{ 'activo': p === pacienteSeleccionado }"
+          (click)="pacienteSeleccionado = p">
+          {{ p }}
+        </button>
+      </div>
+    </div> -->
+
+    <div *ngIf="tipoUsuario === 'admin'" class="mb-4">
+      <h4 class="titulo-violeta">Seleccioná un paciente</h4>
+      <select class="form-select bg-dark text-light" [(ngModel)]="pacienteSeleccionado">
+        <option *ngFor="let p of pacientes" [value]="p">{{ p }}</option>
+      </select>
+    </div>
+
+
     <!-- Especialidades -->
     <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
       <button
@@ -25,21 +47,19 @@
         Especialistas disponibles en {{ seleccionada }}
       </h3>
       <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-      <button
-        *ngFor="let esp of especialistas"
-        class="btn btn-outline-violet"
-        [ngClass]="{ 'activo': esp === especialistaSeleccionado }"
-        (click)="seleccionarEspecialista(esp)">
-        {{ esp }}
-      </button>
+        <button
+          *ngFor="let esp of especialistas"
+          class="btn btn-outline-violet"
+          [ngClass]="{ 'activo': esp === especialistaSeleccionado }"
+          (click)="seleccionarEspecialista(esp)">
+          {{ esp }}
+        </button>
       </div>
     </div>
 
     <!-- Fechas disponibles -->
     <div *ngIf="fechasDisponibles.length > 0">
-      <h4 class="mb-3 titulo-violeta">
-        Seleccioná una fecha
-      </h4>
+      <h4 class="mb-3 titulo-violeta">Seleccioná una fecha</h4>
       <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
         <button
           *ngFor="let f of fechasDisponibles"
@@ -51,22 +71,32 @@
       </div>
     </div>
 
-
     <!-- Horarios -->
     <div *ngIf="horariosDisponibles.length > 0">
       <h5 class="mb-3 titulo-violeta">
         Horarios disponibles para {{ diaSeleccionado | date:'dd/MM/yyyy' | titlecase }}
       </h5>
-      <div class="d-flex flex-wrap justify-content-center gap-2">
-      <button
-        class="btn btn-outline-violet"
-        *ngFor="let h of horariosDisponibles"
-        [ngClass]="{ 'activo': h === horarioSeleccionado }"
-        (click)="seleccionarHorario(h)">
-        {{ h }}
-      </button>
-
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <button
+          class="btn btn-outline-violet"
+          *ngFor="let h of horariosDisponibles"
+          [ngClass]="{ 'activo': h === horarioSeleccionado }"
+          (click)="seleccionarHorario(h)">
+          {{ h }}
+        </button>
       </div>
     </div>
+
+    <!-- Botón Confirmar Turno -->
+    <div *ngIf="horarioSeleccionado" class="mt-4">
+      <button
+        class="btn btn-success"
+        [disabled]="enviando"
+        (click)="confirmarTurno()"
+      >
+        {{ enviando ? 'Solicitando...' : 'Confirmar Turno' }}
+      </button>
+    </div>
+
   </ng-template>
 </div>

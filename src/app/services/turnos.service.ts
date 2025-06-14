@@ -196,5 +196,24 @@ export class TurnosService {
 
 
 
+  async obtenerPacientes(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('users_data')
+      .select('mail')
+      .eq('tipo', 'paciente');
+
+    if (error) {
+      console.error('Error al obtener pacientes:', error.message);
+      return [];
+    }
+
+    return data.map(p => p.mail);
+  }
+
+
+  async solicitarTurno(turno: any) {
+    const { error } = await supabase.from('turnos').insert([turno]);
+    if (error) throw error;
+  }
 
 } 

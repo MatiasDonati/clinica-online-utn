@@ -2,15 +2,24 @@ import { Component, OnInit } from '@angular/core';
 import { TurnosService } from '../../services/turnos.service';
 import { HeaderComponent } from "../header/header.component";
 import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
+import { createClient } from '@supabase/supabase-js';
+
+
+const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
 @Component({
   selector: 'app-solicitar-turno',
   templateUrl: './solicitar-turno.component.html',
   styleUrls: ['./solicitar-turno.component.css'],
   standalone: true,
-  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass, DatePipe]
+  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass, DatePipe, FormsModule]
 })
 export class SolicitarTurnoComponent implements OnInit {
+
+
   especialidades: string[] = [];
   especialistas: string[] = [];
   disponibilidad: any[] = [];
@@ -27,14 +36,35 @@ export class SolicitarTurnoComponent implements OnInit {
 
   fechasDisponibles: { fecha: string, dia: string, desde: string, hasta: string }[] = [];
 
-  
+  pacientes: string[] = [];
+  pacienteSeleccionado: string | null = null;
 
 
-  constructor(private turnosService: TurnosService) {}
+  userEmail: string | null = null;
+  tipoUsuario: string | null = null;
+
+  enviando: boolean = false;
+
+  constructor( private turnosService: TurnosService, private authService: AuthService) { }
 
   async ngOnInit() {
-    await this.cargarEspecialidades();
-  }
+    this.cargando = true;
+    this.userEmail = await this.authService.obtenerUsuarioActual();
+
+    if (this.userEmail) {
+      this.tipoUsuario = await this.authService.obtenerTipoUsuario(this.userEmail);
+
+      console.log(this.tipoUsuario)
+
+      if (this.tipoUsuario === 'admin') {
+        await this.cargarPacientes();
+      }
+    }
+
+  await this.cargarEspecialidades();
+  this.cargando = false;
+}
+
 
   async cargarEspecialidades() {
     this.cargando = true;
@@ -147,6 +177,76 @@ export class SolicitarTurnoComponent implements OnInit {
   seleccionarFecha(f: { fecha: string, desde: string, hasta: string }) {
     this.diaSeleccionado = f.fecha;
     this.horariosDisponibles = this.generarHorarios(f.desde, f.hasta);
+  }
+
+
+  async cargarPacientes() {
+    this.pacientes = await this.turnosService.obtenerPacientes();
+  }
+
+async confirmarTurno() {
+  if (this.enviando) return;
+  this.enviando = true;
+
+  const emailPaciente = this.tipoUsuario === 'admin'
+    ? this.pacienteSeleccionado
+    : this.userEmail;
+
+  if (
+    !this.seleccionada ||
+    !this.especialistaSeleccionado ||
+    !this.diaSeleccionado ||
+    !this.horarioSeleccionado ||
+    !emailPaciente
+  ) {
+    alert('Faltan datos para confirmar el turno.');
+    this.enviando = false;
+    return;
+  }
+
+  const nuevoTurno = {
+    fecha: this.diaSeleccionado,
+    hora: this.horarioSeleccionado,
+    especialidad: this.seleccionada,
+    especialista_email: this.especialistaSeleccionado,
+    paciente_email: emailPaciente,
+    estado: 'pendiente',
+    comentario_cancelacion: null,
+    resena_especialista: null,
+    comentario_paciente: null,
+    encuesta_completada: false,
+    calificacion: null,
+    diagnostico: null
+  };
+
+  try {
+    await this.turnosService.solicitarTurno(nuevoTurno);
+    alert('✅ Turno solicitado con éxito.');
+    this.resetFormulario();
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('❌ Error al solicitar turno:', err.message);
+    } else {
+      console.error('❌ Error desconocido al solicitar turno:', err);
+    }
+    alert('Error al guardar el turno.');
+  } finally {
+    this.enviando = false;
+  }
+}
+
+
+
+  resetFormulario() {
+    this.seleccionada = null;
+    this.especialistas = [];
+    this.especialistaSeleccionado = null;
+    this.disponibilidad = [];
+    this.fechasDisponibles = [];
+    this.diaSeleccionado = null;
+    this.horariosDisponibles = [];
+    this.horarioSeleccionado = null;
+    if (this.tipoUsuario === 'admin') this.pacienteSeleccionado = null;
   }
 
 

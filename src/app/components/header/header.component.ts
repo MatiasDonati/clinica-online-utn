@@ -22,6 +22,8 @@ export class HeaderComponent implements OnInit {
 
   especialista: boolean = false;
 
+  paciente: boolean = false;
+
 
 
   constructor(private authService: AuthService, private router: Router) {
@@ -35,6 +37,9 @@ export class HeaderComponent implements OnInit {
 
     const tipo = localStorage.getItem('tipoUsuario');
     this.esAdmin = tipo === 'admin';
+    this.paciente = tipo === 'paciente'
+
+
 
     const email = await this.authService.obtenerUsuarioActual();
 
@@ -71,6 +76,7 @@ export class HeaderComponent implements OnInit {
     this.cargando = true;
     this.esAdmin = false;
     this.especialista = false;
+    this.paciente = false;
 
     try {
       await this.authService.cerrarSesion();
