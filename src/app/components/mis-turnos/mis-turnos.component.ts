@@ -12,12 +12,13 @@ import { FiltrarTurnosPipe } from '../../pipes/filtrar-turnos.pipe';
 import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
 
 import { HoverResaltadoDirective } from '../../directivas/hover-resaltado.directive';
+import { EstadoTurnoDirective } from '../../directivas/estado-turno.directive';
 
 
 @Component({
   selector: 'app-mis-turnos',
   standalone: true,
-  imports: [HeaderComponent, NgIf, NgFor, FormsModule, UpperCasePipe, FiltrarTurnosPipe, FormatearFechaPipe, HoverResaltadoDirective],
+  imports: [HeaderComponent, NgIf, NgFor, FormsModule, UpperCasePipe, FiltrarTurnosPipe, FormatearFechaPipe, HoverResaltadoDirective, EstadoTurnoDirective],
   templateUrl: './mis-turnos.component.html',
   styleUrls: ['./mis-turnos.component.css']
 })
@@ -78,20 +79,57 @@ export class MisTurnosComponent implements OnInit {
   }
 
   async completarEncuesta(turno: any) {
-    const { isConfirmed } = await Swal.fire({
-      title: 'Completar encuesta',
-      text: '¿Querés marcar la encuesta como completada?',
-      icon: 'question',
+    const { value: respuestas } = await Swal.fire({
+      title: 'Encuesta sobre tu experiencia',
+      html: `
+        <div style="text-align:left">
+          <p><strong>¿Fue fácil sacar el turno?</strong></p>
+          <label><input type="radio" name="facilidad" value="sí"> Sí</label><br>
+          <label><input type="radio" name="facilidad" value="no"> No</label><br><br>
+
+          <p><strong>¿Volverías a atenderte con este especialista?</strong></p>
+          <label><input type="radio" name="volverias" value="sí"> Sí</label><br>
+          <label><input type="radio" name="volverias" value="no"> No</label><br><br>
+
+          <p><strong>¿Querés dejarnos un comentario?</strong></p>
+          <textarea id="comentarioEncuesta" class="swal2-textarea" placeholder="Escribí tu comentario (opcional)"></textarea>
+        </div>
+      `,
       showCancelButton: true,
-      confirmButtonText: 'Sí, completar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Enviar encuesta',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const facilidad = document.querySelector<HTMLInputElement>('input[name="facilidad"]:checked');
+        const volverias = document.querySelector<HTMLInputElement>('input[name="volverias"]:checked');
+        const comentario = (document.getElementById('comentarioEncuesta') as HTMLTextAreaElement)?.value || '';
+
+        if (!facilidad || !volverias) {
+          Swal.showValidationMessage('Por favor, respondé ambas preguntas.');
+          return;
+        }
+
+        return {
+          facilidad: facilidad.value,
+          volverias: volverias.value,
+          comentario
+        };
+      }
     });
 
-    if (!isConfirmed) return;
+    if (!respuestas) return;
 
     try {
-      await this.turnosService.completarEncuesta(turno.id);
-      await Swal.fire('Encuesta completada', '', 'success');
+      await this.turnosService.guardarEncuesta(
+        turno.id,
+        this.userEmail!,
+        respuestas.facilidad,
+        respuestas.volverias,
+        respuestas.comentario
+      );
+
+      await this.turnosService.completarEncuesta(turno.id); // actualiza booleano
+
+      await Swal.fire('¡Gracias!', 'Tu encuesta fue enviada con éxito.', 'success');
       this.cargarTurnos();
     } catch (error) {
       console.error(error);
@@ -103,7 +141,7 @@ export class MisTurnosComponent implements OnInit {
     const { value: comentario } = await Swal.fire({
       title: 'Calificar atención',
       input: 'text',
-      inputLabel: '¿Cómo fue la atención del especialista?',
+      inputLabel: '¿Comentanos cómo fue la atención del especialista?',
       inputPlaceholder: 'Escribí tu comentario',
       showCancelButton: true
     });
@@ -140,12 +178,18 @@ export class MisTurnosComponent implements OnInit {
 
   verResena(turno: any) {
     Swal.fire({
-      title: 'Reseña del Especialista',
-      text: turno.resena_especialista || 'Sin reseña disponible.',
+      title: 'Detalle del Turno Realizado',
+      html: `
+        <div style="text-align:left">
+          <strong>Comentario del Especialista:</strong><br>
+          ${turno.resena_especialista || '—'}<br><br>
+          <strong>Diagnóstico:</strong><br>
+          ${turno.diagnostico || '—'}
+        </div>
+      `,
       icon: 'info',
       confirmButtonText: 'Cerrar'
     });
   }
-
 
 }

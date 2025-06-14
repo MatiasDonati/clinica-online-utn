@@ -33,7 +33,12 @@ export const routes: Routes = [
     // canMatch: [canMatchGuardSoloAdmin],
     loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(c => c.MisTurnosComponent)
   },
-    
+  {
+    path: 'mis-turnos-especialista',
+    // canMatch: [canMatchGuardSoloAdmin],
+    loadComponent: () => import('./components/mis-turnos-especialista/mis-turnos-especialista.component').then(c => c.MisTurnosEspecialistaComponent)
+  },
+
   { path: '**', redirectTo: 'home' }
 
   // { 

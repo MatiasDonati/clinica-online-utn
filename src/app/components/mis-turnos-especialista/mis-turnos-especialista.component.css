@@ -32,6 +32,11 @@ p.lead {
   color: black;
 }
 
+.th-violeta {
+  background-color: #d7b2f9;
+  color: black;
+}
+
 .estado-pendiente {
   color: #ffc107 !important;
   font-weight: 700;
@@ -56,6 +61,3 @@ p.lead {
   color: #6c757d !important;
   font-weight: 700;
 }
-
-
-

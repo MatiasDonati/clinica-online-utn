@@ -4,7 +4,6 @@
 
   <ng-container *ngIf="cargando; else contenido">
     <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Cargando...</span>
     </div>
   </ng-container>
 
@@ -12,8 +11,24 @@
     <h2 class="mb-4">Bienvenido a la Clínica Online</h2>
 
     <ng-container *ngIf="userEmail && tipoUsuario; else noLogin">
-      <p class="lead mb-3">Sesión iniciada como:</p>
-      <p><strong>{{ userEmail }}</strong> - ({{ tipoUsuario }})</p>
+
+    
+    <div class="d-flex justify-content-center mb-3" style="min-height: 110px;">
+      <ng-container *ngIf="imagenesCargando; else mostrarImagenes">
+        <div class="spinner-border text-primary" role="status">
+        </div>
+      </ng-container>
+
+      <ng-template #mostrarImagenes>
+        <div class="d-flex justify-content-center gap-3">
+          <img *ngFor="let img of imagenesPerfil" [src]="img" class="foto-perfil" alt="Foto de perfil" />
+        </div>
+      </ng-template>
+    </div>
+
+
+<p class="tipo-usuario mb-3 text-uppercase">{{ tipoUsuario }}</p>
+      <p><strong>{{ userEmail }}</strong></p>
     </ng-container>
 
     <ng-template #noLogin>

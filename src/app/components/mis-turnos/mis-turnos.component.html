@@ -34,8 +34,8 @@
             <th class="th-violeta">Comentario Paciente</th>
             <th class="th-violeta">Comentario Cancelacion</th>
             <th class="th-violeta">Reseña Especialista</th>
-            <th class="th-violeta">Encuentra completada</th>
-            <th class="th-violeta">Calificacion</th>
+            <th class="th-violeta">Encuesta completada</th>
+            <th class="th-violeta">Calificacion Dada</th>
             <th class="th-violeta">Acciones</th>
 
 
@@ -47,9 +47,9 @@
             <td appHoverResaltado>{{ turno.hora }}</td>
             <td appHoverResaltado>{{ turno.especialidad }}</td>
             <td appHoverResaltado>{{ turno.especialista_email }}</td>
-            <td>{{ turno.estado | uppercase }}</td>
+            <td [appEstadoTurno]="turno.estado">{{ turno.estado | uppercase }}</td>
             <td>{{ turno.comentario_paciente }}</td>
-            <td>{{ turno.comentario_cancelacion }}</td>
+            <td>{{ turno.comentario_cancelacion|| '—' }}</td>
             <td>{{ turno.resena_especialista }}</td>
             <td>{{ turno.encuesta_completada ? 'Si' : 'No' }}</td>
             <td>{{ turno.calificacion }}</td>

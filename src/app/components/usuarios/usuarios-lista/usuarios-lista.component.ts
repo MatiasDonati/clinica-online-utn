@@ -25,11 +25,18 @@ export class UsuariosListaComponent {
     constructor(private usuariosService: UsuariosService) {}
   
     async ngOnInit() {
+
       this.cargando = true;
   
       const usuariosData = await this.usuariosService.obtenerUsuarios();
       const especialistasData = await this.usuariosService.obtenerEspecialistas();
-  
+
+      for (const especialista of especialistasData) {
+        const especialidades = await this.usuariosService.obtenerEspecialidadesPorEmail(especialista.mail);
+        console.log(especialista.mail, especialidades);
+      }
+
+
       this.usuarios = usuariosData.map(usuario => {
         if (usuario.tipo === 'especialista') {
           const datosEsp = especialistasData.find(e => e.mail === usuario.mail);

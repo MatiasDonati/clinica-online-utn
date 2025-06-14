@@ -17,35 +17,49 @@ export class HomeComponent implements OnInit {
   tipoUsuario: string | null = null;
   cargando: boolean = true;
 
+  imagenesPerfil: string[] = [];
+  imagenesCargando: boolean = true;
+
+
+
   constructor(private router: Router, private authService: AuthService) {}
 
   async ngOnInit() {
-    
     const emailGuardado = localStorage.getItem('email');
     const tipoGuardado = localStorage.getItem('tipoUsuario');
 
     if (emailGuardado && tipoGuardado) {
+
+      this.imagenesCargando = true;
       this.userEmail = emailGuardado;
       this.tipoUsuario = tipoGuardado;
-      this.cargando = false;
-      return;
+
+    } else {
+      const email = await this.authService.obtenerUsuarioActual();
+      this.userEmail = email;
+
+      if (email) {
+        const tipo = await this.authService.obtenerTipoUsuario(email);
+        this.tipoUsuario = tipo;
+
+        if (tipo) {
+          localStorage.setItem('email', email);
+          localStorage.setItem('tipoUsuario', tipo);
+        }
+      }
     }
 
-    const email = await this.authService.obtenerUsuarioActual();
-    this.userEmail = email;
-
-    if (email) {
-      const tipo = await this.authService.obtenerTipoUsuario(email);
-      this.tipoUsuario = tipo;
-
-      if (tipo) {
-        localStorage.setItem('email', email);
-        localStorage.setItem('tipoUsuario', tipo);
+    if (this.userEmail && this.tipoUsuario) {
+      const imagenes = await this.authService.obtenerImagenesPorTipoUsuario(this.userEmail, this.tipoUsuario);
+      if (imagenes) {
+        this.imagenesPerfil = imagenes;
       }
     }
 
     this.cargando = false;
+    this.imagenesCargando = false;
   }
+
 
 
   irA(ruta: string) {

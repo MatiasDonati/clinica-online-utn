@@ -59,4 +59,19 @@ export class UsuariosService {
     }
     return data;
   }
+
+  async obtenerEspecialidadesPorEmail(mail: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('especialistas_especialidades')
+      .select('especialidad')
+      .eq('especialista_email', mail);
+
+    if (error) {
+      console.error('Error al obtener especialidades:', error.message);
+      return [];
+    }
+
+    return data.map(e => e.especialidad);
+  }
+
 }

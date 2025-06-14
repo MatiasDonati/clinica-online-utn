@@ -59,8 +59,15 @@
             Iniciar Sesión
           </button>
           
+          <!-- Spinner de accesos rápidos -->
+          <div *ngIf="cargandoAccesos" class="text-center my-3">
+            <div class="spinner-border text-violet" role="status" style="width: 2rem; height: 2rem;">
+              <span class="visually-hidden">Cargando accesos rápidos...</span>
+            </div>
+          </div>
+
           <!-- Botones de acceso rápido -->
-          <div class="acceso-rapido-container d-flex justify-content-center flex-wrap gap-3 my-4">
+          <div *ngIf="!cargandoAccesos" class="acceso-rapido-container d-flex justify-content-center flex-wrap gap-3 my-4">
             <div *ngFor="let user of usuariosRapidos" class="d-flex flex-column align-items-center">
               <button class="btn-acceso-rapido" (click)="loginRapido(user.email, user.password)">
                 <img [src]="user.imagenUrl" [alt]="user.alt" />
@@ -68,6 +75,7 @@
               <span class="text-white small mt-1 text-center">{{ user.alt }}</span>
             </div>
           </div>
+
 
 
         </form>

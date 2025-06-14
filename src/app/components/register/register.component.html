@@ -1,8 +1,10 @@
 <app-header *ngIf="mostrarHeader"></app-header>
 
-<div class="register-container">
+<div class="register-container" [ngClass]="{ 'fondo-normal': !desdeAdmin, 'fondo-transparente': desdeAdmin }">
   <h2 *ngIf="!tipoSeleccionado">Registro</h2>
   <h2 *ngIf="tipoSeleccionado">Registro {{ tipoSeleccionado | titlecase }}</h2>
+
+  
 
   <!-- Solo mostrar mensaje de error -->
   <p class="mensaje text-danger" *ngIf="mensaje && !registroExitoso">{{ mensaje }}</p>
@@ -53,6 +55,15 @@
         [formGroup]="form"
         (ngSubmit)="register()"
         class="d-flex flex-column gap-3">
+
+    <!-- Cambiar tipo de usuario -->
+    <div class="text-center mt-2">
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="volverAElegirTipo()">
+        Cambiar tipo de usuario
+      </button>
+    </div>
 
     <!-- Nombre -->
     <div class="input-group">
@@ -105,13 +116,13 @@
     <div *ngIf="tipoSeleccionado === 'especialista'">
       <label>Seleccioná una o más especialidades:</label>
 
-      <div class="form-check" *ngFor="let esp of especialidadesDisponibles">
-        <input class="form-check-input"
-              type="checkbox"
+      <div class="especialidad-checkbox" *ngFor="let esp of especialidadesDisponibles">
+        <input type="checkbox"
               [value]="esp"
               (change)="toggleEspecialidad(esp, $event)" />
-        <label class="form-check-label">{{ esp }}</label>
+        <label>{{ esp }}</label>
       </div>
+
 
       <!-- Nueva especialidad -->
       <form #formEspecialidad="ngForm" (ngSubmit)="agregarEspecialidadManual()" class="input-group mt-2">
@@ -179,14 +190,7 @@
       Registrarse
     </button>
 
-    <!-- Volver a elegir tipo usuario -->
-    <div class="text-center mt-2">
-      <button type="button"
-              class="btn btn-secondary"
-              (click)="volverAElegirTipo()">
-        Cambiar tipo de usuario
-      </button>
-    </div>
+
 
   </form>
 </div>

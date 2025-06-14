@@ -224,7 +224,50 @@ export class AuthService {
     }
   }
 
-  
+  async obtenerImagenesPorTipoUsuario(email: string, tipo: string): Promise<string[] | null> {
+    let tabla = '';
+    let campos = '';
+
+    switch (tipo) {
+      case 'paciente':
+        tabla = 'pacientes';
+        campos = 'imagen1,imagen2';
+        break;
+      case 'especialista':
+        tabla = 'especialistas';
+        campos = 'imagen1';
+        break;
+      case 'admin':
+      case 'administrador':
+        tabla = 'administradores';
+        campos = 'imagen';
+        break;
+      default:
+        console.error('Tipo de usuario no válido:', tipo);
+        return null;
+    }
+
+    const { data, error } = await this.supabase
+      .from(tabla)
+      .select(campos)
+      .eq('mail', email)
+      .single();
+
+    if (error || !data) {
+      console.error('Error obteniendo imágenes:', error?.message);
+      return null;
+    }
+
+    const camposData = data as unknown as Record<string, string>;
+    const imagenes: string[] = [];
+
+    if ('imagen1' in camposData && camposData['imagen1']) imagenes.push(camposData['imagen1']);
+    if ('imagen2' in camposData && camposData['imagen2']) imagenes.push(camposData['imagen2']);
+    if ('imagen' in camposData && camposData['imagen']) imagenes.push(camposData['imagen']);
+
+    return imagenes;
+
+  }
 
 
 }

@@ -124,3 +124,21 @@
   font-size: 1.2rem;
 }
 
+
+.fondo-normal {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.fondo-transparente {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.especialidad-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+  padding-left: 10px;
+}

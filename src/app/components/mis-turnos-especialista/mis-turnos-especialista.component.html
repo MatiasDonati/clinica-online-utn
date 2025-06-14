@@ -1,0 +1,103 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center">
+
+  <!-- Spinner -->
+  <ng-container *ngIf="cargando; else contenido">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando turnos...</span>
+    </div>
+  </ng-container>
+
+  <ng-template #contenido>
+    <h2 class="mb-4">Mis Turnos como Especialista</h2>
+
+    <!-- Filtro -->
+    <input
+      type="text"
+      class="form-control mb-3"
+      placeholder="Filtrar por paciente o especialidad..."
+      [(ngModel)]="filtro"
+    />
+
+    <!-- Turnos filtrados -->
+    <ng-container *ngIf="(turnos | filtrarTurnosEspecialista:filtro) as turnosFiltrados">
+      <div *ngIf="turnosFiltrados.length > 0; else sinTurnos" class="table-responsive">
+        <table class="table table-dark table-striped table-bordered">
+          <thead>
+            <tr>
+              <th class="th-violeta">Fecha</th>
+              <th class="th-violeta">Hora</th>
+              <th class="th-violeta">Especialidad</th>
+              <th class="th-violeta">Paciente</th>
+              <th class="th-violeta">Estado</th>
+              <th class="th-violeta">Comentario Paciente</th>
+              <th class="th-violeta">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let turno of turnosFiltrados">
+              <td>{{ turno.fecha | formatearFecha }}</td>
+              <td>{{ turno.hora }}</td>
+              <td>{{ turno.especialidad }}</td>
+              <td>{{ turno.paciente_email }}</td>
+              <td [appEstadoTurno]="turno.estado">{{ turno.estado | uppercase }}</td>
+              <td>{{ turno.comentario_paciente || '—' }}</td>
+              <td>
+                <!-- Ver Detalles -->
+                <button class="btn btn-primary btn-sm me-1" (click)="verDetalles(turno)">
+                  Ver Detalles
+                </button>
+
+                <!-- Aceptar -->
+                <button
+                  *ngIf="turno.estado === 'pendiente'"
+                  class="btn btn-success btn-sm me-1"
+                  (click)="aceptarTurno(turno)">
+                  Aceptar
+                </button>
+
+                <!-- Rechazar -->
+                <button
+                  *ngIf="turno.estado === 'pendiente'"
+                  class="btn btn-danger btn-sm me-1"
+                  (click)="rechazarTurno(turno)">
+                  Rechazar
+                </button>
+
+                <!-- Cancelar (solo si aceptado) -->
+                <button
+                  *ngIf="turno.estado === 'aceptado'"
+                  class="btn btn-warning btn-sm me-1"
+                  (click)="cancelarTurno(turno)">
+                  Cancelar
+                </button>
+
+                <!-- Finalizar -->
+                <button
+                  *ngIf="turno.estado === 'aceptado'"
+                  class="btn btn-info btn-sm me-1"
+                  (click)="finalizarTurno(turno)">
+                  Finalizar
+                </button>
+
+                <!-- Ver Reseña -->
+                <button
+                  *ngIf="turno.estado === 'realizado' && (turno.resena_especialista || turno.diagnostico)"
+                  class="btn btn-secondary btn-sm me-1"
+                  (click)="verResena(turno)">
+                  Ver Reseña
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+    <!-- Sin turnos -->
+    <ng-template #sinTurnos>
+      <p class="lead mt-4">No tenés turnos asignados como especialista.</p>
+    </ng-template>
+  </ng-template>
+</div>

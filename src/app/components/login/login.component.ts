@@ -26,19 +26,40 @@ export class LoginComponent {
 
   readonly PASSWORD_COMUN = '123123';
 
+  cargandoAccesos: boolean = true;
+
+
 
   constructor(private router: Router, private authService: AuthService) {}
 
-  async ngOnInit() {
-    this.usuariosRapidos = (await Promise.all([
-      this.accesoRapido('matiaseduardodonati@gmail.com', 'paciente'),
-      this.accesoRapido('hifolif397@linacit.com', 'paciente'),
-      this.accesoRapido('pabija2042@pngzero.com', 'paciente'),
-      this.accesoRapido('tejokak266@linacit.com', 'especialista'),
-      this.accesoRapido('ripeb54041@pngzero.com', 'especialista'),
-      this.accesoRapido('befino7826@linacit.com', 'admin'),
-    ])).filter(Boolean);
-  }
+async ngOnInit() {
+  this.cargandoAccesos = true;
+
+  // verificar si ya estan guardados
+  // const accesosGuardados = localStorage.getItem('usuariosRapidos');
+
+  // if (accesosGuardados) {
+  //   this.usuariosRapidos = JSON.parse(accesosGuardados);
+  //   this.cargandoAccesos = false;
+  //   return;
+  // }
+
+  // Si no estaban, los cargamos desde Supabase
+  this.usuariosRapidos = (await Promise.all([
+    this.accesoRapido('matiaseduardodonati@gmail.com', 'paciente'),
+    this.accesoRapido('hifolif397@linacit.com', 'paciente'),
+    this.accesoRapido('pabija2042@pngzero.com', 'paciente'),
+    this.accesoRapido('tejokak266@linacit.com', 'especialista'),
+    this.accesoRapido('ripeb54041@pngzero.com', 'especialista'),
+    this.accesoRapido('befino7826@linacit.com', 'admin'),
+  ])).filter(Boolean);
+
+  // guardar en localStorage
+  // localStorage.setItem('usuariosRapidos', JSON.stringify(this.usuariosRapidos));
+
+  this.cargandoAccesos = false;
+}
+
 
   async login() {
     this.mensaje = '';

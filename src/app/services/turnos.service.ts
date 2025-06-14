@@ -54,4 +54,60 @@ export class TurnosService {
     if (error) throw error;
   }
 
+
+  // Especialista
+
+  async obtenerTurnosDelEspecialista(email: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('especialista_email', email);
+    if (error) throw error;
+    return data;
+  }
+
+  async actualizarEstadoTurno(id: number, estado: string) {
+    const { error } = await supabase
+      .from('turnos')
+      .update({ estado })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async rechazarTurno(id: number, comentario: string) {
+    const { error } = await supabase
+      .from('turnos')
+      .update({ estado: 'cancelado', comentario_cancelacion: comentario })
+      .eq('id', id);
+    if (error) throw error;
+  }
+
+  async finalizarTurno(id: number, comentario: string, diagnostico: string) {
+    await supabase
+      .from('turnos')
+      .update({
+        estado: 'realizado',
+        resena_especialista: comentario,
+        diagnostico: diagnostico
+      })
+      .eq('id', id);
+  }
+
+
+  async guardarEncuesta(turnoId: number, pacienteEmail: string, facilidad: string, volverias: string, comentario: string) {
+    await supabase
+      .from('encuestas')
+      .insert([{
+        turno_id: turnoId,
+        paciente_email: pacienteEmail,
+        respuesta_facilidad: facilidad,
+        respuesta_volverias: volverias,
+        comentario: comentario
+      }]);
+  }
+
+
+
+
+
 }

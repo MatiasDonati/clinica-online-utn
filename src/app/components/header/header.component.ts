@@ -20,6 +20,8 @@ export class HeaderComponent implements OnInit {
 
   cargandoUsuario: boolean = true;
 
+  especialista: boolean = false;
+
 
 
   constructor(private authService: AuthService, private router: Router) {
@@ -41,6 +43,7 @@ export class HeaderComponent implements OnInit {
       const tipo = await this.authService.obtenerTipoUsuario(email);
 
       if (tipo === 'especialista') {
+        this.especialista = true;
         const { data: especialistaData, error } = await this.authService.supabase
           .from('especialistas')
           .select('aprobado')
@@ -67,6 +70,7 @@ export class HeaderComponent implements OnInit {
   async cerrarSesion() {
     this.cargando = true;
     this.esAdmin = false;
+    this.especialista = false;
 
     try {
       await this.authService.cerrarSesion();
@@ -84,6 +88,9 @@ export class HeaderComponent implements OnInit {
 
 
   irA(ruta: string) {
+    if(ruta === 'mis-turnos' && this.especialista) {
+      ruta = 'mis-turnos-especialista';
+    }
     this.router.navigate([ruta]);
   }
 }
