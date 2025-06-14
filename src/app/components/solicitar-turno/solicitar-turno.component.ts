@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { TurnosService } from '../../services/turnos.service';
 import { HeaderComponent } from "../header/header.component";
-import { NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-solicitar-turno',
   templateUrl: './solicitar-turno.component.html',
   styleUrls: ['./solicitar-turno.component.css'],
   standalone: true,
-  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass]
+  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass, DatePipe]
 })
 export class SolicitarTurnoComponent implements OnInit {
   especialidades: string[] = [];
@@ -24,6 +24,8 @@ export class SolicitarTurnoComponent implements OnInit {
   diaSeleccionado: string | null = null;
 
   horarioSeleccionado: string | null = null;
+
+  fechasDisponibles: { fecha: string, dia: string, desde: string, hasta: string }[] = [];
 
   
 
@@ -51,13 +53,13 @@ export class SolicitarTurnoComponent implements OnInit {
   async seleccionarEspecialista(email: string) {
     this.especialistaSeleccionado = email;
     const original = await this.turnosService.obtenerDisponibilidadPorEspecialista(email);
-    this.disponibilidad = original.map(d => ({
-      ...d,
-      fechas: this.obtenerFechasValidasParaDia(d.dia)
-    }));
+    this.disponibilidad = original;
+
+    this.fechasDisponibles = this.obtenerFechasProximas(original);
     this.diaSeleccionado = null;
     this.horariosDisponibles = [];
   }
+
 
 
   seleccionarDia(dia: string) {
@@ -115,6 +117,38 @@ export class SolicitarTurnoComponent implements OnInit {
     this.diaSeleccionado = fecha;
     this.horariosDisponibles = this.generarHorarios(desde, hasta);
   }
+
+
+  private obtenerFechasProximas(disponibilidad: any[]): { fecha: string, dia: string, desde: string, hasta: string }[] {
+    const fechas: { fecha: string, dia: string, desde: string, hasta: string }[] = [];
+    const hoy = new Date();
+
+    for (let i = 0; i < 15; i++) {
+      const fecha = new Date(hoy);
+      fecha.setDate(hoy.getDate() + i);
+
+      const dia = fecha.toLocaleDateString('es-AR', { weekday: 'long' }).toLowerCase();
+
+      const disp = disponibilidad.find(d => d.dia.toLowerCase() === dia);
+
+      if (disp) {
+        fechas.push({
+          fecha: fecha.toISOString().split('T')[0],
+          dia,
+          desde: disp.desde,
+          hasta: disp.hasta
+        });
+      }
+    }
+
+    return fechas;
+  }
+
+  seleccionarFecha(f: { fecha: string, desde: string, hasta: string }) {
+    this.diaSeleccionado = f.fecha;
+    this.horariosDisponibles = this.generarHorarios(f.desde, f.hasta);
+  }
+
 
 
 }

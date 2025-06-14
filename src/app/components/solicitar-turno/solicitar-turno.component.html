@@ -35,26 +35,27 @@
       </div>
     </div>
 
-    <!-- Días disponibles -->
-    <div *ngIf="disponibilidad.length > 0">
+    <!-- Fechas disponibles -->
+    <div *ngIf="fechasDisponibles.length > 0">
       <h4 class="mb-3 titulo-violeta">
-        Días disponibles de {{ especialistaSeleccionado }}
+        Seleccioná una fecha
       </h4>
       <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-      <button
-        *ngFor="let d of disponibilidad"
-        class="btn btn-outline-violet"
-        [ngClass]="{ 'activo': d.dia === diaSeleccionado }"
-        (click)="seleccionarDia(d.dia)">
-        {{ d.dia | titlecase }}
-      </button>
+        <button
+          *ngFor="let f of fechasDisponibles"
+          class="btn btn-outline-violet"
+          [ngClass]="{ 'activo': f.fecha === diaSeleccionado }"
+          (click)="seleccionarFecha(f)">
+          {{ f.dia | titlecase }} {{ f.fecha | date:'dd/MM/yyyy' }}
+        </button>
       </div>
     </div>
+
 
     <!-- Horarios -->
     <div *ngIf="horariosDisponibles.length > 0">
       <h5 class="mb-3 titulo-violeta">
-        Horarios disponibles para {{ diaSeleccionado | titlecase }}
+        Horarios disponibles para {{ diaSeleccionado | date:'dd/MM/yyyy' | titlecase }}
       </h5>
       <div class="d-flex flex-wrap justify-content-center gap-2">
       <button
