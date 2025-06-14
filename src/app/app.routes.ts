@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { canMatchGuardSoloAdmin } from './guards/can-match.guard';
+import { canMatchGuardSoloPaciente } from './guards/can-match.guard-paciente';
+import { canMatchGuardSoloEspecialista } from './guards/can-match.guard-especialista';
 
 export const routes: Routes = [
   { 
@@ -30,15 +32,15 @@ export const routes: Routes = [
   },
   {
     path: 'mis-turnos',
-    // canMatch: [canMatchGuardSoloAdmin],
+    canMatch: [canMatchGuardSoloPaciente],
     loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(c => c.MisTurnosComponent)
   },
   {
     path: 'mis-turnos-especialista',
-    // canMatch: [canMatchGuardSoloAdmin],
+    canMatch: [canMatchGuardSoloEspecialista],
     loadComponent: () => import('./components/mis-turnos-especialista/mis-turnos-especialista.component').then(c => c.MisTurnosEspecialistaComponent)
   },
-
+  
   { path: '**', redirectTo: 'home' }
 
   // { 

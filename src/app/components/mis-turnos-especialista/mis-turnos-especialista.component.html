@@ -45,9 +45,9 @@
               <td>{{ turno.comentario_paciente || '—' }}</td>
               <td>
                 <!-- Ver Detalles -->
-                <button class="btn btn-primary btn-sm me-1" (click)="verDetalles(turno)">
+                <!-- <button class="btn btn-primary btn-sm me-1" (click)="verDetalles(turno)">
                   Ver Detalles
-                </button>
+                </button> -->
 
                 <!-- Aceptar -->
                 <button
@@ -68,7 +68,7 @@
                 <!-- Cancelar (solo si aceptado) -->
                 <button
                   *ngIf="turno.estado === 'aceptado'"
-                  class="btn btn-warning btn-sm me-1"
+                  class="btn btn-danger btn-sm me-1"
                   (click)="cancelarTurno(turno)">
                   Cancelar
                 </button>

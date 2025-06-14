@@ -56,7 +56,7 @@ export class MisTurnosComponent implements OnInit {
   }
 
   async cancelarTurno(turno: any) {
-    const { value: motivo } = await Swal.fire({
+    let { value: motivo } = await Swal.fire({
       title: 'Cancelar turno',
       input: 'text',
       inputLabel: '¿Por qué querés cancelarlo?',
@@ -69,14 +69,16 @@ export class MisTurnosComponent implements OnInit {
     if (!motivo) return;
 
     try {
+      motivo = 'Paciente canceló el turno: ' + motivo;
       await this.turnosService.cancelarTurno(turno.id, motivo);
       await Swal.fire('Éxito', 'Turno cancelado con éxito.', 'success');
-      this.cargarTurnos();
+      await this.cargarTurnos();               // borrar cuando ponga BehaviorSubject
     } catch (error) {
       console.error(error);
       Swal.fire('Error', 'No se pudo cancelar el turno.', 'error');
     }
   }
+
 
   async completarEncuesta(turno: any) {
     const { value: respuestas } = await Swal.fire({

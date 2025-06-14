@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
+import { BehaviorSubject } from 'rxjs';
+
+
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
 @Injectable({
@@ -12,6 +15,11 @@ export class TurnosService {
 
   constructor() {}
 
+  // BehaviorSubject
+  // BehaviorSubject
+  // private _turnos$ = new BehaviorSubject<any[]>([]);
+  // turnos$ = this._turnos$.asObservable();
+  
   async obtenerTurnosDelPaciente(email: string) {
     const { data, error } = await supabase
       .from('turnos')
@@ -53,7 +61,6 @@ export class TurnosService {
 
     if (error) throw error;
   }
-
 
   // Especialista
 

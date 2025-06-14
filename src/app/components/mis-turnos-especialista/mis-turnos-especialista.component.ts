@@ -30,11 +30,10 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   async ngOnInit() {
     this.userEmail = await this.authService.obtenerUsuarioActual();
     if (this.userEmail) {
-      const todos = await this.turnosService.obtenerTurnosDelEspecialista(this.userEmail);
-      this.turnos = todos;
+      await this.cargarTurnos();
     }
-    this.cargando = false;
   }
+
 
   async aceptarTurno(turno: any) {
     const { isConfirmed } = await Swal.fire({
@@ -53,7 +52,7 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   }
 
   async rechazarTurno(turno: any) {
-    const { value: motivo } = await Swal.fire({
+    let { value: motivo } = await Swal.fire({
       title: 'Motivo de rechazo',
       input: 'text',
       inputPlaceholder: 'Escribí el motivo',
@@ -61,6 +60,7 @@ export class MisTurnosEspecialistaComponent implements OnInit {
     });
 
     if (!motivo) return;
+    motivo = 'Especialista rechazó el turno: ' + motivo;
 
     await this.turnosService.rechazarTurno(turno.id, motivo);
     Swal.fire('Turno rechazado', '', 'info');
@@ -126,20 +126,28 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   }
 
 
-  async cancelarTurno(turno: any) {
-    const { value: motivo } = await Swal.fire({
-      title: 'Motivo de cancelación',
-      input: 'text',
-      inputPlaceholder: 'Ingresá el motivo',
-      showCancelButton: true
-    });
+async cancelarTurno(turno: any) {
+  let { value: motivo } = await Swal.fire({
+    title: 'Motivo de cancelación',
+    input: 'text',
+    inputPlaceholder: 'Ingresá el motivo',
+    showCancelButton: true
+  });
 
-    if (!motivo) return;
+  if (!motivo) return;
 
+  motivo = 'Especialista canceló el turno: ' + motivo;
+
+  try {
     await this.turnosService.cancelarTurno(turno.id, motivo);
-    Swal.fire('Turno cancelado', '', 'warning');
-    this.ngOnInit();
+    await Swal.fire('Turno cancelado', '', 'warning');
+    await this.cargarTurnos(); // 👈 mejor que llamar a ngOnInit()
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Error', 'No se pudo cancelar el turno.', 'error');
   }
+}
+
 
   verResena(turno: any) {
     Swal.fire({
@@ -155,6 +163,15 @@ export class MisTurnosEspecialistaComponent implements OnInit {
       icon: 'info',
       confirmButtonText: 'Cerrar'
     });
+  }
+
+  async cargarTurnos() {
+    this.cargando = true;
+    if (this.userEmail) {
+      const todos = await this.turnosService.obtenerTurnosDelEspecialista(this.userEmail);
+      this.turnos = todos;
+    }
+    this.cargando = false;
   }
 
 

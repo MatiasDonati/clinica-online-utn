@@ -35,16 +35,6 @@ export class LoginComponent {
 async ngOnInit() {
   this.cargandoAccesos = true;
 
-  // verificar si ya estan guardados
-  // const accesosGuardados = localStorage.getItem('usuariosRapidos');
-
-  // if (accesosGuardados) {
-  //   this.usuariosRapidos = JSON.parse(accesosGuardados);
-  //   this.cargandoAccesos = false;
-  //   return;
-  // }
-
-  // Si no estaban, los cargamos desde Supabase
   this.usuariosRapidos = (await Promise.all([
     this.accesoRapido('matiaseduardodonati@gmail.com', 'paciente'),
     this.accesoRapido('hifolif397@linacit.com', 'paciente'),
@@ -54,8 +44,6 @@ async ngOnInit() {
     this.accesoRapido('befino7826@linacit.com', 'admin'),
   ])).filter(Boolean);
 
-  // guardar en localStorage
-  // localStorage.setItem('usuariosRapidos', JSON.stringify(this.usuariosRapidos));
 
   this.cargandoAccesos = false;
 }
