@@ -216,4 +216,30 @@ export class TurnosService {
     if (error) throw error;
   }
 
+
+
+
+  async obtenerTurnosEnFechaHora(
+    fecha: string,
+    hora: string,
+    especialistaEmail: string
+  ): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('fecha', fecha)
+      .eq('hora', hora)
+      .eq('especialista_email', especialistaEmail)
+      .filter('estado', 'not.in', '(cancelado,rechazado)')
+
+    if (error) {
+      console.error('❌ Error al consultar turnos en Supabase:', error.message);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+
+
 } 

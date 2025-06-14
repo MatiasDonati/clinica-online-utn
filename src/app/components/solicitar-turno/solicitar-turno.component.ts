@@ -200,7 +200,28 @@ export class SolicitarTurnoComponent implements OnInit {
       !this.horarioSeleccionado ||
       !emailPaciente
     ) {
-      alert('Faltan datos para confirmar el turno.');
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Faltan datos',
+        text: 'Por favor, completá todos los campos para solicitar el turno.'
+      });
+      this.enviando = false;
+      return;
+    }
+
+    // Validación para superposición de turnos
+    const turnosExistentes = await this.turnosService.obtenerTurnosEnFechaHora(
+      this.diaSeleccionado,
+      this.horarioSeleccionado,
+      this.especialistaSeleccionado
+    );
+
+    if (turnosExistentes.length > 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Horario ocupado',
+        text: 'El horario seleccionado ya fue reservado. Por favor, elegí otro.'
+      });
       this.enviando = false;
       return;
     }
@@ -222,16 +243,18 @@ export class SolicitarTurnoComponent implements OnInit {
 
     try {
       await this.turnosService.solicitarTurno(nuevoTurno);
+
       await Swal.fire({
         icon: 'success',
         title: 'Turno solicitado con éxito',
         showConfirmButton: false,
         timer: 2000
       });
+
       this.resetFormulario();
     } catch (err) {
       const mensaje = err instanceof Error ? err.message : 'Error desconocido';
-      console.error('❌ Error al solicitar turno:', mensaje);
+      console.log('Error al solicitar turno:', mensaje);
 
       await Swal.fire({
         icon: 'error',
@@ -242,8 +265,6 @@ export class SolicitarTurnoComponent implements OnInit {
       this.enviando = false;
     }
   }
-
-
 
   resetFormulario() {
     this.seleccionada = null;
