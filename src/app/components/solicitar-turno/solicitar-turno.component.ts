@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { createClient } from '@supabase/supabase-js';
+import Swal from 'sweetalert2';
 
 
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -184,56 +185,63 @@ export class SolicitarTurnoComponent implements OnInit {
     this.pacientes = await this.turnosService.obtenerPacientes();
   }
 
-async confirmarTurno() {
-  if (this.enviando) return;
-  this.enviando = true;
+  async confirmarTurno() {
+    if (this.enviando) return;
+    this.enviando = true;
 
-  const emailPaciente = this.tipoUsuario === 'admin'
-    ? this.pacienteSeleccionado
-    : this.userEmail;
+    const emailPaciente = this.tipoUsuario === 'admin'
+      ? this.pacienteSeleccionado
+      : this.userEmail;
 
-  if (
-    !this.seleccionada ||
-    !this.especialistaSeleccionado ||
-    !this.diaSeleccionado ||
-    !this.horarioSeleccionado ||
-    !emailPaciente
-  ) {
-    alert('Faltan datos para confirmar el turno.');
-    this.enviando = false;
-    return;
-  }
-
-  const nuevoTurno = {
-    fecha: this.diaSeleccionado,
-    hora: this.horarioSeleccionado,
-    especialidad: this.seleccionada,
-    especialista_email: this.especialistaSeleccionado,
-    paciente_email: emailPaciente,
-    estado: 'pendiente',
-    comentario_cancelacion: null,
-    resena_especialista: null,
-    comentario_paciente: null,
-    encuesta_completada: false,
-    calificacion: null,
-    diagnostico: null
-  };
-
-  try {
-    await this.turnosService.solicitarTurno(nuevoTurno);
-    alert('✅ Turno solicitado con éxito.');
-    this.resetFormulario();
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error('❌ Error al solicitar turno:', err.message);
-    } else {
-      console.error('❌ Error desconocido al solicitar turno:', err);
+    if (
+      !this.seleccionada ||
+      !this.especialistaSeleccionado ||
+      !this.diaSeleccionado ||
+      !this.horarioSeleccionado ||
+      !emailPaciente
+    ) {
+      alert('Faltan datos para confirmar el turno.');
+      this.enviando = false;
+      return;
     }
-    alert('Error al guardar el turno.');
-  } finally {
-    this.enviando = false;
+
+    const nuevoTurno = {
+      fecha: this.diaSeleccionado,
+      hora: this.horarioSeleccionado,
+      especialidad: this.seleccionada,
+      especialista_email: this.especialistaSeleccionado,
+      paciente_email: emailPaciente,
+      estado: 'pendiente',
+      comentario_cancelacion: null,
+      resena_especialista: null,
+      comentario_paciente: null,
+      encuesta_completada: false,
+      calificacion: null,
+      diagnostico: null
+    };
+
+    try {
+      await this.turnosService.solicitarTurno(nuevoTurno);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Turno solicitado con éxito',
+        showConfirmButton: false,
+        timer: 2000
+      });
+      this.resetFormulario();
+    } catch (err) {
+      const mensaje = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('❌ Error al solicitar turno:', mensaje);
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al guardar el turno',
+        text: mensaje
+      });
+    } finally {
+      this.enviando = false;
+    }
   }
-}
 
 
 
