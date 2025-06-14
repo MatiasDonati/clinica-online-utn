@@ -134,4 +134,67 @@ export class TurnosService {
   actualizarTurnosEnMemoria(nuevosTurnos: any[]) {
     this.turnosSignal.set(nuevosTurnos);
   }
+
+  async obtenerTodosLosTurnos(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*');
+
+    if (error) {
+      console.error('Error al obtener todos los turnos:', error.message);
+      return [];
+    }
+
+    return data || [];
+  }
+
+
+  async obtenerEspecialidadesDisponibles(): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('especialistas_especialidades')
+      .select('especialidad');
+
+    if (error) {
+      console.error('Error al obtener especialidades:', error.message);
+      return [];
+    }
+
+    // Eliminar duplicados
+    const especialidadesUnicas = Array.from(new Set(data.map(e => e.especialidad)));
+    return especialidadesUnicas;
+  }
+
+
+  async obtenerEspecialistasPorEspecialidad(especialidad: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('especialistas_especialidades')
+      .select('especialista_email')
+      .eq('especialidad', especialidad);
+
+    if (error) {
+      console.error('Error al obtener especialistas:', error.message);
+      return [];
+    }
+
+    return data.map(e => e.especialista_email);
+  }
+
+
+  async obtenerDisponibilidadPorEspecialista(email: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('disponibilidad_especialistas')
+      .select('*')
+      .eq('especialista_email', email);
+
+    if (error) {
+      console.error('Error al obtener disponibilidad:', error.message);
+      return [];
+    }
+
+    return data || [];
+  }
+
+
+
+
 } 

@@ -1,0 +1,71 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center custom-container">
+  <ng-container *ngIf="cargando; else contenido">
+    <div class="spinner-border text-primary" role="status"></div>
+  </ng-container>
+
+  <ng-template #contenido>
+    <h2 class="mb-4 titulo-violeta">Seleccioná una especialidad</h2>
+
+    <!-- Especialidades -->
+    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+      <button
+        *ngFor="let esp of especialidades"
+        class="btn btn-violet"
+        [ngClass]="{ 'activo': esp === seleccionada }"
+        (click)="seleccionarEspecialidad(esp)">
+        {{ esp }}
+      </button>
+    </div>
+
+    <!-- Especialistas -->
+    <div *ngIf="seleccionada && especialistas.length > 0">
+      <h3 class="mb-3 titulo-violeta">
+        Especialistas disponibles en {{ seleccionada }}
+      </h3>
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+      <button
+        *ngFor="let esp of especialistas"
+        class="btn btn-outline-violet"
+        [ngClass]="{ 'activo': esp === especialistaSeleccionado }"
+        (click)="seleccionarEspecialista(esp)">
+        {{ esp }}
+      </button>
+      </div>
+    </div>
+
+    <!-- Días disponibles -->
+    <div *ngIf="disponibilidad.length > 0">
+      <h4 class="mb-3 titulo-violeta">
+        Días disponibles de {{ especialistaSeleccionado }}
+      </h4>
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+      <button
+        *ngFor="let d of disponibilidad"
+        class="btn btn-outline-violet"
+        [ngClass]="{ 'activo': d.dia === diaSeleccionado }"
+        (click)="seleccionarDia(d.dia)">
+        {{ d.dia | titlecase }}
+      </button>
+      </div>
+    </div>
+
+    <!-- Horarios -->
+    <div *ngIf="horariosDisponibles.length > 0">
+      <h5 class="mb-3 titulo-violeta">
+        Horarios disponibles para {{ diaSeleccionado | titlecase }}
+      </h5>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+      <button
+        class="btn btn-outline-violet"
+        *ngFor="let h of horariosDisponibles"
+        [ngClass]="{ 'activo': h === horarioSeleccionado }"
+        (click)="seleccionarHorario(h)">
+        {{ h }}
+      </button>
+
+      </div>
+    </div>
+  </ng-template>
+</div>

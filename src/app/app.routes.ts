@@ -40,7 +40,17 @@ export const routes: Routes = [
     canMatch: [canMatchGuardSoloEspecialista],
     loadComponent: () => import('./components/mis-turnos-especialista/mis-turnos-especialista.component').then(c => c.MisTurnosEspecialistaComponent)
   },
-  
+  {
+    path: 'turnos-admin',
+    canMatch: [canMatchGuardSoloAdmin],
+    loadComponent: () => import('./components/turnos-admin/turnos-admin.component').then(c => c.TurnosAdministradorComponent)
+  },
+  {
+    path: 'solicitar-turno',
+    // canMatch: [canMatchGuardSoloPaciente],
+    loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(c => c.SolicitarTurnoComponent)
+  },
+
   { path: '**', redirectTo: 'home' }
 
   // { 
