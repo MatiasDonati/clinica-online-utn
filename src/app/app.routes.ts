@@ -50,6 +50,12 @@ export const routes: Routes = [
     // canMatch: [canMatchGuardSoloPaciente],
     loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(c => c.SolicitarTurnoComponent)
   },
+  {
+    path: 'mi-perfil',
+    // canMatch: [canMatchGuardSoloPaciente],
+    loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(c => c.MiPerfilComponent)
+
+  },
 
   { path: '**', redirectTo: 'home' }
 

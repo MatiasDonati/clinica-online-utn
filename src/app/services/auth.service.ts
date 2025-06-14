@@ -25,7 +25,6 @@ export class AuthService {
     return email;
   }
 
-
   async cerrarSesion(): Promise<void> {
     try {
       await supabase.auth.signOut();
@@ -268,6 +267,89 @@ export class AuthService {
     return imagenes;
 
   }
+
+
+  async obtenerDatosUsuario(email: string) {
+    // Obtener tipo de usuario
+    const { data: usuarioBase, error: errorBase } = await supabase
+      .from('users_data')
+      .select('tipo')
+      .eq('mail', email)
+      .single();
+
+    if (errorBase || !usuarioBase) {
+      console.log(' Error al obtener tipo de usuario:', errorBase?.message);
+      return null;
+    }
+
+    const tipo = usuarioBase.tipo;
+
+    let tabla = '';
+    switch (tipo) {
+      case 'paciente':
+        tabla = 'pacientes';
+        break;
+      case 'especialista':
+        tabla = 'especialistas';
+        break;
+      case 'admin':
+        tabla = 'administradores';
+        break;
+      default:
+        console.log('❌Tipo de usuario no reconocido');
+        return null;
+    }
+
+    // Bbuscar en la tabla correspondiente
+    const { data, error } = await supabase
+      .from(tabla)
+      .select('*')
+      .eq('mail', email)
+      .single();
+
+    if (error || !data) {
+      console.log(`❌ Error al obtener datos desde tabla ${tabla}:`, error?.message);
+      return null;
+    }
+
+    // Array de imágenes según tipo
+    let imagenes: string[] = [];
+
+    switch (tipo) {
+      case 'paciente':
+        imagenes = [data.imagen1, data.imagen2].filter((i: string) => i);
+        break;
+      case 'especialista':
+        if (data.imagen1) imagenes = [data.imagen1];
+        break;
+      case 'admin':
+        if (data.imagen) imagenes = [data.imagen];
+        break;
+    }
+
+    return {
+      ...data,
+      tipo,
+      imagenes
+    };
+  }
+
+
+  async obtenerEspecialidadesPorEmail(email: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('especialistas_especialidades')
+      .select('especialidad')
+      .eq('especialista_email', email);
+
+    if (error) {
+      console.log(' Error al obtener especialidades:', error.message);
+      return [];
+    }
+
+    // Devuelve solo los valores de especialidad
+    return data.map((item: any) => item.especialidad);
+  }
+
 
 
 }

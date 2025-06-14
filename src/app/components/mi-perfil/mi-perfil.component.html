@@ -1,0 +1,62 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center">
+  <div *ngIf="imagenesCargando; else perfilCargado">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <ng-template #perfilCargado>
+    <div class="perfil-box">
+      <h2 class="mb-3">Mi Perfil</h2>
+
+      <ng-container *ngIf="imagenesPerfil.length; else sinImagenes">
+        <div class="d-flex justify-content-center gap-3 mb-3">
+          <img *ngFor="let img of imagenesPerfil" [src]="img" class="foto-perfil" alt="Foto de perfil" />
+        </div>
+      </ng-container>
+
+      <ng-template #sinImagenes>
+        <p class="text-muted">No hay imágenes cargadas.</p>
+      </ng-template>
+
+      <!-- Datos comunes -->
+      <p><strong>Nombre:</strong> {{ nombre }}</p>
+      <p><strong>Apellido:</strong> {{ apellido }}</p>
+      <p><strong>Email-Usuario:</strong> {{ userEmail }}</p>
+      <p><strong>Tipo de usuario:</strong> {{ tipoUsuario }}</p>
+
+      <!-- Datos específicos según tipo -->
+      <div *ngIf="tipoUsuario === 'paciente'">
+        <p><strong>DNI:</strong> {{ dni }}</p>
+        <p><strong>Edad:</strong> {{ edad }}</p>
+        <p><strong>Obra social:</strong> {{ obraSocial }}</p>
+      </div>
+
+      <div *ngIf="tipoUsuario === 'especialista'">
+        <p><strong>DNI:</strong> {{ dni }}</p>
+        <p><strong>Edad:</strong> {{ edad }}</p>
+
+        <!-- Especialidades -->
+        <p><strong>Especialidad/es:</strong> 
+          <span *ngIf="especialidades.length; else sinEsp">
+            {{ especialidades.join(', ') }}
+          </span>
+        </p>
+        <ng-template #sinEsp>
+          <span class="text-muted">No hay especialidades registradas.</span>
+        </ng-template>
+      </div>
+
+      <div *ngIf="tipoUsuario === 'admin'">
+        <p><strong>DNI:</strong> {{ dni }}</p>
+        <p><strong>Edad:</strong> {{ edad }}</p>
+      </div>
+
+      <!-- Lugar para agregar app-mis-horarios -->
+      <div *ngIf="tipoUsuario === 'especialista'" class="mt-4">
+        <h4>Mis horarios</h4>
+        <!-- <app-mis-horarios></app-mis-horarios> -->
+      </div>
+    </div>
+  </ng-template>
+</div>

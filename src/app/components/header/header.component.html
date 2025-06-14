@@ -19,6 +19,7 @@
 <div class="container text-center mb-4">
   <div class="d-flex justify-content-center gap-3 flex-wrap">
     <button  type="button" class="btn-violet" (click)="irA('')">Home</button>
+    <button *ngIf="userEmail" type="button" class="btn-violet" (click)="irA('mi-perfil')">Mi Perfil</button>
     <button *ngIf="mostrarLoginRegister" type="button" class="btn-violet" (click)="irA('login')">Login</button>
     <button *ngIf="mostrarLoginRegister" type="button" class="btn-violet" (click)="irA('register')">Registro</button>
     <button *ngIf="esAdmin" type="button" class="btn-violet" (click)="irA('usuarios')">Usuarios</button>
