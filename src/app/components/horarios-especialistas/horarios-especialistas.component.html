@@ -1,0 +1,42 @@
+<h3 class="titulo-violeta">Mis horarios</h3>
+
+<!-- <table class="table text-light">
+  <thead>
+    <tr>
+      <th>Día</th>
+      <th>Desde</th>
+      <th>Hasta</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let h of horariosActuales">
+      <td>{{ h.dia | titlecase }}</td>
+      <td>{{ h.desde }}</td>
+      <td>{{ h.hasta }}</td>
+      <td>
+        <button class="btn btn-danger btn-sm" (click)="eliminarHorario(h.id)">Eliminar</button>
+      </td>
+    </tr>
+  </tbody>
+</table> -->
+
+<div class="mt-4">
+  <select [(ngModel)]="nuevoDia" class="form-select select-violeta mb-2">
+    <option value="" disabled selected>Seleccioná un día</option>
+    <option *ngFor="let dia of diasSemanaValidos" [value]="dia">
+      {{ dia | titlecase }}
+    </option>
+  </select>
+
+  <p class="text-white small">
+    Ingresá un horario dentro del rango permitido:
+    <strong>lunes a viernes de 08:00 a 19:00</strong> y <strong>sábados de 08:00 a 14:00</strong>.
+    Solo se permiten minutos <strong>:00</strong> o <strong>:30</strong>.
+  </p>
+
+  <input type="text" [(ngModel)]="nuevoDesde" class="form-control mb-2" placeholder="Desde (HH:mm)">
+  <input type="text" [(ngModel)]="nuevoHasta" class="form-control mb-2" placeholder="Hasta (HH:mm)">
+  <button class="btn btn-violet" (click)="agregarHorario()">Agregar horario</button>
+</div>
+

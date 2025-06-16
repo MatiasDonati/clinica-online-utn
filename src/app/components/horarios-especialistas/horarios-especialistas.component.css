@@ -1,0 +1,29 @@
+/* Botón violeta */
+.btn-violet {
+  background-color: #a066c9;
+  color: white;
+  border: none;
+}
+
+.btn-violet:hover {
+  background-color: #8c50b8;
+  color: white;
+}
+
+/* Select estilo violeta */
+.select-violeta {
+  background-color: #1f1f1f;
+  color: white;
+  border: 1px solid #a066c9;
+}
+
+.select-violeta:focus {
+  border-color: #c497f4;
+  box-shadow: 0 0 0 0.25rem rgba(160, 102, 201, 0.25);
+}
+
+/* Opcional: cambiar también el hover del option en algunos navegadores */
+.select-violeta option:hover {
+  background-color: #a066c9;
+  color: white;
+}

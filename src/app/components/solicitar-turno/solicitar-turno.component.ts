@@ -8,7 +8,6 @@ import { environment } from '../../../environments/environment';
 import { createClient } from '@supabase/supabase-js';
 import Swal from 'sweetalert2';
 
-
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
 @Component({
@@ -20,7 +19,6 @@ const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 })
 export class SolicitarTurnoComponent implements OnInit {
 
-
   especialidades: string[] = [];
   especialistas: string[] = [];
   disponibilidad: any[] = [];
@@ -30,9 +28,8 @@ export class SolicitarTurnoComponent implements OnInit {
   seleccionada: string | null = null;
   especialistaSeleccionado: string | null = null;
 
-  horariosDisponibles: string[] = [];
+  horariosDisponibles: { hora: string, disponible: boolean }[] = []; // ✅ Tipo actualizado
   diaSeleccionado: string | null = null;
-
   horarioSeleccionado: string | null = null;
 
   fechasDisponibles: { fecha: string, dia: string, desde: string, hasta: string }[] = [];
@@ -40,13 +37,19 @@ export class SolicitarTurnoComponent implements OnInit {
   pacientes: string[] = [];
   pacienteSeleccionado: string | null = null;
 
-
   userEmail: string | null = null;
   tipoUsuario: string | null = null;
 
   enviando: boolean = false;
+  
+  ////////////
+  ////////////
+  modoPrueba: boolean = false;
+  ////////////
+  ////////////
 
-  constructor( private turnosService: TurnosService, private authService: AuthService) { }
+
+  constructor(private turnosService: TurnosService, private authService: AuthService) {}
 
   async ngOnInit() {
     this.cargando = true;
@@ -54,18 +57,14 @@ export class SolicitarTurnoComponent implements OnInit {
 
     if (this.userEmail) {
       this.tipoUsuario = await this.authService.obtenerTipoUsuario(this.userEmail);
-
-      console.log(this.tipoUsuario)
-
       if (this.tipoUsuario === 'admin') {
         await this.cargarPacientes();
       }
     }
 
-  await this.cargarEspecialidades();
-  this.cargando = false;
-}
-
+    await this.cargarEspecialidades();
+    this.cargando = false;
+  }
 
   async cargarEspecialidades() {
     this.cargando = true;
@@ -79,6 +78,9 @@ export class SolicitarTurnoComponent implements OnInit {
     this.especialistaSeleccionado = null;
     this.disponibilidad = [];
     this.horariosDisponibles = [];
+    this.fechasDisponibles= [];
+    this.horariosDisponibles = [];
+    this.horarioSeleccionado = null;
   }
 
   async seleccionarEspecialista(email: string) {
@@ -91,18 +93,16 @@ export class SolicitarTurnoComponent implements OnInit {
     this.horariosDisponibles = [];
   }
 
-
-
   seleccionarDia(dia: string) {
     this.diaSeleccionado = dia;
     const diaObj = this.disponibilidad.find(d => d.dia === dia);
     if (diaObj) {
-      this.horariosDisponibles = this.generarHorarios(diaObj.desde, diaObj.hasta);
+      this.generarHorarios(diaObj.desde, diaObj.hasta).then(h => this.horariosDisponibles = h);
     }
   }
 
-  generarHorarios(desde: string, hasta: string): string[] {
-    const horarios: string[] = [];
+  async generarHorarios(desde: string, hasta: string): Promise<{ hora: string, disponible: boolean }[]> {
+    const horarios: { hora: string, disponible: boolean }[] = [];
     const [desdeHora, desdeMinuto] = desde.split(':').map(Number);
     const [hastaHora, hastaMinuto] = hasta.split(':').map(Number);
 
@@ -112,19 +112,22 @@ export class SolicitarTurnoComponent implements OnInit {
     const fin = new Date();
     fin.setHours(hastaHora, hastaMinuto, 0);
 
+    const promesas: Promise<{ hora: string, disponible: boolean }>[] = [];
+
     while (inicio < fin) {
       const hora = inicio.toTimeString().slice(0, 5);
-      horarios.push(hora);
+      promesas.push(
+        this.verificarDisponibilidad(hora).then(disponible => ({ hora, disponible }))
+      );
       inicio.setMinutes(inicio.getMinutes() + 30);
     }
 
-    return horarios;
+    return Promise.all(promesas);
   }
 
   seleccionarHorario(horario: string) {
     this.horarioSeleccionado = horario;
   }
-
 
   private obtenerFechasValidasParaDia(diaSemana: string): string[] {
     const fechasValidas: string[] = [];
@@ -146,9 +149,8 @@ export class SolicitarTurnoComponent implements OnInit {
 
   seleccionarDiaConDia(fecha: string, desde: string, hasta: string) {
     this.diaSeleccionado = fecha;
-    this.horariosDisponibles = this.generarHorarios(desde, hasta);
+    this.generarHorarios(desde, hasta).then(h => this.horariosDisponibles = h);
   }
-
 
   private obtenerFechasProximas(disponibilidad: any[]): { fecha: string, dia: string, desde: string, hasta: string }[] {
     const fechas: { fecha: string, dia: string, desde: string, hasta: string }[] = [];
@@ -175,11 +177,10 @@ export class SolicitarTurnoComponent implements OnInit {
     return fechas;
   }
 
-  seleccionarFecha(f: { fecha: string, desde: string, hasta: string }) {
+  async seleccionarFecha(f: { fecha: string, desde: string, hasta: string }) {
     this.diaSeleccionado = f.fecha;
-    this.horariosDisponibles = this.generarHorarios(f.desde, f.hasta);
+    this.horariosDisponibles = await this.generarHorarios(f.desde, f.hasta);
   }
-
 
   async cargarPacientes() {
     this.pacientes = await this.turnosService.obtenerPacientes();
@@ -209,19 +210,88 @@ export class SolicitarTurnoComponent implements OnInit {
       return;
     }
 
-    // Validación para superposición de turnos
-    const turnosExistentes = await this.turnosService.obtenerTurnosEnFechaHora(
+    const turnosEnEseMomento = await this.turnosService.obtenerTurnosPorFechaYHora(
+      this.diaSeleccionado,
+      this.horarioSeleccionado
+    );
+
+    console.log('Turnos en el mismo horario:', turnosEnEseMomento.length, turnosEnEseMomento);
+    if (turnosEnEseMomento.length >= 6) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Consultorios ocupados',
+        text: 'Ya hay 6 turnos para este horario. Por favor, elegí otro.'
+      });
+      this.enviando = false;
+      return;
+    }
+
+    const turnosEspecialista = await this.turnosService.obtenerTurnosEnFechaHora(
       this.diaSeleccionado,
       this.horarioSeleccionado,
       this.especialistaSeleccionado
     );
 
-    if (turnosExistentes.length > 0) {
+    if (turnosEspecialista.length > 0) {
       await Swal.fire({
         icon: 'warning',
         title: 'Horario ocupado',
-        text: 'El horario seleccionado ya fue reservado. Por favor, elegí otro.'
+        text: 'El especialista ya tiene un turno en este horario.'
       });
+      this.enviando = false;
+      return;
+    }
+
+    const tieneTurnoConOtro = await this.turnosService.pacienteTieneTurnoConOtroEspecialista(
+      this.diaSeleccionado,
+      this.horarioSeleccionado,
+      emailPaciente,
+      this.especialistaSeleccionado
+    );
+
+    if (tieneTurnoConOtro) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Conflicto de horario',
+        text: 'El paciente ya tiene un turno con otro especialista en ese horario.'
+      });
+      this.enviando = false;
+      return;
+    }
+
+    const mismoDiaMismoEspecialista = await this.turnosService.obtenerTurnosPacienteConEspecialistaMismoDia(
+      this.diaSeleccionado,
+      emailPaciente,
+      this.especialistaSeleccionado
+    );
+
+    if (mismoDiaMismoEspecialista.length > 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Turno duplicado',
+        text: 'El paciente ya tiene un turno con este especialista el mismo día.'
+      });
+      this.enviando = false;
+      return;
+    }
+
+    const fecha = new Date(this.diaSeleccionado + 'T00:00:00');
+    const nombreDia = fecha.toLocaleDateString('es-AR', { weekday: 'long' });
+    const nombrePrimeraLetraMayuscula = nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1);
+
+    const fechaCorta = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const fechaFormateada = `${nombrePrimeraLetraMayuscula} ${fechaCorta}`; 
+      
+    const confirmacion = await Swal.fire({
+      icon: 'question',
+      title: '¿Confirmar turno?',
+      text: `¿Deseás solicitar el turno el ${fechaFormateada} a las ${this.horarioSeleccionado}?`,
+      showCancelButton: true,
+      confirmButtonText: 'Sí, confirmar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacion.isConfirmed) {
       this.enviando = false;
       return;
     }
@@ -266,6 +336,22 @@ export class SolicitarTurnoComponent implements OnInit {
     }
   }
 
+  async verificarDisponibilidad(horario: string): Promise<boolean> {
+    if (!this.diaSeleccionado || !this.especialistaSeleccionado || !this.userEmail) return false;
+
+    const emailPaciente = this.tipoUsuario === 'admin'
+      ? this.pacienteSeleccionado
+      : this.userEmail;
+
+    const [global, individual, paciente] = await Promise.all([
+      this.turnosService.obtenerTurnosPorFechaYHora(this.diaSeleccionado, horario),
+      this.turnosService.obtenerTurnosEnFechaHora(this.diaSeleccionado, horario, this.especialistaSeleccionado),
+      this.turnosService.obtenerTurnosPacienteEnFechaHora(this.diaSeleccionado, horario, emailPaciente!)
+    ]);
+
+    return global.length < 6 && individual.length === 0 && paciente.length === 0;
+  }
+
   resetFormulario() {
     this.seleccionada = null;
     this.especialistas = [];
@@ -277,7 +363,4 @@ export class SolicitarTurnoComponent implements OnInit {
     this.horarioSeleccionado = null;
     if (this.tipoUsuario === 'admin') this.pacienteSeleccionado = null;
   }
-
-
-
 }

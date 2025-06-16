@@ -61,3 +61,22 @@
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
 }
+
+.no-disponible {
+  background-color: #ddd !important;
+  color: #999 !important;
+  border-color: #ccc !important;
+  cursor: not-allowed;
+}
+
+.btn-violet {
+  background-color: #a066c9;
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-violet:hover {
+  background-color: #8c50b8;
+  color: white;
+}

@@ -26,7 +26,6 @@ export class TurnosService {
   }
 
 
-
   async cancelarTurno(id: number, motivo: string) {
     const { error } = await supabase
       .from('turnos')
@@ -148,7 +147,6 @@ export class TurnosService {
     return data || [];
   }
 
-
   async obtenerEspecialidadesDisponibles(): Promise<string[]> {
     const { data, error } = await supabase
       .from('especialistas_especialidades')
@@ -164,7 +162,6 @@ export class TurnosService {
     return especialidadesUnicas;
   }
 
-
   async obtenerEspecialistasPorEspecialidad(especialidad: string): Promise<string[]> {
     const { data, error } = await supabase
       .from('especialistas_especialidades')
@@ -178,7 +175,6 @@ export class TurnosService {
 
     return data.map(e => e.especialista_email);
   }
-
 
   async obtenerDisponibilidadPorEspecialista(email: string): Promise<any[]> {
     const { data, error } = await supabase
@@ -194,8 +190,6 @@ export class TurnosService {
     return data || [];
   }
 
-
-
   async obtenerPacientes(): Promise<string[]> {
     const { data, error } = await supabase
       .from('users_data')
@@ -210,14 +204,10 @@ export class TurnosService {
     return data.map(p => p.mail);
   }
 
-
   async solicitarTurno(turno: any) {
     const { error } = await supabase.from('turnos').insert([turno]);
     if (error) throw error;
   }
-
-
-
 
   async obtenerTurnosEnFechaHora(
     fecha: string,
@@ -238,6 +228,82 @@ export class TurnosService {
     }
 
     return data || [];
+  }
+
+
+  async obtenerTurnosPorFechaYHora(fecha: string, hora: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('fecha', fecha)
+      .eq('hora', hora)
+      .in('estado', ['pendiente', 'aceptado']);
+
+    return data || [];
+  }
+
+
+  async obtenerTurnosPacienteEnFechaHora(fecha: string, hora: string, emailPaciente: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('fecha', fecha)
+      .eq('hora', hora)
+      .eq('paciente_email', emailPaciente)
+      .in('estado', ['pendiente', 'aceptado']);
+
+    return data || [];
+  }
+
+  async obtenerTurnosPacienteConEspecialistaMismoDia(fecha: string, emailPaciente: string, emailEspecialista: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('fecha', fecha)
+      .eq('paciente_email', emailPaciente)
+      .eq('especialista_email', emailEspecialista)
+      .in('estado', ['pendiente', 'aceptado']);
+
+    return data || [];
+  }
+
+  async pacienteTieneTurnoConOtroEspecialista(
+    fecha: string,
+    hora: string,
+    emailPaciente: string,
+    especialistaEmail: string
+  ): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('especialista_email')
+      .eq('fecha', fecha)
+      .eq('hora', hora)
+      .eq('paciente_email', emailPaciente)
+      .in('estado', ['pendiente', 'aceptado']);
+
+    if (error) {
+      console.error('Error al verificar conflicto de turno:', error.message);
+      return false;
+    }
+
+    return (data || []).some(t => t.especialista_email !== especialistaEmail);
+  }
+
+
+
+  async agregarHorarioEspecialista(email: string, dia: string, desde: string, hasta: string) {
+    const { error } = await supabase
+      .from('disponibilidad_especialistas')
+      .insert([{ especialista_email: email, dia, desde, hasta }]);
+    if (error) throw error;
+  }
+
+  async eliminarHorario(id: number) {
+    const { error } = await supabase
+      .from('disponibilidad_especialistas')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   }
 
 

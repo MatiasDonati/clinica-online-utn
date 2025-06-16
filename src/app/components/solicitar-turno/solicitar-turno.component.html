@@ -72,26 +72,55 @@
     </div>
 
     <!-- Horarios -->
-    <div *ngIf="horariosDisponibles.length > 0">
+    <!-- <div *ngIf="horariosDisponibles.length > 0">
       <h5 class="mb-3 titulo-violeta">
         Horarios disponibles para {{ diaSeleccionado | date:'dd/MM/yyyy' | titlecase }}
       </h5>
+
       <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
         <button
           class="btn btn-outline-violet"
           *ngFor="let h of horariosDisponibles"
-          [ngClass]="{ 'activo': h === horarioSeleccionado }"
-          (click)="seleccionarHorario(h)">
-          {{ h }}
+          [ngClass]="{ 'activo': h.hora === horarioSeleccionado }"
+          
+          [disabled]="!h.disponible"
+          
+          (click)="seleccionarHorario(h.hora)">
+          {{ h.hora }}
+        </button>
+      </div>
+    </div> -->
+
+    <!-- Horarios -->
+    <div *ngIf="horariosDisponibles.length > 0">
+      <h5 class="mb-3 titulo-violeta">
+        Horarios disponibles para {{ diaSeleccionado | date:'dd/MM/yyyy' | titlecase }}
+      </h5>
+
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <button
+          class="btn btn-outline-violet"
+          *ngFor="let h of horariosDisponibles"
+          [ngClass]="{
+            'activo': h.hora === horarioSeleccionado,
+            'no-disponible': !h.disponible
+          }"
+          (click)="seleccionarHorario(h.hora)">
+          {{ h.hora }}
         </button>
       </div>
     </div>
 
 
+    
+
+
+
+
     <!-- Botón Confirmar Turno -->
     <div *ngIf="horarioSeleccionado" class="mt-4">
       <button
-        class="btn btn-success"
+        class="btn btn-violet"
         [disabled]="enviando"
         (click)="confirmarTurno()"
       >

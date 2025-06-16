@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
+import { HorariosEspecialistasComponent } from '../horarios-especialistas/horarios-especialistas.component';
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, HeaderComponent, HorariosEspecialistasComponent],
   templateUrl: './mi-perfil.component.html',
   styleUrls: ['./mi-perfil.component.css']
 })

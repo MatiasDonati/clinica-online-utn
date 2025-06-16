@@ -52,10 +52,9 @@
         <p><strong>Edad:</strong> {{ edad }}</p>
       </div>
 
-      <!-- Lugar para agregar app-mis-horarios -->
+      <!-- Horarios especialista -->
       <div *ngIf="tipoUsuario === 'especialista'" class="mt-4">
-        <h4>Mis horarios</h4>
-        <!-- <app-mis-horarios></app-mis-horarios> -->
+        <app-horarios-especialistas></app-horarios-especialistas>
       </div>
     </div>
   </ng-template>
