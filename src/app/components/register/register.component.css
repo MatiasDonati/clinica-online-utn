@@ -142,3 +142,32 @@
   margin-bottom: 5px;
   padding-left: 10px;
 }
+
+input[type="file"].register-input {
+  background-color: rgba(138, 43, 226, 0.2);
+  color: #ffffff;
+  border: 1px solid #8A2BE2;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+input[type="file"].register-input:hover {
+  background-color: rgba(138, 43, 226, 0.3);
+  transform: scale(1.02);
+}
+
+
+.file-upload-wrapper {
+  align-items: center;
+  gap: 10px;
+}
+
+.captcha-centrado {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+

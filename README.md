@@ -1,59 +1,83 @@
-# Clinica Online
+# 🏥 Clínica Online
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
+Aplicación desarrollada como parte del II Trabajo Práctico Laboratorio IV. 
+Permite gestionar turnos médicos entre pacientes, especialistas y administradores.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🏠 Home
 
-```bash
-ng serve
-```
+Pantalla de bienvenida con accesos a Login y Registro.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+![Home](/public/capturasApp/HOME.png)
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 📝 Registro
 
-```bash
-ng generate component component-name
-```
+Formulario para registrar **Pacientes** o **Especialistas**, con validaciones personalizadas.  
+Los especialistas pueden seleccionar o crear nuevas especialidades.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+![Registro](/public/capturasApp/REGISTRO.png)
 
-```bash
-ng generate --helpa
-```
+---
 
-## Building
+## 🔐 Login
 
-To build the project run:
+Pantalla de ingreso con **usuarios rápidos**.  
+Solo ingresan especialistas aprobados y usuarios verificados.
 
-```bash
-ng build
-```
+![Login](/public/capturasApp/LOGIN.png)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 👥 Usuarios (Administrador)
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Sección exclusiva del administrador para:
 
-```bash
-ng test
-```
+- Ver todos los usuarios registrados
+- Habilitar o deshabilitar especialistas
+- Crear nuevos usuarios (incluso administradores)
+- Visualizar todos los usuarios
+- Crear turnos, o cancelar si aun no fueron aprobados por el especialista.
 
-## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+![Usuarios](/public/capturasApp/USUARIOS.png)
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📆 Solicitar Turno
 
-## Additional Resources
+Desde aquí **Pacientes y Administradores** pueden solicitar turnos:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- El paciente o adminitrados puede solicitar turnos.
+
+![Solicitar Turnos](/public/capturasApp/SACARTURNOS.png)
+
+---
+
+## 📋 Mis Turnos
+
+Vista personalizada para:
+
+![Mis Turnos](/public/capturasApp/TURNOS.png)
+
+### 👨‍⚕️ Especialista
+- Ver sus turnos
+- Aceptar, rechazar, cancelar o finalizar turnos
+- Dejar reseña y diagnóstico
+- Filtrar por paciente o especialidad
+
+### 🧑‍💼 Paciente
+- Ver turnos propios
+- Cancelar, completar encuesta, dejar reseña, calificar
+- Filtrar por especialidad o especialista
+
+
+---
+
+## 👤 Mi Perfil
+
+Visualización de los datos personales y, en caso de ser especialista, gestión de horarios de atención con validaciones según los días de la clínica.
+
+![Mi Perfil](/public/capturasApp/PERFIL.png)

@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  title = 'Clinica Online';
+
   userEmail: string | null = null;
   mostrarLoginRegister = false;
   cargando: boolean = false;

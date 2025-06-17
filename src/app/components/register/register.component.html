@@ -177,12 +177,15 @@
     </div>
 
     <!-- CAPTCHA -->
-    <div class="text-center" *ngIf="tipoSeleccionado">
+    <div class="captcha-centrado" *ngIf="tipoSeleccionado">
       <re-captcha
         [siteKey]="siteKey"
+        theme="dark"
         (resolved)="onCaptchaResolved($event)">
       </re-captcha>
     </div>
+
+
 
 
     <!-- Botón -->

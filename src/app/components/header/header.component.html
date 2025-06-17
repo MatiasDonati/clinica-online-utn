@@ -1,8 +1,7 @@
 <div class="container-fluid py-3 mb-4 d-flex justify-content-center align-items-center gap-4 rounded bg-light-purple position-relative">
   <img src="header-img.png" alt="Izquierda" class="img-fluid" style="width: 50px;" />
-  <h1 class="mb-0 text-black">{{ title }}</h1>
+  <h1 class="titulo-header mb-0">Clínica Online</h1>
   <img src="header-img.png" alt="Derecha" class="img-fluid" style="width: 50px;" />
-
 
   <div *ngIf="userEmail" class="user-info d-flex flex-column align-items-end gap-1">
     <span class="user-bienvenido">{{ userEmail }}</span>
@@ -12,13 +11,12 @@
 
 <!-- Spinner -->
 <div *ngIf="cargando" class="position-absolute top-0 end-0 p-2">
-  <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
-  </div>
+  <div class="spinner-border spinner-border-sm text-primary" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
 </div>
 
 <div class="container text-center mb-4">
   <div class="d-flex justify-content-center gap-3 flex-wrap">
-    <button  type="button" class="btn-violet" (click)="irA('')">Home</button>
+    <button type="button" class="btn-violet" (click)="irA('')">Home</button>
     <button *ngIf="userEmail" type="button" class="btn-violet" (click)="irA('mi-perfil')">Mi Perfil</button>
     <button *ngIf="mostrarLoginRegister" type="button" class="btn-violet" (click)="irA('login')">Login</button>
     <button *ngIf="mostrarLoginRegister" type="button" class="btn-violet" (click)="irA('register')">Registro</button>
