@@ -87,8 +87,10 @@ export class SolicitarTurnoComponent implements OnInit {
     this.especialistaSeleccionado = email;
     const original = await this.turnosService.obtenerDisponibilidadPorEspecialista(email);
     this.disponibilidad = original;
+    console.log(this.disponibilidad);
 
     this.fechasDisponibles = this.obtenerFechasProximas(original);
+    console.log(this.fechasDisponibles);
     this.diaSeleccionado = null;
     this.horariosDisponibles = [];
   }
@@ -165,6 +167,7 @@ export class SolicitarTurnoComponent implements OnInit {
       const disp = disponibilidad.find(d => d.dia.toLowerCase() === dia);
 
       if (disp) {
+       // YYYY-MM-DD
         fechas.push({
           fecha: fecha.toISOString().split('T')[0],
           dia,

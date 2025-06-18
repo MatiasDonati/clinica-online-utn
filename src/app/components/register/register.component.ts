@@ -37,11 +37,11 @@ export class RegisterComponent implements OnInit {
   captchaToken: string = '';
   siteKey: string = '6LdY5VwrAAAAAFk__WuJUdZZuM5PhwOveV-B47B7';
 
-tipoSeleccionado: 'paciente' | 'especialista' | 'admin' | null = null;
+  tipoSeleccionado: 'paciente' | 'especialista' | 'admin' | null = null;
 
-especialidadesDisponibles = ['Cardiología', 'Pediatría', 'Dermatología'];
-especialidadesSeleccionadas: string[] = [];
-nuevaEspecialidad: string = '';
+  especialidadesDisponibles = ['Cardiología', 'Pediatría', 'Dermatología'];
+  especialidadesSeleccionadas: string[] = [];
+  nuevaEspecialidad: string = '';
 
 
   constructor(
@@ -94,6 +94,7 @@ nuevaEspecialidad: string = '';
   }
 
   async register() {
+    
     this.mensaje = '';
     this.cargando = true;
     this.registroExitoso = false;
