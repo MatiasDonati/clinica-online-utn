@@ -9,7 +9,11 @@
     <button class="btn btn-outline-light" [class.active]="vistaActual === 'crear'" (click)="vistaActual = 'crear'">
       Crear Usuario
     </button>
+    <button class="btn btn-outline-light" [class.active]="vistaActual === 'historias'" (click)="vistaActual = 'historias'">
+      Ver Historias Clínicas
+    </button>
   </div>
+
 
   <ng-container *ngIf="vistaActual === 'listado'">
     <app-usuarios-lista></app-usuarios-lista>
@@ -18,4 +22,9 @@
   <ng-container *ngIf="vistaActual === 'crear'">
     <app-usuarios-crear></app-usuarios-crear>
   </ng-container>
+
+  <ng-container *ngIf="vistaActual === 'historias'">
+    <app-usuarios-historias-clinicas></app-usuarios-historias-clinicas>
+  </ng-container>
+
 </div>

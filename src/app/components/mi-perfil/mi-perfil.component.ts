@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
 import { HorariosEspecialistasComponent } from '../horarios-especialistas/horarios-especialistas.component';
+import { HistoriaClinicaComponent } from "../historia-clinica/historia-clinica.component";
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, HorariosEspecialistasComponent],
+  imports: [CommonModule, HeaderComponent, HorariosEspecialistasComponent, HistoriaClinicaComponent],
   templateUrl: './mi-perfil.component.html',
   styleUrls: ['./mi-perfil.component.css']
+  
 })
 export class MiPerfilComponent implements OnInit {
   userEmail: string | null = null;
@@ -23,6 +25,9 @@ export class MiPerfilComponent implements OnInit {
   dni: string = '';
   edad: number | null = null;
   obraSocial: string = '';
+
+
+  mostrarHistoria = false;
 
 
   constructor(private authService: AuthService) {}

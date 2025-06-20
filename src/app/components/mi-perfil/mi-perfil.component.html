@@ -52,6 +52,19 @@
         <p><strong>Edad:</strong> {{ edad }}</p>
       </div>
 
+    <!-- Botón para mostrar/ocultar historia clínica -->
+    <div *ngIf="tipoUsuario === 'paciente'" class="mt-4">
+      <button class="btn btn-outline-light mb-3" (click)="mostrarHistoria = !mostrarHistoria">
+        {{ mostrarHistoria ? 'Ocultar Historia Clínica' : 'Ver Historia Clínica' }}
+      </button>
+
+      <div *ngIf="mostrarHistoria" class="fade-in">
+        <app-historia-clinica></app-historia-clinica>
+      </div>
+    </div>
+
+
+
       <!-- Horarios especialista -->
       <div *ngIf="tipoUsuario === 'especialista'" class="mt-4">
         <app-horarios-especialistas></app-horarios-especialistas>

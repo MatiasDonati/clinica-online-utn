@@ -1,0 +1,44 @@
+.titulo-violeta {
+  color: #c28cfb;
+  font-weight: bold;
+  font-size: 2.2rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.fondo-translucido {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 20px;
+}
+
+.text-violet {
+  color: #c28cfb;
+}
+
+
+.form-select {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: 1px solid #c28cfb;
+  border-radius: 10px;
+  padding: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #d8b1ff;
+  box-shadow: 0 0 8px #c28cfb80;
+}
+
+.btn-outline-light {
+  border-color: #c28cfb;
+  color: #c28cfb;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+  background-color: #c28cfb;
+  color: #1c1c1c;
+}

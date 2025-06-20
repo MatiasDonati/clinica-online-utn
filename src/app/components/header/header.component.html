@@ -24,5 +24,6 @@
     <button *ngIf="esAdmin" type="button" class="btn-violet" (click)="irA('turnos-admin')">Turnos</button>
     <button *ngIf="esAdmin || paciente" type="button" class="btn-violet" (click)="irA('solicitar-turno')">Solicitar Turno</button>
     <button *ngIf="userEmail && !esAdmin" type="button" class="btn-violet" (click)="irA('mis-turnos')">Mis Turnos</button>
+    <button *ngIf="userEmail && !esAdmin && !paciente" type="button" class="btn-violet" (click)="irA('pacientes')">Pacientes</button>
   </div>
 </div>

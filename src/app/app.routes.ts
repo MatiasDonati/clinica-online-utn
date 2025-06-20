@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { canMatchGuardSoloAdmin } from './guards/can-match.guard';
 import { canMatchGuardSoloPaciente } from './guards/can-match.guard-paciente';
 import { canMatchGuardSoloEspecialista } from './guards/can-match.guard-especialista';
+import { authGuard } from './guards/auth.guard';
+import { canMatchPacienteOAdmin } from './guards/can-match.guard-pacienteOAdmin';
 
 export const routes: Routes = [
   { 
@@ -47,14 +49,18 @@ export const routes: Routes = [
   },
   {
     path: 'solicitar-turno',
-    // canMatch: [canMatchGuardSoloPaciente],
+    canMatch: [canMatchPacienteOAdmin],
     loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(c => c.SolicitarTurnoComponent)
   },
   {
     path: 'mi-perfil',
-    // canMatch: [canMatchGuardSoloPaciente],
+    canActivate: [authGuard],
     loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(c => c.MiPerfilComponent)
-
+  },
+  {
+    path: 'pacientes',
+    canMatch: [canMatchGuardSoloEspecialista],
+    loadComponent: () => import('./components/pacientes/pacientes.component').then(c => c.PacientesComponent)
   },
 
   { path: '**', redirectTo: 'home' }

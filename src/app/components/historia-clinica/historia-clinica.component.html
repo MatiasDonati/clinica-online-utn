@@ -1,0 +1,59 @@
+<div class="container my-5 text-center">
+  <h2>Historia Clínica</h2>
+
+  <div *ngIf="cargando" class="text-center my-4">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <div *ngIf="!cargando && historias.length === 0" class="text-light">
+    No hay historias clínicas registradas.
+  </div>
+
+  <div *ngIf="!cargando && historias.length > 0" class="table-responsive">
+    <table class="table table-dark table-bordered">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+
+          <!-- Mostrar especialista si el usuario es paciente o admin -->
+          <th *ngIf="tipoUsuario === 'paciente' || tipoUsuario === 'admin'">Especialista</th>
+
+          <!-- Mostrar paciente si el usuario es especialista o admin -->
+          <th *ngIf="tipoUsuario === 'especialista' || tipoUsuario === 'admin'">Paciente</th>
+
+          <th>Altura</th>
+          <th>Peso</th>
+          <th>Temperatura</th>
+          <th>Presión</th>
+          <th>Datos adicionales</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let h of historias">
+          <td>{{ h.fecha | date:'dd/MM/yyyy' }}</td>
+
+          <td *ngIf="tipoUsuario === 'paciente' || tipoUsuario === 'admin'">
+            {{ h.especialistaNombre }}
+          </td>
+
+          <td *ngIf="tipoUsuario === 'especialista' || tipoUsuario === 'admin'">
+            {{ h.pacienteNombre }}
+          </td>
+
+          <td>{{ h.altura }} cm</td>
+          <td>{{ h.peso }} kg</td>
+          <td>{{ h.temperatura }} °C</td>
+          <td>{{ h.presion }}</td>
+          <td>
+            <div *ngIf="h.datos_dinamicos && objectKeys(h.datos_dinamicos).length > 0; else sinDatos">
+              <div *ngFor="let clave of objectKeys(h.datos_dinamicos)">
+                <strong>{{ clave }}:</strong> {{ h.datos_dinamicos[clave] }}
+              </div>
+            </div>
+            <ng-template #sinDatos>—</ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

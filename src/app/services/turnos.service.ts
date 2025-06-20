@@ -223,7 +223,7 @@ export class TurnosService {
       .filter('estado', 'not.in', '(cancelado,rechazado)')
 
     if (error) {
-      console.error('❌ Error al consultar turnos en Supabase:', error.message);
+      console.error(' Error al consultar turnos en Supabase:', error.message);
       throw error;
     }
 
@@ -306,6 +306,44 @@ export class TurnosService {
     if (error) throw error;
   }
 
+
+  async obtenerEspecialistasPorEspecialidadCompleto(especialidad: string): Promise<{ nombre: string, apellido: string, email: string, imagen1: string }[]> {
+  const { data: relaciones, error: errorRelaciones } = await supabase
+    .from('especialistas_especialidades')
+    .select('especialista_email')
+    .eq('especialidad', especialidad);
+
+  if (errorRelaciones || !relaciones) {
+    console.error('Error al obtener relaciones:', errorRelaciones?.message);
+    return [];
+  }
+
+  const emails = relaciones.map(r => r.especialista_email);
+
+  const { data: especialistas, error: errorEspecialistas } = await supabase
+    .from('especialistas')
+    .select('nombre, apellido, mail, imagen1')
+    .in('mail', emails);
+
+  if (errorEspecialistas || !especialistas) {
+    console.error('Error al obtener especialistas:', errorEspecialistas?.message);
+    return [];
+  }
+
+  return especialistas.map((esp: any) => ({
+    nombre: esp.nombre,
+    apellido: esp.apellido,
+    email: esp.mail,
+    imagen1: esp.imagen1
+  }));
+}
+
+  async guardarHistoriaClinica(historia: any) {
+    const { error } = await supabase
+      .from('historias_clinicas')
+      .insert([historia]);
+    return { error };
+  }
 
 
 } 

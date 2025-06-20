@@ -1,3 +1,4 @@
+/* Container principal */
 .custom-container {
   background: rgba(0, 0, 0, 0.6);
   padding: 40px;
@@ -7,6 +8,7 @@
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
 }
 
+/* Títulos */
 .titulo-violeta {
   font-size: 2rem;
   font-weight: bold;
@@ -15,17 +17,30 @@
   margin-bottom: 30px;
 }
 
+/* Botón violetas principales */
 .btn-violet {
-  background-color: #8a2be2;
-  color: #ffffff;
-  padding: 10px 20px;
+  background-color: #a066c9;
+  color: white;
   border: none;
+  padding: 10px 20px;
   border-radius: 5px;
   font-weight: bold;
   text-transform: uppercase;
-  transition: background-color 0.3s, transform 0.3s;
+  transition: background-color 0.3s ease, transform 0.3s;
 }
 
+.btn-violet:hover {
+  background-color: #8c50b8;
+  transform: scale(1.05);
+}
+
+/* Variante activa */
+.btn-violet.activo {
+  background-color: #732d91;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+}
+
+/* Botón contorno violeta */
 .btn-outline-violet {
   background-color: transparent;
   color: #e0b3ff;
@@ -43,25 +58,13 @@
   transform: scale(1.05);
 }
 
-
 .btn-outline-violet.activo {
   background-color: #e0b3ff;
   color: black;
-  transform: scale(1.05);
   box-shadow: 0 0 10px rgba(224, 179, 255, 0.5);
 }
 
-.btn-violet:hover {
-  background-color: #732d91;
-  transform: scale(1.05);
-}
-
-.btn-violet.activo {
-  background-color: #732d91;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
-}
-
+/* Horario no disponible */
 .no-disponible {
   background-color: #ddd !important;
   color: #999 !important;
@@ -69,14 +72,97 @@
   cursor: not-allowed;
 }
 
-.btn-violet {
-  background-color: #a066c9;
-  color: white;
-  border: none;
-  transition: background-color 0.3s ease;
+/* Botones redondos de especialidades */
+.especialidad-btn {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  padding: 0;
+  border: 3px solid #a46ae2;
+  overflow: hidden;
+  background: none;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 
-.btn-violet:hover {
-  background-color: #8c50b8;
+
+.especialidad-btn:hover {
+  border-color: #b36dff;
+}
+
+.especialidad-activa {
+  border-color: #e0b3ff !important;
+  box-shadow: 0 0 10px rgba(224, 179, 255, 0.6);
+}
+
+.img-especialidad {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Especialistas */
+.profesional-wrapper {
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profesional-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.profesional-btn {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  padding: 0;
+  border: 3px solid #a46ae2;
+  overflow: hidden;
+  background: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none; 
+}
+
+.profesional-btn:hover {
+  border-color: #b36dff;
+}
+
+.profesional-activo .profesional-btn {
+  border-color: #e0b3ff !important;
+  box-shadow: 0 0 10px rgba(224, 179, 255, 0.6);
+}
+
+.img-profesional {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.nombre-profesional {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: white;
+  margin-top: 8px;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.email-profesional {
+  font-size: 0.6rem;
+  color: #ccc;
+  margin-top: 2px;
+  word-break: break-word;
+  max-width: 120px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+
+.especialidad-btn:hover {
+  border-color: #b36dff;
+  transform: scale(1.05);
 }

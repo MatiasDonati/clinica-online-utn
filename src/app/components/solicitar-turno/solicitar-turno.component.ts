@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { TurnosService } from '../../services/turnos.service';
 import { HeaderComponent } from "../header/header.component";
-import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf, TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 import { createClient } from '@supabase/supabase-js';
 import Swal from 'sweetalert2';
+import { flatMap } from 'rxjs';
+import { HoraFormatoPipe } from '../../pipes/hora-formato.pipe';
 
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
@@ -15,12 +17,12 @@ const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   templateUrl: './solicitar-turno.component.html',
   styleUrls: ['./solicitar-turno.component.css'],
   standalone: true,
-  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass, DatePipe, FormsModule]
+  imports: [HeaderComponent, NgFor, NgIf, TitleCasePipe, NgClass, DatePipe, FormsModule, UpperCasePipe, HoraFormatoPipe]
 })
 export class SolicitarTurnoComponent implements OnInit {
 
   especialidades: string[] = [];
-  especialistas: string[] = [];
+  especialistas: { nombre: string, apellido: string, email: string, imagen1: string }[] = [];
   disponibilidad: any[] = [];
 
   cargando = true;
@@ -28,7 +30,7 @@ export class SolicitarTurnoComponent implements OnInit {
   seleccionada: string | null = null;
   especialistaSeleccionado: string | null = null;
 
-  horariosDisponibles: { hora: string, disponible: boolean }[] = []; // ✅ Tipo actualizado
+  horariosDisponibles: { hora: string, disponible: boolean }[] = [];
   diaSeleccionado: string | null = null;
   horarioSeleccionado: string | null = null;
 
@@ -41,13 +43,16 @@ export class SolicitarTurnoComponent implements OnInit {
   tipoUsuario: string | null = null;
 
   enviando: boolean = false;
-  
+
   ////////////
   ////////////
   modoPrueba: boolean = false;
   ////////////
   ////////////
 
+  cargandoEspecialistas = false;
+  cargandoFechas = false;
+  cargandoHorarios = false;
 
   constructor(private turnosService: TurnosService, private authService: AuthService) {}
 
@@ -74,25 +79,35 @@ export class SolicitarTurnoComponent implements OnInit {
 
   async seleccionarEspecialidad(esp: string) {
     this.seleccionada = esp;
-    this.especialistas = await this.turnosService.obtenerEspecialistasPorEspecialidad(esp);
+    this.cargandoEspecialistas = true;
+
+    // ✅ ahora se obtienen nombre, apellido, email, imagen1
+    this.especialistas = await this.turnosService.obtenerEspecialistasPorEspecialidadCompleto(esp);
+
+    this.cargandoEspecialistas = false;
+
     this.especialistaSeleccionado = null;
     this.disponibilidad = [];
     this.horariosDisponibles = [];
-    this.fechasDisponibles= [];
+    this.fechasDisponibles = [];
     this.horariosDisponibles = [];
     this.horarioSeleccionado = null;
   }
 
   async seleccionarEspecialista(email: string) {
     this.especialistaSeleccionado = email;
+    this.cargandoFechas = true;
+
     const original = await this.turnosService.obtenerDisponibilidadPorEspecialista(email);
+
     this.disponibilidad = original;
     console.log(this.disponibilidad);
 
     this.fechasDisponibles = this.obtenerFechasProximas(original);
-    console.log(this.fechasDisponibles);
+    console.log('Fechas disponibles!..', this.fechasDisponibles);
     this.diaSeleccionado = null;
     this.horariosDisponibles = [];
+    this.cargandoFechas = false;
   }
 
   seleccionarDia(dia: string) {
@@ -104,7 +119,6 @@ export class SolicitarTurnoComponent implements OnInit {
   }
 
   async generarHorarios(desde: string, hasta: string): Promise<{ hora: string, disponible: boolean }[]> {
-    const horarios: { hora: string, disponible: boolean }[] = [];
     const [desdeHora, desdeMinuto] = desde.split(':').map(Number);
     const [hastaHora, hastaMinuto] = hasta.split(':').map(Number);
 
@@ -118,13 +132,17 @@ export class SolicitarTurnoComponent implements OnInit {
 
     while (inicio < fin) {
       const hora = inicio.toTimeString().slice(0, 5);
+
       promesas.push(
         this.verificarDisponibilidad(hora).then(disponible => ({ hora, disponible }))
       );
+
       inicio.setMinutes(inicio.getMinutes() + 30);
     }
 
-    return Promise.all(promesas);
+    const resultados = await Promise.all(promesas);
+    console.log('Horarios generados...', resultados);
+    return resultados;
   }
 
   seleccionarHorario(horario: string) {
@@ -167,9 +185,8 @@ export class SolicitarTurnoComponent implements OnInit {
       const disp = disponibilidad.find(d => d.dia.toLowerCase() === dia);
 
       if (disp) {
-       // YYYY-MM-DD
         fechas.push({
-          fecha: fecha.toISOString().split('T')[0],
+          fecha: fecha.toLocaleDateString('sv-SE'),
           dia,
           desde: disp.desde,
           hasta: disp.hasta
@@ -182,7 +199,9 @@ export class SolicitarTurnoComponent implements OnInit {
 
   async seleccionarFecha(f: { fecha: string, desde: string, hasta: string }) {
     this.diaSeleccionado = f.fecha;
+    this.cargandoHorarios = true;
     this.horariosDisponibles = await this.generarHorarios(f.desde, f.hasta);
+    this.cargandoHorarios = false;
   }
 
   async cargarPacientes() {
@@ -197,13 +216,7 @@ export class SolicitarTurnoComponent implements OnInit {
       ? this.pacienteSeleccionado
       : this.userEmail;
 
-    if (
-      !this.seleccionada ||
-      !this.especialistaSeleccionado ||
-      !this.diaSeleccionado ||
-      !this.horarioSeleccionado ||
-      !emailPaciente
-    ) {
+    if (!this.seleccionada || !this.especialistaSeleccionado || !this.diaSeleccionado || !this.horarioSeleccionado || !emailPaciente) {
       await Swal.fire({
         icon: 'warning',
         title: 'Faltan datos',
@@ -218,7 +231,6 @@ export class SolicitarTurnoComponent implements OnInit {
       this.horarioSeleccionado
     );
 
-    console.log('Turnos en el mismo horario:', turnosEnEseMomento.length, turnosEnEseMomento);
     if (turnosEnEseMomento.length >= 6) {
       await Swal.fire({
         icon: 'warning',
@@ -283,8 +295,8 @@ export class SolicitarTurnoComponent implements OnInit {
     const nombrePrimeraLetraMayuscula = nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1);
 
     const fechaCorta = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const fechaFormateada = `${nombrePrimeraLetraMayuscula} ${fechaCorta}`; 
-      
+    const fechaFormateada = `${nombrePrimeraLetraMayuscula} ${fechaCorta}`;
+
     const confirmacion = await Swal.fire({
       icon: 'question',
       title: '¿Confirmar turno?',
@@ -327,8 +339,6 @@ export class SolicitarTurnoComponent implements OnInit {
       this.resetFormulario();
     } catch (err) {
       const mensaje = err instanceof Error ? err.message : 'Error desconocido';
-      console.log('Error al solicitar turno:', mensaje);
-
       await Swal.fire({
         icon: 'error',
         title: 'Error al guardar el turno',
@@ -354,6 +364,33 @@ export class SolicitarTurnoComponent implements OnInit {
 
     return global.length < 6 && individual.length === 0 && paciente.length === 0;
   }
+
+  getImagenEspecialidad(especialidad: string): string {
+    const nombreNormalizado = this.normalizarNombre(especialidad);
+
+    const disponibles = [
+      'cardiologia', 'clinico', 'dermatologia', 'odontologia',
+      'otorrino', 'pediatria', 'traumatologia', 'urologia'
+    ];
+
+    return disponibles.includes(nombreNormalizado)
+      ? `/imgs_especialidades/${nombreNormalizado}.jpg`
+      : '/imgs_especialidades/default.jpg';
+  }
+
+  private normalizarNombre(nombre: string): string {
+    return nombre
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '');
+  }
+
+  getNombreCompletoEspecialista(): string {
+    const seleccionado = this.especialistas.find(e => e.email === this.especialistaSeleccionado);
+    return seleccionado ? `${seleccionado.nombre} ${seleccionado.apellido}` : '';
+  }
+
 
   resetFormulario() {
     this.seleccionada = null;

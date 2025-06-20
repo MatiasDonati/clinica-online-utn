@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuariosService } from '../../../services/usuarios.service';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
+import { ExcelService } from '../../../services/excel.service';
+
 
 @Component({
   selector: 'app-usuarios-lista',
@@ -22,7 +24,7 @@ export class UsuariosListaComponent {
   
   
   
-    constructor(private usuariosService: UsuariosService) {}
+    constructor(private usuariosService: UsuariosService, private excelService: ExcelService) {}
   
     async ngOnInit() {
 
@@ -48,7 +50,7 @@ export class UsuariosListaComponent {
       this.cargando = false;
     }
   
-  
+
     async cambiarEstadoEspecialista(mail: string, aprobado: boolean) {
       this.actualizandoEstado = mail;
   
@@ -85,5 +87,62 @@ export class UsuariosListaComponent {
       if (this.tipoFiltro === 'todos') return this.usuarios;
       return this.usuarios.filter(u => u.tipo === this.tipoFiltro);
     }
+
+      
+    async exportarExcel() {
+      // Carga todos los usuarios según filtro seleccionado (tipoFiltro p.ej. 'todos', 'paciente', etc.)
+
+      // si est todos tengo q armar una tabla con todos llos campos de todos y el q no tiene por ej paciente especialidades q sea "-"
+      // si son especialista los especialstas
+      // si son admin los admin
+      // si son paciente los paciente
+
+      // Tengo que hacer metodos de consulta a Supabase para traer todos los datos ya q aca solo llegan mail tipo y aprobado..
+
+      const usuarios = this.tipoFiltro === 'todos'
+        ? this.usuarios
+        : this.usuariosFiltrados;
+
+      // Mapea cada usuario según su tipo
+      const datosParaExcel = usuarios.map(u => {
+        switch (u.tipo) {
+          case 'paciente':
+            return {
+              tipo: u.tipo,
+              nombre: u.nombre,
+              apellido: u.apellido,
+              edad: u.edad,
+              dni: u.dni,
+              obraSocial: u.obrasocial,
+              mail: u.mail
+            };
+          case 'especialista':
+            return {
+              tipo: u.tipo,
+              nombre: u.nombre,
+              apellido: u.apellido,
+              edad: u.edad,
+              dni: u.dni,
+              especialidades: (u.especialidades ?? []).join(', '),
+              aprobado: u.aprobado ? 'Sí' : 'No',
+              mail: u.mail
+            };
+          case 'admin':
+            return {
+              tipo: u.tipo,
+              nombre: u.nombre,
+              apellido: u.apellido,
+              edad: u.edad,
+              dni: u.dni,
+              mail: u.mail
+            };
+          default:
+            return u;
+        }
+      });
+
+      this.excelService.exportAsExcelFile(datosParaExcel, 'usuarios_completos');
+    }
+
 
 }

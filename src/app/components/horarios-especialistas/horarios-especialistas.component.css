@@ -27,3 +27,29 @@
   background-color: #a066c9;
   color: white;
 }
+
+/* Estilo violeta para encabezado de tabla */
+.table-violet th {
+  background-color: #a066c9;
+  color: white;
+  border-color: #8c50b8;
+}
+
+/* Inputs violetas */
+.input-violet {
+  background-color: #1f1f1f;
+  color: white;
+  border: 1px solid #a066c9;
+}
+
+.input-violet:focus {
+  border-color: #c497f4;
+  box-shadow: 0 0 0 0.2rem rgba(160, 102, 201, 0.25);
+}
+
+/* Opcional: redondear tabla completa */
+.custom-table {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+

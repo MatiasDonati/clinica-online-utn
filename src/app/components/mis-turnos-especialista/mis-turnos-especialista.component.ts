@@ -67,31 +67,79 @@ export class MisTurnosEspecialistaComponent implements OnInit {
     this.ngOnInit();
   }
 
-  async finalizarTurno(turno: any) {
-    const { value: formValues } = await Swal.fire({
-      title: 'Finalizar Turno',
-      html:
-        `<input id="swal-comentario" class="swal2-input" placeholder="Comentario general">` +
-        `<textarea id="swal-diagnostico" class="swal2-textarea" placeholder="Diagnóstico médico"></textarea>`,
-      focusConfirm: false,
-      showCancelButton: true,
-      preConfirm: () => {
-        const comentario = (document.getElementById('swal-comentario') as HTMLInputElement).value;
-        const diagnostico = (document.getElementById('swal-diagnostico') as HTMLTextAreaElement).value;
-        if (!comentario || !diagnostico) {
-          Swal.showValidationMessage('Debe completar ambos campos');
-          return;
-        }
-        return { comentario, diagnostico };
+async finalizarTurno(turno: any) {
+  const { value: formValues } = await Swal.fire({
+    title: 'Historia Clínica',
+    html: `
+      <input id="hc-altura" class="swal2-input" placeholder="Altura (ej. 1.70)" type="number" step="0.01">
+      <input id="hc-peso" class="swal2-input" placeholder="Peso (kg)" type="number" step="0.1">
+      <input id="hc-temperatura" class="swal2-input" placeholder="Temperatura (°C)" type="number" step="0.1">
+      <input id="hc-presion" class="swal2-input" placeholder="Presión (ej. 120/80)">
+
+      <hr>
+      <input id="clave1" class="swal2-input" placeholder="Campo 1">
+      <input id="valor1" class="swal2-input" placeholder="Valor 1">
+
+      <input id="clave2" class="swal2-input" placeholder="Campo 2 (opcional)">
+      <input id="valor2" class="swal2-input" placeholder="Valor 2">
+
+      <input id="clave3" class="swal2-input" placeholder="Campo 3 (opcional)">
+      <input id="valor3" class="swal2-input" placeholder="Valor 3">
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    preConfirm: () => {
+      const altura = parseFloat((<HTMLInputElement>document.getElementById('hc-altura')).value);
+      const peso = parseFloat((<HTMLInputElement>document.getElementById('hc-peso')).value);
+      const temperatura = parseFloat((<HTMLInputElement>document.getElementById('hc-temperatura')).value);
+      const presion = (<HTMLInputElement>document.getElementById('hc-presion')).value;
+
+      if (!altura || !peso || !temperatura || !presion) {
+        Swal.showValidationMessage('Todos los campos fijos son obligatorios');
+        return;
       }
+
+      const datos_dinamicos: { [clave: string]: string } = {};
+      for (let i = 1; i <= 3; i++) {
+        const clave = (<HTMLInputElement>document.getElementById(`clave${i}`)).value.trim();
+        const valor = (<HTMLInputElement>document.getElementById(`valor${i}`)).value.trim();
+        if (clave && valor) {
+          datos_dinamicos[clave] = valor;
+        }
+      }
+
+      return { altura, peso, temperatura, presion, datos_dinamicos };
+    }
+  });
+
+  if (!formValues) return;
+
+  try {
+    // Guardar en historias_clinicas
+    const { error } = await this.turnosService.guardarHistoriaClinica({
+      paciente_email: turno.paciente_email,
+      especialista_email: this.userEmail!,
+      altura: formValues.altura,
+      peso: formValues.peso,
+      temperatura: formValues.temperatura,
+      presion: formValues.presion,
+      datos_dinamicos: formValues.datos_dinamicos
     });
 
-    if (!formValues) return;
+    if (error) throw error;
 
-    await this.turnosService.finalizarTurno(turno.id, formValues.comentario, formValues.diagnostico);
-    Swal.fire('Turno finalizado', '', 'success');
-    this.ngOnInit();
+    // estado del turno a 'realizado'
+    await this.turnosService.finalizarTurno(turno.id, 'Finalizado con historia clínica', '');
+
+    Swal.fire('Guardado', 'La historia clínica fue registrada', 'success');
+    this.cargarTurnos();
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Error', 'No se pudo guardar la historia clínica.', 'error');
   }
+}
+
 
 
   verDetalles(turno: any) {

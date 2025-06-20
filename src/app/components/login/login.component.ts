@@ -171,6 +171,7 @@ async ngOnInit() {
         case 'paciente':
           const { data: paciente, error: errorPaciente } = await supabase
             .from('pacientes')
+            //imagen
             .select('imagen1')
             .eq('mail', email)
             .single();
@@ -181,6 +182,7 @@ async ngOnInit() {
         case 'especialista':
           const { data: especialista, error: errorEsp } = await supabase
             .from('especialistas')
+            //imagen
             .select('imagen1')
             .eq('mail', email)
             .single();
@@ -191,6 +193,7 @@ async ngOnInit() {
         case 'admin':
           const { data: admin, error: errorAdmin } = await supabase
             .from('administradores')
+            //imagen
             .select('imagen')
             .eq('mail', email)
             .single();
