@@ -19,13 +19,11 @@
         <p class="text-muted">No hay imágenes cargadas.</p>
       </ng-template>
 
-      <!-- Datos comunes -->
       <p><strong>Nombre:</strong> {{ nombre }}</p>
       <p><strong>Apellido:</strong> {{ apellido }}</p>
       <p><strong>Email-Usuario:</strong> {{ userEmail }}</p>
       <p><strong>Tipo de usuario:</strong> {{ tipoUsuario }}</p>
 
-      <!-- Datos específicos según tipo -->
       <div *ngIf="tipoUsuario === 'paciente'">
         <p><strong>DNI:</strong> {{ dni }}</p>
         <p><strong>Edad:</strong> {{ edad }}</p>
@@ -35,8 +33,6 @@
       <div *ngIf="tipoUsuario === 'especialista'">
         <p><strong>DNI:</strong> {{ dni }}</p>
         <p><strong>Edad:</strong> {{ edad }}</p>
-
-        <!-- Especialidades -->
         <p><strong>Especialidad/es:</strong> 
           <span *ngIf="especialidades.length; else sinEsp">
             {{ especialidades.join(', ') }}
@@ -52,18 +48,22 @@
         <p><strong>Edad:</strong> {{ edad }}</p>
       </div>
 
-    <!-- Botón para mostrar/ocultar historia clínica -->
-    <div *ngIf="tipoUsuario === 'paciente'" class="mt-4">
-      <button class="btn btn-outline-light mb-3" (click)="mostrarHistoria = !mostrarHistoria">
-        {{ mostrarHistoria ? 'Ocultar Historia Clínica' : 'Ver Historia Clínica' }}
-      </button>
+      <!-- Historia clínica para pacientes -->
+      <div *ngIf="tipoUsuario === 'paciente'" class="mt-4">
+        <button class="btn btn-outline-light mb-3" (click)="mostrarHistoria = !mostrarHistoria">
+          {{ mostrarHistoria ? 'Ocultar Historia Clínica' : 'Ver Historia Clínica' }}
+        </button>
 
-      <div *ngIf="mostrarHistoria" class="fade-in">
-        <app-historia-clinica></app-historia-clinica>
+        <div *ngIf="mostrarHistoria" class="fade-in">
+          <app-historia-clinica></app-historia-clinica>
+
+          <div *ngIf="historiasClinicas.length" class="mt-3">
+            <button class="btn btn-outline-success" (click)="generarPDFHistoriaClinica(historiasClinicas)">
+              📄 Descargar Historia Clínica (PDF)
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-
-
 
       <!-- Horarios especialista -->
       <div *ngIf="tipoUsuario === 'especialista'" class="mt-4">
