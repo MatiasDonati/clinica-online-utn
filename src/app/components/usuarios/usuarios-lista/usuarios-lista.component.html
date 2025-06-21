@@ -1,13 +1,5 @@
 <div class="container my-2 text-center">
 
-  <!-- Excel -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-outline-light" (click)="exportarExcel()">
-      Descargar Usuarios (Excel)
-    </button>
-  </div>
-
-
   <ng-container *ngIf="cargando; else contenido">
     <div class="spinner-border text-primary" role="status">
     </div>
@@ -30,6 +22,22 @@
       <button class="btn btn-outline-light" [class.active]="tipoFiltro === 'admin'" (click)="tipoFiltro = 'admin'">
         Administradores
       </button>
+    </div>
+
+    <!-- Excel -->
+    <div class="mb-4 text-center">
+      <!-- <button
+        class="btn btn-outline-light btn-excel"
+        [class.active]="true"
+        (click)="exportarExcel()">
+        Descargar Usuarios (Excel)
+      </button> -->
+      <div class="mb-4 text-center">
+        <button class="btn btn-excel-celda" (click)="exportarExcel()">
+          📄 Descargar Excel
+        </button>
+      </div>
+
     </div>
 
 

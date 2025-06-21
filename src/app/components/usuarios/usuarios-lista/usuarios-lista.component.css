@@ -55,3 +55,36 @@ button[disabled] {
 }
 
 
+.btn-excel {
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 8px 16px;
+  border-color: #8A2BE2;
+  color: white;
+  background-color: transparent;
+  transition: transform 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.btn-excel:hover {
+  background-color: #8A2BE2;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+.btn-excel-celda {
+  background-color: #7e2fa5;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.btn-excel-celda:hover {
+  background-color: #218c4d;
+  transform: scale(1.03);
+  box-shadow: 0 0 10px #1d6f42;
+}
+

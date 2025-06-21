@@ -385,5 +385,84 @@ export class AuthService {
 }
 
 
+  async obtenerTodosLosEspecialistas(): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('especialistas')
+      .select('*');
+
+    if (error) {
+      console.error('Error al obtener especialistas:', error.message);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTodosLosPacientes(): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('pacientes')
+      .select('*');
+
+    if (error) {
+      console.error('Error al obtener pacientes:', error.message);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTodosLosAdministradores(): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('administradores')
+      .select('*');
+
+    if (error) {
+      console.error('Error al obtener administradores:', error.message);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTodosLosUsuariosCompletos(): Promise<any[]> {
+    try {
+      const [especialistas, pacientes, administradores] = await Promise.all([
+        this.obtenerTodosLosEspecialistas(),
+        this.obtenerTodosLosPacientes(),
+        this.obtenerTodosLosAdministradores()
+      ]);
+
+      return [
+        ...especialistas.map(e => ({ ...e, tipo: 'especialista' })),
+        ...pacientes.map(p => ({ ...p, tipo: 'paciente' })),
+        ...administradores.map(a => ({ ...a, tipo: 'admin' }))
+      ];
+    } catch (err) {
+      console.error('Error al obtener todos los usuarios:', err);
+      return [];
+    }
+  }
+
+
+  async obtenerEspecialidadesDeEspecialista(email: string): Promise<string[]> {
+    try {
+      const { data, error } = await this.supabase
+        .from('especialistas_especialidades')
+        .select('especialidad')
+        .eq('especialista_email', email);
+
+      if (error) {
+        console.error(`Error al obtener especialidades de ${email}:`, error.message);
+        return [];
+      }
+
+      return data.map((item: any) => item.especialidad);
+    } catch (err) {
+      console.error(`Excepción al obtener especialidades de ${email}:`, err);
+      return [];
+    }
+  }
+
+
 
 }
