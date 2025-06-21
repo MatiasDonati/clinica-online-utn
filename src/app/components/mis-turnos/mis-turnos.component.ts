@@ -8,7 +8,6 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import Moment from 'moment';
 
-import { FiltrarTurnosPipe } from '../../pipes/filtrar-turnos.pipe';
 import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
 
 import { HoverResaltadoDirective } from '../../directivas/hover-resaltado.directive';
@@ -18,7 +17,7 @@ import { EstadoTurnoDirective } from '../../directivas/estado-turno.directive';
 @Component({
   selector: 'app-mis-turnos',
   standalone: true,
-  imports: [HeaderComponent, NgIf, NgFor, FormsModule, UpperCasePipe, FiltrarTurnosPipe, FormatearFechaPipe, HoverResaltadoDirective, EstadoTurnoDirective],
+  imports: [HeaderComponent, NgIf, NgFor, FormsModule, UpperCasePipe, FormatearFechaPipe, HoverResaltadoDirective, EstadoTurnoDirective],
   templateUrl: './mis-turnos.component.html',
   styleUrls: ['./mis-turnos.component.css']
 })
@@ -38,13 +37,47 @@ export class MisTurnosComponent implements OnInit {
     await this.cargarTurnos();
   }
 
+  // aplicarFiltro() {
+  //   const texto = this.filtro.toLowerCase();
+  //   this.turnosFiltrados = this.turnos.filter(turno =>
+  //     turno.especialidad.toLowerCase().includes(texto) ||
+  //     turno.especialista_email.toLowerCase().includes(texto)
+  //   );
+  // }
+
   aplicarFiltro() {
     const texto = this.filtro.toLowerCase();
-    this.turnosFiltrados = this.turnos.filter(turno =>
-      turno.especialidad.toLowerCase().includes(texto) ||
-      turno.especialista_email.toLowerCase().includes(texto)
-    );
+
+    this.turnosFiltrados = this.turnos.filter(turno => {
+      const historia = turno.historias_clinicas?.[0]; // puede no existir
+
+      // verificar los campos base del turno
+      const matchBase =
+        turno.especialidad?.toLowerCase().includes(texto) ||
+        turno.especialista_email?.toLowerCase().includes(texto);
+
+      // veririfcar campos fijos de historia clínica
+      const matchHistoriaFija = historia && (
+        historia.altura?.toString().toLowerCase().includes(texto) ||
+        historia.peso?.toString().toLowerCase().includes(texto) ||
+        historia.temperatura?.toString().toLowerCase().includes(texto) ||
+        historia.presion?.toLowerCase().includes(texto)
+      );
+
+      // verificar campos dinámicos
+      const matchDinamico = historia?.datos_dinamicos && Object.entries(historia.datos_dinamicos)
+        .some(([clave, valor]) =>
+          clave.toLowerCase().includes(texto) ||
+          String(valor).toLowerCase().includes(texto)
+        );
+
+      return matchBase || matchHistoriaFija || matchDinamico;
+    });
   }
+
+
+
+  
 
   async cargarTurnos() {
     this.cargando = true;

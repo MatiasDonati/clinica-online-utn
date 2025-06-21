@@ -41,7 +41,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let turno of turnos | filtrarTurnos:filtro">
+          <tr *ngFor="let turno of turnosFiltrados">
             <td appHoverResaltado>{{ turno.fecha | formatearFecha }}</td>
             <td appHoverResaltado>{{ turno.hora }}</td>
             <td appHoverResaltado>{{ turno.especialidad }}</td>

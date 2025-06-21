@@ -13,66 +13,68 @@ export const routes: Routes = [
   },
   { 
     path: 'login', 
-    loadComponent: () => import('./components/login/login.component').then(c => c.LoginComponent) 
+    loadComponent: () => import('./components/login/login.component').then(c => c.LoginComponent),
+    data: { animation: 'LoginPage' }
   },
   { 
     path: 'register',
-    loadComponent: () => import('./components/register/register.component').then(c => c.RegisterComponent) 
+    loadComponent: () => import('./components/register/register.component').then(c => c.RegisterComponent),
+    data: { animation: 'RegisterPage' }
   },
   { 
     path: 'home',
-    loadComponent: () => import('./components/home/home.component').then(c => c.HomeComponent) 
+    loadComponent: () => import('./components/home/home.component').then(c => c.HomeComponent),
+    data: { animation: 'HomePage' }
   },
   { 
     path: 'usuarios', 
     canMatch: [canMatchGuardSoloAdmin],
-    loadComponent: () => import('./components/usuarios/usuarios.component').then(c => c.UsuariosComponent) 
+    loadComponent: () => import('./components/usuarios/usuarios.component').then(c => c.UsuariosComponent),
+    data: { animation: 'UsuariosPage' }
   },
   {
     path: 'acceso-denegado',
-    loadComponent: () => import('./components/acceso-denegado/acceso-denegado.component').then(c => c.AccesoDenegadoComponent)
+    loadComponent: () => import('./components/acceso-denegado/acceso-denegado.component').then(c => c.AccesoDenegadoComponent),
+    data: { animation: 'DenegadoPage' }
   },
   {
     path: 'mis-turnos',
     canMatch: [canMatchGuardSoloPaciente],
-    loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(c => c.MisTurnosComponent)
+    loadComponent: () => import('./components/mis-turnos/mis-turnos.component').then(c => c.MisTurnosComponent),
+    data: { animation: 'MisTurnosPaciente' }
   },
   {
     path: 'mis-turnos-especialista',
     canMatch: [canMatchGuardSoloEspecialista],
-    loadComponent: () => import('./components/mis-turnos-especialista/mis-turnos-especialista.component').then(c => c.MisTurnosEspecialistaComponent)
+    loadComponent: () => import('./components/mis-turnos-especialista/mis-turnos-especialista.component').then(c => c.MisTurnosEspecialistaComponent),
+    data: { animation: 'MisTurnosEspecialista' }
   },
   {
     path: 'turnos-admin',
     canMatch: [canMatchGuardSoloAdmin],
-    loadComponent: () => import('./components/turnos-admin/turnos-admin.component').then(c => c.TurnosAdministradorComponent)
+    loadComponent: () => import('./components/turnos-admin/turnos-admin.component').then(c => c.TurnosAdministradorComponent),
+    data: { animation: 'TurnosAdmin' }
   },
   {
     path: 'solicitar-turno',
     canMatch: [canMatchPacienteOAdmin],
-    loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(c => c.SolicitarTurnoComponent)
+    loadComponent: () => import('./components/solicitar-turno/solicitar-turno.component').then(c => c.SolicitarTurnoComponent),
+    data: { animation: 'SolicitarTurno' }
   },
   {
     path: 'mi-perfil',
     canActivate: [authGuard],
-    loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(c => c.MiPerfilComponent)
+    loadComponent: () => import('./components/mi-perfil/mi-perfil.component').then(c => c.MiPerfilComponent),
+    data: { animation: 'MiPerfil' }
   },
   {
     path: 'pacientes',
     canMatch: [canMatchGuardSoloEspecialista],
-    loadComponent: () => import('./components/pacientes/pacientes.component').then(c => c.PacientesComponent)
+    loadComponent: () => import('./components/pacientes/pacientes.component').then(c => c.PacientesComponent),
+    data: { animation: 'Pacientes' }
   },
-
-  { path: '**', redirectTo: 'home' }
-
-  // { 
-  //   path: 'usuarios/listado', 
-  //   // canMatch: [canMatchGuardObtenerUsuario],
-  //   loadComponent: () => import('./components/usuarios/usuarios-lista/usuarios-lista.component').then(c => c.UsuariosListaComponent) 
-  // },
-  // { 
-  //   path: 'juegos',
-  //   canMatch: [canMatchGuardObtenerUsuario],
-  //   loadChildren: () => import('./components/juegos/juegos-modulo/juegos.module').then(m => m.JuegosModule)
-  // },
+  {
+    path: '**',
+    redirectTo: 'home'
+  }
 ];

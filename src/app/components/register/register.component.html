@@ -4,8 +4,6 @@
   <h2 *ngIf="!tipoSeleccionado">Registro</h2>
   <h2 *ngIf="tipoSeleccionado">Registro {{ tipoSeleccionado | titlecase }}</h2>
 
-  
-
   <!-- Solo mostrar mensaje de error -->
   <p class="mensaje text-danger" *ngIf="mensaje && !registroExitoso">{{ mensaje }}</p>
 
@@ -21,9 +19,11 @@
     </div>
   </div>
 
-  <!-- 🔹 Selección de tipo de usuario -->
+  <!-- 🔹 Selección de tipo de usuario con animacion! -->
   <div *ngIf="!tipoSeleccionado && !cargando && !registroExitoso"
-       class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
+     @zoomFade
+     class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
+
 
     <!-- Paciente -->
     <div class="tipo-usuario-wrapper text-center">
@@ -52,9 +52,11 @@
 
   <!-- 🔹 Formulario completo -->
   <form *ngIf="tipoSeleccionado && !registroExitoso && !cargando"
+        @zoomFade
         [formGroup]="form"
         (ngSubmit)="register()"
         class="d-flex flex-column gap-3">
+
 
     <!-- Cambiar tipo de usuario -->
     <div class="text-center mt-2">

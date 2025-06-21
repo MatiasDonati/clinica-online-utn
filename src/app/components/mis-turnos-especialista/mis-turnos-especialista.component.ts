@@ -67,79 +67,76 @@ export class MisTurnosEspecialistaComponent implements OnInit {
     this.ngOnInit();
   }
 
-async finalizarTurno(turno: any) {
-  const { value: formValues } = await Swal.fire({
-    title: 'Historia Clínica',
-    html: `
-      <input id="hc-altura" class="swal2-input" placeholder="Altura (ej. 1.70)" type="number" step="0.01">
-      <input id="hc-peso" class="swal2-input" placeholder="Peso (kg)" type="number" step="0.1">
-      <input id="hc-temperatura" class="swal2-input" placeholder="Temperatura (°C)" type="number" step="0.1">
-      <input id="hc-presion" class="swal2-input" placeholder="Presión (ej. 120/80)">
+  async finalizarTurno(turno: any) {
+    const { value: formValues } = await Swal.fire({
+      title: 'Reseña del Especialista',
+      html: `
+        <textarea id="reina" class="swal2-textarea" placeholder="Reseña del Especialista…">Finalizado con historia clínica</textarea>
+        <h3 style="margin-top:1rem;">Diagnóstico</h3>
+        <textarea id="diag" class="swal2-textarea" placeholder="Diagnóstico (obligatorio)"></textarea>
+        <h3 style="margin-top:1.5rem;">Historia Clínica</h3>
+        <input id="hc-altura" class="swal2-input" placeholder="Altura (ej. 1.70)" type="number" step="0.01">
+        <input id="hc-peso" class="swal2-input" placeholder="Peso (kg)" type="number" step="0.1">
+        <input id="hc-temperatura" class="swal2-input" placeholder="Temperatura (°C)" type="number" step="0.1">
+        <input id="hc-presion" class="swal2-input" placeholder="Presión (ej. 120/80)">
+        <hr>
+        <input id="clave1" class="swal2-input" placeholder="Campo 1">
+        <input id="valor1" class="swal2-input" placeholder="Valor 1">
+        <input id="clave2" class="swal2-input" placeholder="Campo 2 (opcional)">
+        <input id="valor2" class="swal2-input" placeholder="Valor 2">
+        <input id="clave3" class="swal2-input" placeholder="Campo 3 (opcional)">
+        <input id="valor3" class="swal2-input" placeholder="Valor 3">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      preConfirm: () => {
+        const reseña = (document.getElementById('reina') as HTMLTextAreaElement).value.trim();
+        const diagnostico = (document.getElementById('diag') as HTMLTextAreaElement).value.trim();
+        const altura = parseFloat((<HTMLInputElement>document.getElementById('hc-altura')).value);
+        const peso = parseFloat((<HTMLInputElement>document.getElementById('hc-peso')).value);
+        const temperatura = parseFloat((<HTMLInputElement>document.getElementById('hc-temperatura')).value);
+        const presion = (<HTMLInputElement>document.getElementById('hc-presion')).value.trim();
 
-      <hr>
-      <input id="clave1" class="swal2-input" placeholder="Campo 1">
-      <input id="valor1" class="swal2-input" placeholder="Valor 1">
-
-      <input id="clave2" class="swal2-input" placeholder="Campo 2 (opcional)">
-      <input id="valor2" class="swal2-input" placeholder="Valor 2">
-
-      <input id="clave3" class="swal2-input" placeholder="Campo 3 (opcional)">
-      <input id="valor3" class="swal2-input" placeholder="Valor 3">
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'Guardar',
-    preConfirm: () => {
-      const altura = parseFloat((<HTMLInputElement>document.getElementById('hc-altura')).value);
-      const peso = parseFloat((<HTMLInputElement>document.getElementById('hc-peso')).value);
-      const temperatura = parseFloat((<HTMLInputElement>document.getElementById('hc-temperatura')).value);
-      const presion = (<HTMLInputElement>document.getElementById('hc-presion')).value;
-
-      if (!altura || !peso || !temperatura || !presion) {
-        Swal.showValidationMessage('Todos los campos fijos son obligatorios');
-        return;
-      }
-
-      const datos_dinamicos: { [clave: string]: string } = {};
-      for (let i = 1; i <= 3; i++) {
-        const clave = (<HTMLInputElement>document.getElementById(`clave${i}`)).value.trim();
-        const valor = (<HTMLInputElement>document.getElementById(`valor${i}`)).value.trim();
-        if (clave && valor) {
-          datos_dinamicos[clave] = valor;
+        if (!reseña || !diagnostico || !altura || !peso || !temperatura || !presion) {
+          Swal.showValidationMessage('Por favor completá la reseña, diagnóstico y todos los datos médicos.');
+          return;
         }
+
+        const datos_dinamicos: { [clave: string]: string } = {};
+        for (let i = 1; i <= 3; i++) {
+          const clave = (<HTMLInputElement>document.getElementById(`clave${i}`)).value.trim();
+          const valor = (<HTMLInputElement>document.getElementById(`valor${i}`)).value.trim();
+          if (clave && valor) datos_dinamicos[clave] = valor;
+        }
+
+        return { reseña, diagnostico, altura, peso, temperatura, presion, datos_dinamicos };
       }
-
-      return { altura, peso, temperatura, presion, datos_dinamicos };
-    }
-  });
-
-  if (!formValues) return;
-
-  try {
-    // Guardar en historias_clinicas
-    const { error } = await this.turnosService.guardarHistoriaClinica({
-      paciente_email: turno.paciente_email,
-      especialista_email: this.userEmail!,
-      altura: formValues.altura,
-      peso: formValues.peso,
-      temperatura: formValues.temperatura,
-      presion: formValues.presion,
-      datos_dinamicos: formValues.datos_dinamicos
     });
 
-    if (error) throw error;
+    if (!formValues) return;
 
-    // estado del turno a 'realizado'
-    await this.turnosService.finalizarTurno(turno.id, 'Finalizado con historia clínica', '');
+    try {
+      await this.turnosService.guardarHistoriaClinica({
+        turno_id: turno.id,
+        paciente_email: turno.paciente_email,
+        especialista_email: this.userEmail!,
+        altura: formValues.altura,
+        peso: formValues.peso,
+        temperatura: formValues.temperatura,
+        presion: formValues.presion,
+        datos_dinamicos: formValues.datos_dinamicos
+      });
 
-    Swal.fire('Guardado', 'La historia clínica fue registrada', 'success');
-    this.cargarTurnos();
-  } catch (error) {
-    console.error(error);
-    Swal.fire('Error', 'No se pudo guardar la historia clínica.', 'error');
+      await this.turnosService.finalizarTurno(turno.id, formValues.reseña, formValues.diagnostico);
+
+      Swal.fire('Guardado', 'La historia clínica fue registrada con éxito.', 'success');
+      this.cargarTurnos();
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'No se pudo guardar la historia clínica.', 'error');
+    }
   }
-}
-
 
 
   verDetalles(turno: any) {

@@ -15,15 +15,19 @@ export class TurnosService {
   constructor() {}
 
 
-
   async obtenerTurnosDelPaciente(email: string) {
     const { data, error } = await supabase
       .from('turnos')
-      .select('*')
+      .select(`
+        *,
+        historias_clinicas (*)
+      `)
       .eq('paciente_email', email);
+
     if (error) throw error;
     return data;
   }
+
 
 
   async cancelarTurno(id: number, motivo: string) {
@@ -61,14 +65,20 @@ export class TurnosService {
 
   // Especialista
 
+
   async obtenerTurnosDelEspecialista(email: string) {
     const { data, error } = await supabase
       .from('turnos')
-      .select('*')
+      .select(`
+        *,
+        historias_clinicas (*)
+      `)
       .eq('especialista_email', email);
+
     if (error) throw error;
     return data;
   }
+
 
   async actualizarEstadoTurno(id: number, estado: string) {
     const { error } = await supabase
