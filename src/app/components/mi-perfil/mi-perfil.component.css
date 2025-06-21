@@ -14,3 +14,20 @@
   object-fit: cover;
   border: 2px solid #e0b3ff;
 }
+
+.btn-violeta {
+  background-color: #8A2BE2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+}
+
+.btn-violeta:hover {
+  background-color: #a855f7;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+}

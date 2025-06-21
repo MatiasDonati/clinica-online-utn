@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
@@ -30,6 +30,8 @@ export class MiPerfilComponent implements OnInit {
   mostrarHistoria = false;
   historiasClinicas: any[] = [];
 
+  @ViewChild('historiaClinicaRef') historiaClinicaElement!: ElementRef;
+
   constructor(private authService: AuthService) {}
 
   async ngOnInit() {
@@ -57,6 +59,16 @@ export class MiPerfilComponent implements OnInit {
       }
 
       this.imagenesCargando = false;
+    }
+  }
+
+  toggleHistoriaClinica() {
+    this.mostrarHistoria = !this.mostrarHistoria;
+
+    if (this.mostrarHistoria) {
+      setTimeout(() => {
+        this.historiaClinicaElement?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   }
 
