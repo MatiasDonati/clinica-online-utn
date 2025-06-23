@@ -1,22 +1,31 @@
 import { Directive, ElementRef, Renderer2, HostListener } from '@angular/core';
-import { RendererStyleFlags2 } from '@angular/core';
 
 @Directive({
   selector: '[appHoverResaltado]',
   standalone: true
 })
 export class HoverResaltadoDirective {
-
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('mouseenter') onMouseEnter() {
-    this.renderer.setStyle(this.el.nativeElement, 'backgroundColor', '#e0e0ff', RendererStyleFlags2.Important);
-    this.renderer.setStyle(this.el.nativeElement, 'textDecoration', 'underline');
-    this.renderer.setStyle(this.el.nativeElement, 'transition', 'all 0.2s ease');
+    const cells = this.el.nativeElement.querySelectorAll('td');
+    const especialistaCell = cells[3]; 
+
+    if (especialistaCell) {
+      this.renderer.setStyle(especialistaCell, 'textDecoration', 'underline');
+      this.renderer.setStyle(especialistaCell, 'textDecorationColor', '#8a2be2');
+      this.renderer.setStyle(especialistaCell, 'textDecorationThickness', '2px');
+    }
   }
 
   @HostListener('mouseleave') onMouseLeave() {
-    this.renderer.removeStyle(this.el.nativeElement, 'backgroundColor');
-    this.renderer.removeStyle(this.el.nativeElement, 'textDecoration');
+    const cells = this.el.nativeElement.querySelectorAll('td');
+    const especialistaCell = cells[3];
+
+    if (especialistaCell) {
+      this.renderer.removeStyle(especialistaCell, 'textDecoration');
+      this.renderer.removeStyle(especialistaCell, 'textDecorationColor');
+      this.renderer.removeStyle(especialistaCell, 'textDecorationThickness');
+    }
   }
 }

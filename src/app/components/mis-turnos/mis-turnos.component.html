@@ -41,18 +41,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let turno of turnosFiltrados">
-            <td appHoverResaltado>{{ turno.fecha | formatearFecha }}</td>
-            <td appHoverResaltado>{{ turno.hora }}</td>
-            <td appHoverResaltado>{{ turno.especialidad }}</td>
-            <td appHoverResaltado>{{ turno.especialista_email }}</td>
+          <tr *ngFor="let turno of turnosFiltrados" appHoverResaltado>
+            <td>{{ turno.fecha | formatearFecha }}</td>
+            <td>{{ turno.hora }}</td>
+            <td>{{ turno.especialidad }}</td>
+            <td>{{ turno.especialista_email }}</td>
             <td [appEstadoTurno]="turno.estado">{{ turno.estado | uppercase }}</td>
             <td>{{ turno.comentario_paciente }}</td>
-            <td>{{ turno.comentario_cancelacion|| '—' }}</td>
+            <td>{{ turno.comentario_cancelacion || '—' }}</td>
             <td>{{ turno.resena_especialista }}</td>
             <td>{{ turno.encuesta_completada ? 'Si' : 'No' }}</td>
             <td>{{ turno.calificacion }}</td>
-           <td>
+            <td>
             <div class="d-flex flex-column align-items-center gap-1">
 
               <!-- Cancelar -->

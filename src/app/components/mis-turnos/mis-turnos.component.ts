@@ -75,10 +75,6 @@ export class MisTurnosComponent implements OnInit {
     });
   }
 
-
-
-  
-
   async cargarTurnos() {
     this.cargando = true;
     this.userEmail = await this.authService.obtenerUsuarioActual();
@@ -106,7 +102,7 @@ export class MisTurnosComponent implements OnInit {
       motivo = 'Paciente canceló el turno: ' + motivo;
       await this.turnosService.cancelarTurno(turno.id, motivo);
       await Swal.fire('Éxito', 'Turno cancelado con éxito.', 'success');
-      await this.cargarTurnos();               // borrar cuando ponga BehaviorSubject
+      await this.cargarTurnos();
     } catch (error) {
       console.error(error);
       Swal.fire('Error', 'No se pudo cancelar el turno.', 'error');

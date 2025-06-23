@@ -291,16 +291,24 @@ export class SolicitarTurnoComponent implements OnInit {
     }
 
     const fecha = new Date(this.diaSeleccionado + 'T00:00:00');
-    const nombreDia = fecha.toLocaleDateString('es-AR', { weekday: 'long' });
-    const nombrePrimeraLetraMayuscula = nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1);
 
-    const fechaCorta = fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const fechaFormateada = `${nombrePrimeraLetraMayuscula} ${fechaCorta}`;
+    const day = String(fecha.getDate()).padStart(2, '0');
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+
+    const fechaCorta = `${day}/${month}`;
+
+    // formatear hora
+    const horaFormateada = new Date(`1970-01-01T${this.horarioSeleccionado}`)
+      .toLocaleTimeString('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).replace('a. m.', 'AM').replace('p. m.', 'PM');
 
     const confirmacion = await Swal.fire({
       icon: 'question',
       title: '¿Confirmar turno?',
-      text: `¿Deseás solicitar el turno el ${fechaFormateada} a las ${this.horarioSeleccionado}?`,
+      text: `¿Deseás solicitar el turno el ${fechaCorta} a las ${horaFormateada}?`,
       showCancelButton: true,
       confirmButtonText: 'Sí, confirmar',
       cancelButtonText: 'Cancelar'
