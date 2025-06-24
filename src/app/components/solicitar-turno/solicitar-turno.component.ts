@@ -81,7 +81,7 @@ export class SolicitarTurnoComponent implements OnInit {
     this.seleccionada = esp;
     this.cargandoEspecialistas = true;
 
-    // ✅ ahora se obtienen nombre, apellido, email, imagen1
+    //obtienen nombre, apellido, email, imagen1
     this.especialistas = await this.turnosService.obtenerEspecialistasPorEspecialidadCompleto(esp);
 
     this.cargandoEspecialistas = false;
