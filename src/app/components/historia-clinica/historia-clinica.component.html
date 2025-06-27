@@ -1,14 +1,17 @@
 <div class="container my-5 text-center">
   <h2>Historia Clínica</h2>
 
+  <!-- 🔹 Spinner de carga -->
   <div *ngIf="cargando" class="text-center my-4">
     <div class="spinner-border text-primary" role="status"></div>
   </div>
 
+  <!-- 🔹 Sin historias -->
   <div *ngIf="!cargando && historias.length === 0" class="text-light">
     No hay historias clínicas registradas.
   </div>
 
+  <!-- 🔹 Tabla de historias -->
   <div *ngIf="!cargando && historias.length > 0" class="table-responsive">
     <table class="table table-dark table-bordered">
       <thead>
@@ -26,6 +29,9 @@
           <th>Temperatura</th>
           <th>Presión</th>
           <th>Datos adicionales</th>
+
+          <!-- 🔹 Título Acciones si pacienteEmailFiltro está definido -->
+          <th *ngIf="pacienteEmailFiltro">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -51,6 +57,13 @@
               </div>
             </div>
             <ng-template #sinDatos>—</ng-template>
+          </td>
+
+          <!-- 🔹 Botón Ver Reseña y Diagnóstico -->
+          <td *ngIf="pacienteEmailFiltro">
+            <button class="btn btn-violet" (click)="verResenaYDiagnostico(h.turno_id)">
+              Ver Reseña y Diagnóstico
+            </button>
           </td>
         </tr>
       </tbody>

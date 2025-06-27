@@ -86,6 +86,7 @@ export class MiPerfilComponent implements OnInit {
   }
 
   async generarPDFHistoriaClinica(historiaClinica: any[]) {
+
     const doc = new jsPDF();
 
     const logo = new Image();
@@ -95,6 +96,7 @@ export class MiPerfilComponent implements OnInit {
     const fechaStr = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getFullYear()}`;
 
     logo.onload = () => {
+      // 10 10 x e y 30 30 ancho y alto
       doc.addImage(logo, 'PNG', 10, 10, 30, 30);
       doc.setFontSize(18);
       doc.text('Historia Clínica - Clínica Online Dr. Donati y Asociados', 50, 20);

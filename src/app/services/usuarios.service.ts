@@ -74,4 +74,73 @@ export class UsuariosService {
     return data.map(e => e.especialidad);
   }
 
+
+  async obtenerPacientesAtendidosPorEspecialista(especialistaEmail: string): Promise<any[]> {
+    // 🔹 Todas las historias clínicas del especialista
+    const { data: historias, error } = await supabase
+      .from('historias_clinicas')
+      .select('paciente_email')
+      .eq('especialista_email', especialistaEmail);
+
+    if (error) {
+      console.error('Error al obtener historias clínicas:', error.message);
+      return [];
+    }
+
+    // 🔹 Emails únicos de pacientes
+    const pacientesEmails = Array.from(new Set(historias.map(h => h.paciente_email)));
+
+    if (pacientesEmails.length === 0) {
+      return [];
+    }
+
+    // 🔹 Traer datos de la tabla pacientes (en lugar de users_data)
+    const { data: pacientes, error: errorPacientes } = await supabase
+      .from('pacientes')
+      .select('mail, nombre, apellido, imagen1, imagen2')
+      .in('mail', pacientesEmails);
+
+    if (errorPacientes) {
+      console.error('Error al obtener datos de pacientes:', errorPacientes.message);
+      return [];
+    }
+
+    return pacientes;
+  }
+
+  async obtenerHistoriasClinicasPorPacienteYEspecialista(pacienteEmail: string, especialistaEmail: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('historias_clinicas')
+      .select('*')
+      .eq('paciente_email', pacienteEmail)
+      .eq('especialista_email', especialistaEmail);
+
+    if (error) {
+      console.error('Error al obtener historias clínicas del paciente:', error.message);
+      return [];
+    }
+
+    return data;
+  }
+
+
+  async obtenerResenaYDiagnosticoDeTurno(turnoId: number): Promise<{ resena: string, diagnostico: string } | null> {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('resena_especialista, diagnostico')
+      .eq('id', turnoId)
+      .single();
+
+    if (error) {
+      console.error('Error al obtener reseña y diagnóstico del turno:', error.message);
+      return null;
+    }
+
+    return {
+      resena: data.resena_especialista,
+      diagnostico: data.diagnostico
+    };
+  }
+
+
 }

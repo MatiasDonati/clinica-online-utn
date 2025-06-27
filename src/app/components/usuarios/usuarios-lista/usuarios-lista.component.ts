@@ -88,7 +88,7 @@ export class UsuariosListaComponent {
     return this.usuarios.filter(u => u.tipo === this.tipoFiltro);
   }
 
-    
+  // xlsx
   async exportarExcel() {
     let datos: any[] = [];
 
