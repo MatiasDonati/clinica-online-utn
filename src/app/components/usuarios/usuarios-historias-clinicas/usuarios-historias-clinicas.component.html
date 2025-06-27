@@ -50,8 +50,13 @@
         <tbody>
           <tr *ngFor="let h of historiasFiltradas()">
             <td>{{ h.fecha | date:'dd/MM/yyyy' }}</td>
-            <td>{{ h.paciente_email }}</td>
-            <td>{{ h.especialista_email }}</td>
+            <td>
+              {{ nombres[h.paciente_email] || 'Cargando...' }}
+              <p class="mail-small">{{ h.paciente_email }}</p>
+            </td>            <td>
+              {{ nombres[h.especialista_email] || 'Cargando...' }}
+              <p class="mail-small"> {{ h.especialista_email }}</p>
+            </td>
             <td>{{ h.altura }} cm</td>
             <td>{{ h.peso }} kg</td>
             <td>{{ h.temperatura }} °C</td>

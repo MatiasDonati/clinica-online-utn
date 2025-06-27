@@ -80,3 +80,7 @@ button[disabled] {
   box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.4);
 }
 
+.mail-small{
+  font-size: x-small;
+}
+

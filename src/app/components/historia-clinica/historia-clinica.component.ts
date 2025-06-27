@@ -75,23 +75,39 @@ export class HistoriaClinicaComponent implements OnInit, OnChanges {
       return;
     }
 
-    const usuariosQuery = await supabase
+    const pacientesQuery = await supabase
+      .from('pacientes')
+      .select('mail, nombre, apellido');
+    const pacientes = pacientesQuery.data || [];
+
+    const especialistasQuery = await supabase
+      .from('especialistas')
+      .select('mail, nombre, apellido');
+    const especialistas = especialistasQuery.data || [];
+
+    const usersQuery = await supabase
       .from('users_data')
       .select('mail, nombre, apellido');
-
-    const usuarios = usuariosQuery.data || [];
+    const users = usersQuery.data || [];
 
     this.historias = (data || []).map(historia => {
-      const paciente = usuarios.find(u => u.mail === historia.paciente_email);
-      const especialista = usuarios.find(u => u.mail === historia.especialista_email);
+      // buscar paciente
+      const paciente = pacientes.find(p => p.mail === historia.paciente_email)
+        || users.find(u => u.mail === historia.paciente_email);
+
+      // buscar especialista
+      const especialista = especialistas.find(e => e.mail === historia.especialista_email)
+        || users.find(u => u.mail === historia.especialista_email);
 
       return {
         ...historia,
-        pacienteNombre: paciente ? `${paciente.nombre} ${paciente.apellido}` : historia.paciente_email,
-        especialistaNombre: especialista ? `${especialista.nombre} ${especialista.apellido}` : historia.especialista_email
+        pacienteNombre: paciente ? `${paciente.nombre} ${paciente.apellido}` : null,
+        pacienteMail: historia.paciente_email,
+        especialistaNombre: especialista ? `${especialista.nombre} ${especialista.apellido}` : null,
+        especialistaMail: historia.especialista_email
       };
     });
-
+    
     this.cargando = false;
   }
 

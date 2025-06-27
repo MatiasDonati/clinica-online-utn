@@ -8,6 +8,7 @@ const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   providedIn: 'root'
 })
 export class UsuariosService {
+  
 
   async obtenerUsuarios(): Promise<any[]> {
     const { data, error } = await supabase.from('users_data').select('*');
@@ -141,6 +142,46 @@ export class UsuariosService {
       diagnostico: data.diagnostico
     };
   }
+
+  async obtenerNombreApellidoPorMail(mail: string): Promise<{ nombre: string, apellido: string } | null> {
+    // Buscar en pacientes
+    const { data: paciente, error: errorPaciente } = await supabase
+      .from('pacientes')
+      .select('nombre, apellido')
+      .eq('mail', mail)
+      .single();
+
+    if (paciente && !errorPaciente) {
+      return { nombre: paciente.nombre, apellido: paciente.apellido };
+    }
+
+    // Buscar en especialistas
+    const { data: especialista, error: errorEspecialista } = await supabase
+      .from('especialistas')
+      .select('nombre, apellido')
+      .eq('mail', mail)
+      .single();
+
+    if (especialista && !errorEspecialista) {
+      return { nombre: especialista.nombre, apellido: especialista.apellido };
+    }
+
+    // Buscar en users_data (admins u otros)
+    const { data: user, error: errorUser } = await supabase
+      .from('users_data')
+      .select('nombre, apellido')
+      .eq('mail', mail)
+      .single();
+
+    if (user && !errorUser) {
+      return { nombre: user.nombre, apellido: user.apellido };
+    }
+
+    // No encontrado
+    console.warn('No se encontró el usuario con mail:', mail);
+    return null;
+  }
+
 
 
 }
