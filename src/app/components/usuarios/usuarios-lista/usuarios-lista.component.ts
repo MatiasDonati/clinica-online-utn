@@ -3,6 +3,7 @@ import { UsuariosService } from '../../../services/usuarios.service';
 import { CommonModule, NgClass, NgIf } from '@angular/common';
 import { ExcelService } from '../../../services/excel.service';
 import { AuthService } from '../../../services/auth.service';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -22,6 +23,12 @@ export class UsuariosListaComponent {
     tipoMensaje: 'info' | 'danger' = 'info';
   
     tipoFiltro: 'todos' | 'especialista' | 'paciente' | 'admin' = 'todos';
+
+    nombres: { [mail: string]: string } = {};
+
+    imagenes: { [mail: string]: string } = {};
+
+    cargandoDescarga: boolean = false;
 
   
   constructor(private usuariosService: UsuariosService, private excelService: ExcelService, private authService: AuthService) {}
@@ -46,6 +53,14 @@ export class UsuariosListaComponent {
       }
       return usuario;
     });
+
+    for (const u of this.usuarios) {
+      this.obtenerImagen(u.mail, u.tipo);
+    }
+
+    for (const u of this.usuarios) {
+      this.obtenerNombre(u.mail);
+    }
 
     this.cargando = false;
   }
@@ -241,6 +256,190 @@ export class UsuariosListaComponent {
       console.log('Error al exportar a Excel:', err);
     }
   }
+
+  async obtenerNombre(mail: string) {
+    if (!this.nombres[mail]) {
+      const datos = await this.usuariosService.obtenerNombreApellidoPorMail(mail);
+      if (datos) {
+        this.nombres[mail] = `${datos.nombre} ${datos.apellido}`;
+      } else {
+        this.nombres[mail] = '';
+      }
+    }
+    return this.nombres[mail];
+  }
+
+  async obtenerImagen(mail: string, tipo: string) {
+    if (!this.imagenes[mail]) {
+      const url = await this.usuariosService.obtenerImagenPorMailYTipo(mail, tipo);
+      this.imagenes[mail] = url ?? '/placeholder.jpg';
+    }
+  }
+
+
+  async descargarTurnosUsuario(usuario: any) {
+    try {
+      this.cargandoDescarga = true;
+
+      const { data: turnos, error } = await this.authService.supabase
+        .from('turnos')
+        .select('id, paciente_email, especialista_email, fecha, hora, estado')
+        .or(`paciente_email.eq.${usuario.mail},especialista_email.eq.${usuario.mail}`);
+
+      if (error) {
+        console.error('Error al obtener turnos:', error.message);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron obtener los turnos de este usuario.'
+        });
+        return;
+      }
+
+      if (!turnos || turnos.length === 0) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'Sin turnos',
+          text: `El usuario ${usuario.mail} no tiene turnos registrados.`
+        });
+        return;
+      }
+
+      const datosExcel = turnos.map(t => ({
+        ID: t.id,
+        Fecha: t.fecha,
+        Hora: t.hora,
+        Estado: t.estado,
+        Paciente: t.paciente_email,
+        Especialista: t.especialista_email
+      }));
+
+      const nombreArchivo = `turnos_${usuario.mail.replace(/[@.]/g, '_')}`;
+
+      this.excelService.exportAsExcelFile(datosExcel, nombreArchivo);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Descarga completa',
+        text: 'El archivo Excel con los turnos se descargó correctamente.'
+      });
+
+    } catch (err) {
+      console.error('Error general:', err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al exportar los turnos.'
+      });
+    } finally {
+      this.cargandoDescarga = false;
+    }
+  }
+
+  async descargarHistoriasClinicasUsuario(usuario: any) {
+    try {
+      this.cargandoDescarga = true;
+
+      // 🔹 Determinar filtro según tipo
+      const filtro = usuario.tipo === 'especialista'
+        ? { especialista_email: usuario.mail }
+        : { paciente_email: usuario.mail };
+
+      // 🔹 Obtener historias clínicas filtradas
+      const { data: historias, error } = await this.authService.supabase
+        .from('historias_clinicas')
+        .select('*')
+        .match(filtro);
+
+      if (error) {
+        console.error('Error al obtener historias clínicas:', error.message);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron obtener las historias clínicas de este usuario.'
+        });
+        return;
+      }
+
+      if (!historias || historias.length === 0) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'Sin historias clínicas',
+          text: 'Este usuario no tiene historias clínicas registradas.'
+        });
+        return;
+      }
+
+      // obtener los nombres con los mails y aplanar los datos dinámicos
+      for (const h of historias) {
+        // Obtener nombre paciente
+        const paciente = await this.usuariosService.obtenerNombreApellidoPorMail(h.paciente_email);
+        (h as any).paciente = paciente ? `${paciente.nombre} ${paciente.apellido}` : h.paciente_email;
+
+        // Obtener nombre especialista
+        const especialista = await this.usuariosService.obtenerNombreApellidoPorMail(h.especialista_email);
+        (h as any).especialista = especialista ? `${especialista.nombre} ${especialista.apellido}` : h.especialista_email;
+
+        // Flatten datos_dinamicos si existe
+        if (h.datos_dinamicos) {
+          Object.assign(h, h.datos_dinamicos);
+          delete h.datos_dinamicos;
+        }
+      }
+
+      // reordenar datos y armar arrayfinal
+      const historiasOrdenadas = historias.map(h => {
+        const base: any = {
+          id: h.id,
+          paciente_email: h.paciente_email,
+          paciente: (h as any).paciente,
+          especialista_email: h.especialista_email,
+          especialista: (h as any).especialista,
+          fecha: h.fecha,
+          altura: h.altura,
+          peso: h.peso,
+          temperatura: h.temperatura,
+          presion: h.presion,
+          turno_id: h.turno_id
+        };
+
+        // Agregar datos dinámicos al final
+        for (const [clave, valor] of Object.entries(h)) {
+          if (!Object.keys(base).includes(clave) && valor !== null && typeof valor !== 'object') {
+            base[clave] = valor;
+          }
+        }
+
+        return base;
+      });
+
+      // 🔹 Exportar a Excel
+      this.excelService.exportAsExcelFile(historiasOrdenadas, `historias_${usuario.mail.replace(/[@.]/g, '_')}`);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Descarga completa',
+        text: 'El archivo Excel con las historias clínicas se descargó correctamente.'
+      });
+
+    } catch (err) {
+      console.error('Error general:', err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al exportar las historias clínicas.'
+      });
+    } finally {
+      this.cargandoDescarga = false;
+    }
+  }
+
+
+
+
+
+
+
 
   get tipoBotonExcel(): string {
     switch (this.tipoFiltro) {

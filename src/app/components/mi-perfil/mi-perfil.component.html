@@ -19,13 +19,13 @@
         <p class="text-muted">No hay imágenes cargadas.</p>
       </ng-template>
 
-      <!-- Datos comunes -->
+      <!-- datos comunes -->
       <p><strong>Nombre:</strong> {{ nombre }}</p>
       <p><strong>Apellido:</strong> {{ apellido }}</p>
       <p><strong>Email-Usuario:</strong> {{ userEmail }}</p>
       <p><strong>Tipo de usuario:</strong> {{ tipoUsuario }}</p>
 
-      <!-- Datos específicos -->
+      <!-- datos especificos -->
       <div *ngIf="tipoUsuario === 'paciente'">
         <p><strong>DNI:</strong> {{ dni }}</p>
         <p><strong>Edad:</strong> {{ edad }}</p>
@@ -50,7 +50,7 @@
         <p><strong>Edad:</strong> {{ edad }}</p>
       </div>
 
-      <!-- Botón Historia Clínica -->
+      <!-- boton historia clinica -->
       <div *ngIf="tipoUsuario === 'paciente'" class="mt-4">
         <button class="btn btn-outline-light mb-3" (click)="toggleHistoriaClinica()">
           {{ mostrarHistoria ? 'Ocultar Historia Clínica' : 'Ver Historia Clínica' }}
@@ -59,15 +59,34 @@
         <div #historiaClinicaRef *ngIf="mostrarHistoria" class="fade-in">
           <app-historia-clinica></app-historia-clinica>
 
-          <div *ngIf="historiasClinicas.length" class="my-3">
-            <button class="btn btn-violeta" (click)="generarPDFHistoriaClinica(historiasClinicas)">
-              📄 Descargar Historia Clínica (PDF)
-            </button>
+        <div *ngIf="historiasClinicas.length" class="my-3">
+          <button class="btn btn-violeta" (click)="generarPDFHistoriaClinica(historiasClinicas)">
+            📄 Descargar Historia Clínica Completa (PDF)
+          </button>
+
+          <br><br>
+
+          <div>
+            <label for="especialistaSelect" class="form-label text-light">Seleccionar Especialista:</label>
+            <select id="especialistaSelect" [(ngModel)]="especialistaSeleccionado" class="form-select filtro-violeta">
+              <option value="">-- Seleccionar --</option>
+              <option *ngFor="let esp of especialistasUnicos" [value]="esp.mail">
+                {{ esp.nombreCompleto }}
+              </option>
+            </select>
+            
+           <button class="btn btn-violeta mt-2" [disabled]="!especialistaSeleccionado"
+            (click)="generarPDFHistoriaClinicaPorEspecialista()">
+            📄 Descargar Historia Clínica de {{ nombreEspecialistaSeleccionado }}
+          </button>
+
           </div>
+        </div>
+
         </div>
       </div>
 
-      <!-- Horarios especialista -->
+      <!-- horarios especialista -->
       <div *ngIf="tipoUsuario === 'especialista'" class="mt-4">
         <app-horarios-especialistas></app-horarios-especialistas>
       </div>

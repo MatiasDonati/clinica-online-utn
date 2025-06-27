@@ -4,12 +4,12 @@ import { HistoriaClinicaComponent } from "../historia-clinica/historia-clinica.c
 import { AuthService } from '../../services/auth.service';
 import { UsuariosService } from '../../services/usuarios.service';
 import Swal from 'sweetalert2';
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-pacientes',
   standalone: true,
-  imports: [HeaderComponent, HistoriaClinicaComponent, NgFor, NgIf],
+  imports: [HeaderComponent, HistoriaClinicaComponent, NgFor, NgIf, NgClass],
   templateUrl: './pacientes.component.html',
   styleUrl: './pacientes.component.css'
 })

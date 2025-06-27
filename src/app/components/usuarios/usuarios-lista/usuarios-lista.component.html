@@ -48,14 +48,25 @@
       <table class="table table-dark table-bordered table-striped align-middle">
         <thead>
           <tr>
-            <th>Email</th>
+            <th>Imagen</th>
+            <th>Usuario</th>
             <th>Tipo</th>
             <th>Acción</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let usuario of usuariosFiltrados">
-            <td>{{ usuario.mail }}</td>
+          <td>
+            <button class="btn-img-usuario" (click)="descargarHistoriasClinicasUsuario(usuario)">
+            <!-- <button class="btn-img-usuario" (click)="descargarTurnosUsuario(usuario)"> -->
+              <img [src]="imagenes[usuario.mail]" [alt]="nombres[usuario.mail] || usuario.mail" />
+            </button>
+          </td>
+
+          <td>
+              {{ nombres[usuario.mail] }}
+              <p class="mail-small">({{ usuario.mail }})</p>
+          </td>
             <td>{{ usuario.tipo }}</td>
             <td>
                 <ng-container *ngIf="usuario.tipo === 'especialista'; else sinAccion">

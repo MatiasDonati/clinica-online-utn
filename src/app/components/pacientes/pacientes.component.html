@@ -3,7 +3,7 @@
 <div class="pacientes-container">
   <h2>Pacientes</h2>
 
-  <!-- 🔹 Botones de vista -->
+  <!-- Botones de vista -->
   <div class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
     <!-- Botón Historias Clínicas -->
     <div class="tipo-usuario-wrapper text-center">
@@ -13,7 +13,7 @@
       <span class="tipo-usuario-label">Historias Clínicas</span>
     </div>
 
-    <!-- Botón Pacientes Atendidos -->
+    <!-- boton Pacientes Atendidos -->
     <div class="tipo-usuario-wrapper text-center">
       <button class="btn-tipo-usuario" (click)="mostrarPacientesAtendidos()" type="button">
         <img src="/paciente-register-img.jpg" alt="Pacientes Atendidos" />
@@ -22,31 +22,36 @@
     </div>
   </div>
 
-  <!-- 🔹 Spinner de carga -->
+  <!-- Spinner de carga -->
   <div *ngIf="cargando" class="text-center my-3">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Cargando...</span>
     </div>
   </div>
 
-  <!-- 🔹 Vista Historias Clínicas -->
+  <!-- Vista Historias Clínicas -->
   <div *ngIf="vista === 'historias'" class="contenedor-historia mt-4">
     <app-historia-clinica></app-historia-clinica>
   </div>
 
-  <!-- 🔹 Vista Pacientes Atendidos -->
+  <!-- Vista Pacientes Atendidos -->
   <div *ngIf="vista === 'pacientes'" class="contenedor-pacientes mt-4">
     <div class="pacientes-grid">
       <div *ngFor="let paciente of pacientesAtendidos" class="tipo-usuario-wrapper text-center">
-        <button class="btn-tipo-usuario" (click)="seleccionarPaciente(paciente)" type="button">
-          <img [src]="paciente.imagen1 || '/placeholder.jpg'" [alt]="paciente.nombre" />
-        </button>
+      <button 
+        class="btn-tipo-usuario btn-paciente" 
+        [ngClass]="{'btn-paciente-activo': pacienteSeleccionado?.mail === paciente.mail}" 
+        (click)="seleccionarPaciente(paciente)" 
+        type="button">
+        <img [src]="paciente.imagen1 || '/placeholder.jpg'" [alt]="paciente.nombre" />
+      </button>
+
         <span class="tipo-usuario-label">{{ paciente.nombre }} {{ paciente.apellido }}</span>
         <p class="mail-usuario"> {{paciente.mail}} </p>
       </div>
     </div>
 
-    <!-- 🔹 Detalle de paciente seleccionado -->
+    <!-- Detalle de paciente seleccionado -->
     <div *ngIf="pacienteSeleccionado" class="detalles-paciente mt-4">
       <h3>{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</h3>
 

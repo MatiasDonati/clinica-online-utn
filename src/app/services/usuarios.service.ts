@@ -144,7 +144,7 @@ export class UsuariosService {
   }
 
   async obtenerNombreApellidoPorMail(mail: string): Promise<{ nombre: string, apellido: string } | null> {
-    // Buscar en pacientes
+
     const { data: paciente, error: errorPaciente } = await supabase
       .from('pacientes')
       .select('nombre, apellido')
@@ -155,7 +155,6 @@ export class UsuariosService {
       return { nombre: paciente.nombre, apellido: paciente.apellido };
     }
 
-    // Buscar en especialistas
     const { data: especialista, error: errorEspecialista } = await supabase
       .from('especialistas')
       .select('nombre, apellido')
@@ -166,7 +165,16 @@ export class UsuariosService {
       return { nombre: especialista.nombre, apellido: especialista.apellido };
     }
 
-    // Buscar en users_data (admins u otros)
+    const { data: admin, error: errorAdmin } = await supabase
+      .from('administradores')
+      .select('nombre, apellido')
+      .eq('mail', mail)
+      .single();
+
+    if (admin && !errorAdmin) {
+      return { nombre: admin.nombre, apellido: admin.apellido };
+    }
+
     const { data: user, error: errorUser } = await supabase
       .from('users_data')
       .select('nombre, apellido')
@@ -177,10 +185,45 @@ export class UsuariosService {
       return { nombre: user.nombre, apellido: user.apellido };
     }
 
-    // No encontrado
     console.warn('No se encontró el usuario con mail:', mail);
     return null;
   }
+
+  async obtenerImagenPorMailYTipo(mail: string, tipo: string): Promise<string | null> {
+    let tabla = '';
+    let campo = '';
+
+    switch (tipo) {
+      case 'paciente':
+        tabla = 'pacientes';
+        campo = 'imagen1';
+        break;
+      case 'especialista':
+        tabla = 'especialistas';
+        campo = 'imagen1';
+        break;
+      case 'admin':
+        tabla = 'administradores';
+        campo = 'imagen';
+        break;
+      default:
+        return null;
+    }
+
+    const { data, error } = await supabase
+      .from(tabla)
+      .select(campo)
+      .eq('mail', mail)
+      .single();
+
+    if (error || !data || !(data as Record<string, any>)[campo]) {
+      console.warn(`No se encontró imagen para ${mail} en ${tabla}`);
+      return null;
+    }
+
+    return (data as Record<string, any>)[campo] as string;
+  }
+
 
 
 

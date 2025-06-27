@@ -2,15 +2,17 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../../services/auth.service';
+import { UsuariosService } from '../../services/usuarios.service';
 import { HorariosEspecialistasComponent } from '../horarios-especialistas/horarios-especialistas.component';
 import { HistoriaClinicaComponent } from "../historia-clinica/historia-clinica.component";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, HorariosEspecialistasComponent, HistoriaClinicaComponent],
+  imports: [CommonModule, HeaderComponent, HorariosEspecialistasComponent, HistoriaClinicaComponent, FormsModule],
   templateUrl: './mi-perfil.component.html',
   styleUrls: ['./mi-perfil.component.css']
 })
@@ -30,9 +32,14 @@ export class MiPerfilComponent implements OnInit {
   mostrarHistoria = false;
   historiasClinicas: any[] = [];
 
+  especialistasUnicos: { mail: string, nombreCompleto: string }[] = [];
+  especialistaSeleccionado: string = '';
+
+
   @ViewChild('historiaClinicaRef') historiaClinicaElement!: ElementRef;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private usuariosService: UsuariosService
+) {}
 
   async ngOnInit() {
     this.userEmail = await this.authService.obtenerUsuarioActual();
@@ -81,25 +88,42 @@ export class MiPerfilComponent implements OnInit {
 
       if (!error && data) {
         this.historiasClinicas = data;
+
+        // extraer especialistas únicos
+        const uniqueEmails = Array.from(new Set(data.map(h => h.especialista_email)));
+
+        // obtener nombres completos
+        const especialistas: { mail: string, nombreCompleto: string }[] = [];
+        for (const email of uniqueEmails) {
+          const nombre = await this.usuariosService.obtenerNombreApellidoPorMail(email);
+          especialistas.push({
+            mail: email,
+            nombreCompleto: nombre ? `${nombre.nombre} ${nombre.apellido}` : email
+          });
+        }
+
+        this.especialistasUnicos = especialistas;
       }
     }
   }
 
-  async generarPDFHistoriaClinica(historiaClinica: any[]) {
 
+  async generarPDFHistoriaClinica(historiaClinica: any[], tituloExtra?: string) {
     const doc = new jsPDF();
-
     const logo = new Image();
     logo.src = '/header-img.png';
-
     const fecha = new Date();
     const fechaStr = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getFullYear()}`;
 
     logo.onload = () => {
-      // 10 10 x e y 30 30 ancho y alto
       doc.addImage(logo, 'PNG', 10, 10, 30, 30);
       doc.setFontSize(18);
-      doc.text('Historia Clínica - Clínica Online Dr. Donati y Asociados', 50, 20);
+
+      const titulo = tituloExtra 
+        ? `Historia Clínica con ${tituloExtra}`
+        : 'Historia Clínica - Clínica Online Dr. Donati y Asociados';
+
+      doc.text(titulo, 50, 20);
       doc.setFontSize(12);
       doc.text(`Fecha de emisión: ${fechaStr}`, 50, 30);
       doc.text(`Paciente: ${this.nombre} ${this.apellido}`, 10, 50);
@@ -122,7 +146,38 @@ export class MiPerfilComponent implements OnInit {
         headStyles: { fillColor: [138, 43, 226] }
       });
 
-      doc.save(`historia_clinica_${this.apellido}_${fechaStr}.pdf`);
+      const filename = tituloExtra
+        ? `historia_clinica_${this.apellido}_${tituloExtra}_${fechaStr}.pdf`
+        : `historia_clinica_${this.apellido}_${fechaStr}.pdf`;
+
+      doc.save(filename);
     };
   }
+
+
+  async generarPDFHistoriaClinicaPorEspecialista() {
+    if (!this.especialistaSeleccionado) return;
+
+    const historiasFiltradas = this.historiasClinicas.filter(
+      h => h.especialista_email === this.especialistaSeleccionado
+    );
+
+    const especialista = this.especialistasUnicos.find(
+      e => e.mail === this.especialistaSeleccionado
+    )?.nombreCompleto || this.especialistaSeleccionado;
+
+    if (!historiasFiltradas.length) {
+      alert('No hay historias clínicas con este especialista.');
+      return;
+    }
+
+    this.generarPDFHistoriaClinica(historiasFiltradas, especialista);
+  }
+
+  get nombreEspecialistaSeleccionado(): string {
+    const especialista = this.especialistasUnicos.find(e => e.mail === this.especialistaSeleccionado);
+    return especialista ? especialista.nombreCompleto : 'Especialista';
+  }
+
+
 }
