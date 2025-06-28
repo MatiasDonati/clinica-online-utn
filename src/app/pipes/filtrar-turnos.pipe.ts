@@ -15,3 +15,5 @@ export class FiltrarTurnosPipe implements PipeTransform {
     );
   }
 }
+
+// Quedo en desuso

@@ -59,7 +59,10 @@
           <td>
             <button class="btn-img-usuario" (click)="descargarHistoriasClinicasUsuario(usuario)">
             <!-- <button class="btn-img-usuario" (click)="descargarTurnosUsuario(usuario)"> -->
-              <img [src]="imagenes[usuario.mail]" [alt]="nombres[usuario.mail] || usuario.mail" />
+              <img [src]="imagenes[usuario.mail]"
+                [alt]="nombres[usuario.mail] || usuario.mail"
+                [appTipoUsuarioBorde]="usuario.tipo" />
+
             </button>
           </td>
 

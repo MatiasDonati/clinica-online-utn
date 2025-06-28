@@ -37,26 +37,19 @@ export class MisTurnosComponent implements OnInit {
     await this.cargarTurnos();
   }
 
-  // aplicarFiltro() {
-  //   const texto = this.filtro.toLowerCase();
-  //   this.turnosFiltrados = this.turnos.filter(turno =>
-  //     turno.especialidad.toLowerCase().includes(texto) ||
-  //     turno.especialista_email.toLowerCase().includes(texto)
-  //   );
-  // }
-
   aplicarFiltro() {
     const texto = this.filtro.toLowerCase();
 
     this.turnosFiltrados = this.turnos.filter(turno => {
-      const historia = turno.historias_clinicas?.[0]; // puede no existir
+       // puede no existir
+      const historia = turno.historias_clinicas?.[0];
 
       // verificar los campos base del turno
       const matchBase =
         turno.especialidad?.toLowerCase().includes(texto) ||
         turno.especialista_email?.toLowerCase().includes(texto);
 
-      // veririfcar campos fijos de historia clínica
+      // veririfcar campos fijos de historia clinica
       const matchHistoriaFija = historia && (
         historia.altura?.toString().toLowerCase().includes(texto) ||
         historia.peso?.toString().toLowerCase().includes(texto) ||
@@ -64,7 +57,7 @@ export class MisTurnosComponent implements OnInit {
         historia.presion?.toLowerCase().includes(texto)
       );
 
-      // verificar campos dinámicos
+      // verificar campos dinamicos
       const matchDinamico = historia?.datos_dinamicos && Object.entries(historia.datos_dinamicos)
         .some(([clave, valor]) =>
           clave.toLowerCase().includes(texto) ||

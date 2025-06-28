@@ -6,21 +6,22 @@
       <div class="card p-4 shadow-lg">
         <h2 class="text-center mb-4">LOGIN</h2>
 
-        <!-- Spinner -->
+        <!-- spinner -->
         <div *ngIf="cargando" class="text-center my-4">
           <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
             <span class="visually-hidden">Cargando...</span>
           </div>
         </div>
 
-        <!-- Formulario -->
+        <!-- formulario -->
         <form #form="ngForm" *ngIf="!cargando" (submit)="login(); $event.preventDefault()" class="d-flex flex-column gap-3">
 
-          <!-- Email -->
+          <!-- email -->
           <div class="input-group">
             <span class="input-group-text bg-violet text-white">
               <i class="bi bi-envelope-fill"></i>
             </span>
+            <!-- DIRECTUCA AutofocusDirective -->
             <input type="email"
                    [(ngModel)]="username"
                    name="email"
@@ -28,14 +29,16 @@
                    placeholder="Email"
                    required
                    email
-                   #emailCtrl="ngModel" />
+                   #emailCtrl="ngModel" 
+                   appAutofocus
+                   />
           </div>
           <div *ngIf="emailCtrl.invalid && emailCtrl.touched" class="text-danger small">
             <span *ngIf="emailCtrl.errors?.['required']">El email es obligatorio.</span>
             <span *ngIf="emailCtrl.errors?.['email']">Formato de email incorrecto.</span>
           </div>
 
-          <!-- Contraseña -->
+          <!-- contraseña -->
           <div class="input-group">
             <span class="input-group-text bg-violet text-white">
               <i class="bi bi-lock-fill"></i>
@@ -54,19 +57,19 @@
             <span *ngIf="passCtrl.errors?.['minlength']">Debe tener al menos 6 caracteres.</span>
           </div>
 
-          <!-- Botón login -->
+          <!-- boton login -->
           <button type="submit" class="btn btn-violet mt-3" [disabled]="form.invalid || cargando">
             Iniciar Sesión
           </button>
           
-          <!-- Spinner de accesos rápidos -->
+          <!-- spiner de accesos rapidos -->
           <div *ngIf="cargandoAccesos" class="text-center my-3">
             <div class="spinner-border text-violet" role="status" style="width: 2rem; height: 2rem;">
               <!-- <span class="visually-hidden">Cargando accesos rápidos...</span> -->
             </div>
           </div>
 
-          <!-- Botones de acceso rápido -->
+          <!-- boontes de acceso rapido -->
           <div *ngIf="!cargandoAccesos" class="acceso-rapido-container d-flex justify-content-center flex-wrap gap-3 my-4">
             <div *ngFor="let user of usuariosRapidos" class="d-flex flex-column align-items-center">
               <button class="btn-acceso-rapido" (click)="loginRapido(user.email, user.password)">
@@ -80,7 +83,7 @@
 
         </form>
 
-        <!-- Mensaje de error -->
+        <!-- error -->
         <p class="mt-3 text-center text-danger" *ngIf="mensaje">{{ mensaje }}</p>
       </div>
     </div>

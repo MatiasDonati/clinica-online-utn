@@ -6,13 +6,14 @@ import { createClient } from '@supabase/supabase-js';
 import { HeaderComponent } from '../header/header.component';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
+import { AutofocusDirective } from '../../directivas/autofocus.directive';
 
 const supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, AutofocusDirective],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

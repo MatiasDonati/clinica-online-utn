@@ -4,11 +4,12 @@ import { CommonModule, NgClass, NgIf } from '@angular/common';
 import { ExcelService } from '../../../services/excel.service';
 import { AuthService } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
+import { TipoUsuarioBordeDirective } from '../../../directivas/tipo-usuario-borde.directive';
 
 
 @Component({
   selector: 'app-usuarios-lista',
-  imports: [NgIf, CommonModule, NgClass],
+  imports: [NgIf, CommonModule, NgClass, TipoUsuarioBordeDirective],
   templateUrl: './usuarios-lista.component.html',
   styleUrl: './usuarios-lista.component.css'
 })
