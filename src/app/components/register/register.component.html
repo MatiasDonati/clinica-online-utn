@@ -4,10 +4,10 @@
   <h2 *ngIf="!tipoSeleccionado">Registro</h2>
   <h2 *ngIf="tipoSeleccionado">Registro {{ tipoSeleccionado | titlecase }}</h2>
 
-  <!-- Solo mostrar mensaje de error -->
+  <!--  mostrar mensaje error -->
   <p class="mensaje text-danger" *ngIf="mensaje && !registroExitoso">{{ mensaje }}</p>
 
-  <!-- Solo mostrar mensaje de éxito -->
+  <!--  mostrar mensaje exito -->
   <p class="mensaje fw-bold text-violet text-center" *ngIf="registroExitoso && mensaje && !cargando">
     {{ mensaje }}
   </p>
@@ -19,13 +19,13 @@
     </div>
   </div>
 
-  <!-- 🔹 Selección de tipo de usuario con animacion! -->
+  <!-- seleccionar tipo /// animacion -->
   <div *ngIf="!tipoSeleccionado && !cargando && !registroExitoso"
      @zoomFade
      class="d-flex justify-content-center align-items-center gap-5 mt-4 flex-wrap">
 
 
-    <!-- Paciente -->
+    <!-- pacciente -->
     <div class="tipo-usuario-wrapper text-center">
       <button class="btn-tipo-usuario" (click)="elegirTipo('paciente')" type="button">
         <img src="/paciente-register-img.jpg" alt="Paciente" />
@@ -33,7 +33,7 @@
       <span class="tipo-usuario-label">Paciente</span>
     </div>
 
-    <!-- Especialista -->
+    <!-- especialista -->
     <div class="tipo-usuario-wrapper text-center">
       <button class="btn-tipo-usuario" (click)="elegirTipo('especialista')" type="button">
         <img src="/especialista-register.jpg" alt="Especialista" />
@@ -41,7 +41,7 @@
       <span class="tipo-usuario-label">Especialista</span>
     </div>
 
-    <!-- Administrador (solo si sos admin) -->
+    <!-- admin -->
     <div *ngIf="desdeAdmin" class="tipo-usuario-wrapper text-center">
       <button class="btn-tipo-usuario" (click)="elegirTipo('admin')" type="button">
         <img src="/admin-register.jpeg" alt="Administrador" />
@@ -50,7 +50,7 @@
     </div>
   </div>
 
-  <!-- 🔹 Formulario completo -->
+  <!-- form -->
   <form *ngIf="tipoSeleccionado && !registroExitoso && !cargando"
         @zoomFade
         [formGroup]="form"
@@ -58,7 +58,7 @@
         class="d-flex flex-column gap-3">
 
 
-    <!-- Cambiar tipo de usuario -->
+    <!-- cambiar usuario -->
     <div class="text-center mt-2">
       <button type="button"
               class="btn btn-secondary"
@@ -67,7 +67,7 @@
       </button>
     </div>
 
-    <!-- Nombre -->
+    <!-- nombre -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-person-fill"></i></span>
       <input type="text" formControlName="nombre" class="form-control register-input" placeholder="Nombre" />
@@ -76,7 +76,7 @@
       {{ form.get('nombre')?.getError('nombreInvalido') }}
     </div>
 
-    <!-- Apellido -->
+    <!-- apellido -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-person-vcard-fill"></i></span>
       <input type="text" formControlName="apellido" class="form-control register-input" placeholder="Apellido" />
@@ -85,7 +85,7 @@
       {{ form.get('apellido')?.getError('nombreInvalido') }}
     </div>
 
-    <!-- Edad -->
+    <!-- edad -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-cake-fill"></i></span>
       <input type="number" formControlName="edad" class="form-control register-input" placeholder="Edad" />
@@ -103,7 +103,7 @@
       {{ form.get('dni')?.getError('dniInvalido') }}
     </div>
 
-    <!-- Obra Social (solo paciente) -->
+    <!-- obra social (solo paciente) -->
     <div *ngIf="tipoSeleccionado === 'paciente'">
       <div class="input-group">
         <span class="bg-violet text-white"><i class="bi bi-hospital-fill"></i></span>
@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <!-- Especialidades (solo especialista) -->
+    <!-- especialidades (solo especialista) -->
     <div *ngIf="tipoSeleccionado === 'especialista'">
       <label>Seleccioná una o más especialidades:</label>
 
@@ -126,7 +126,7 @@
       </div>
 
 
-      <!-- Nueva especialidad -->
+      <!-- nueva especialidad -->
       <form #formEspecialidad="ngForm" (ngSubmit)="agregarEspecialidadManual()" class="input-group mt-2">
         <input type="text"
               name="nuevaEspecialidad"
@@ -141,14 +141,14 @@
       </form>
 
 
-      <!-- Mostrar seleccionadas -->
+      <!-- mostrar seleccionadas -->
       <p class="text-white mt-2" *ngIf="especialidadesSeleccionadas.length > 0">
         Seleccionadas: {{ especialidadesSeleccionadas.join(', ') }}
       </p>
 
     </div>
 
-    <!-- Email -->
+    <!-- email -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-envelope-fill"></i></span>
       <input type="email" formControlName="email" class="form-control register-input" placeholder="Email" />
@@ -157,7 +157,7 @@
       Ingresá un email válido.
     </div>
 
-    <!-- Contraseña -->
+    <!-- contraseña -->
     <div class="input-group">
       <span class="bg-violet text-white"><i class="bi bi-lock-fill"></i></span>
       <input type="password" formControlName="password" class="form-control register-input" placeholder="Contraseña" />
@@ -190,7 +190,7 @@
 
 
 
-    <!-- Botón -->
+    <!-- boton -->
     <button type="submit" class="register-button" [disabled]="form.invalid">
       Registrarse
     </button>
