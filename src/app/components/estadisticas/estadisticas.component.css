@@ -177,3 +177,112 @@ canvas {
 .form-check-input:focus {
   box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
 }
+
+.cantidad-turnos {
+  color: #e0b3ff;
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.cantidad-turnos {
+  color: #e0b3ff;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.tabla-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.tabla-container h4 {
+  color: #e0b3ff;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.table th {
+  background-color: rgba(131, 68, 189, 0.8);
+  color: #ffffff;
+  text-transform: uppercase;
+  font-weight: bold;
+  border: none;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.table-dark {
+  color: #ffffff;
+  background-color: transparent;
+}
+
+.table-dark td, .table-dark th, .table-dark thead th {
+  border-color: rgba(255,255,255,0.2);
+}
+
+.table-dark tbody tr:hover {
+  background-color: rgba(138, 43, 226, 0.2);
+  transition: background-color 0.3s;
+}
+
+.btn-descargar {
+  background-color: #BB2D3A;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-descargar:hover {
+  background-color: #aa3b4f; 
+  transform: translateY(-2px);
+}
+
+.btn-descargar:active {
+  background-color: #922f42;
+  transform: translateY(0px);
+}
+
+.btn-descargar {
+  background-color: #C46473;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-descargar:hover {
+  background-color: #aa3b4f;
+  transform: translateY(-2px);
+}
+
+.btn-descargar:active {
+  background-color: #922f42;
+  transform: translateY(0px);
+}

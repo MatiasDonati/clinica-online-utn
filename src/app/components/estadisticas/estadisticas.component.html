@@ -1,92 +1,136 @@
 <app-header></app-header>
 
 <div class="container my-5 text-center">
-  <h2 class="mb-4">Estadísticas y Gráficos</h2>
+    <h2 class="mb-4">Estadísticas y Gráficos</h2>
 
-  <!-- grafico de ingresos por día -->
-  <div class="grafico-container mb-4">
-    <h4>Ingresos al sistema por día</h4>
-    <canvas baseChart
+    <div class="grafico-container mb-4 d-flex flex-column align-items-start">
+    <div class="d-flex justify-content-between w-100 align-items-center">
+        <h4>Ingresos al sistema por día</h4>
+        <button class="btn btn-descargar" (click)="descargarGraficoIngresos()">
+       📊 Descargar Gráfico 📊
+        </button>
+    </div>
+
+    <canvas #graficoIngresos
+            baseChart
             [data]="chartData"
             [type]="chartType"
             [options]="chartOptions">
     </canvas>
-  </div>
+    </div>
 
   <!-- tabla de detalle de ingresos -->
-  <div class="tabla-container mt-4">
-    <h4>Detalle de ingresos</h4>
+    <div class="tabla-container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Detalle de ingresos</h4>
+        <button class="btn btn-descargar" (click)="exportarDetalleIngresos()">
+       📉 Descargar Excel 📉
+        </button>
+    </div>
     <table class="table table-dark table-striped">
-      <thead>
+        <thead>
         <tr>
-          <th>Email</th>
-          <th>Fecha y Hora</th>
+            <th>Email</th>
+            <th>Fecha y Hora</th>
         </tr>
-      </thead>
-      <tbody>
+        </thead>
+        <tbody>
         <tr *ngFor="let log of logs">
-          <td>{{ log.email }}</td>
-          <td>{{ convertirFechaArgentina(log.fecha_hora) }}</td>
+            <td>{{ log.email }}</td>
+            <td>{{ log.fecha_hora | formatearFecha }}, {{ log.fecha_hora | formatearHora }}</td>
         </tr>
-      </tbody>
+        </tbody>
     </table>
-  </div>
+    </div>
 
-  <!-- grafico de turnos por especialidad -->
-  <div class="grafico-container mb-4 mt-5">
-    <h4>Turnos por Especialidad</h4>
+    <div class="grafico-container mb-4 mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Turnos por Especialidad</h4>
+        <button class="btn btn-descargar" (click)="exportarTurnosPorEspecialidad()">
+       📉 Descargar Excel 
+        <span *ngIf="especialidadSeleccionada"> {{ especialidadSeleccionada }} 📉</span>
+        <span *ngIf="!especialidadSeleccionada"> Todas 📉</span>
+        </button>
+    </div>
 
-    <!-- fikltro especialidad -->
+    <!-- filtro especialidad -->
     <div class="filtro-especialidad mb-4 mt-4">
-    <h5>Filtrar Turnos por Especialidad</h5>
-    <select id="especialidad" [(ngModel)]="especialidadSeleccionada" class="form-select">
+        <h5>Filtrar Turnos por Especialidad</h5>
+
+        <select id="especialidad"
+                [(ngModel)]="especialidadSeleccionada"
+                (change)="filtrarTurnosPorEspecialidad()"
+                class="form-select">
         <option value="">Seleccioná una especialidad</option>
         <option *ngFor="let esp of especialidadesDisponibles" [value]="esp">{{ esp }}</option>
-    </select>
+        </select>
 
-    <div class="mt-2">
-        <button class="btn btn-primary me-2" (click)="filtrarTurnosPorEspecialidad()">Filtrar</button>
+        <div class="cantidad-turnos mt-2">
+        Turnos
+        <span *ngIf="especialidadSeleccionada">"{{especialidadSeleccionada}}"</span>
+        : {{cantidadTurnosEspecialidad}}
+        </div>
+
+        <div class="mt-2">
         <button class="btn btn-violet" (click)="verTodasLasEspecialidades()">ver Todos</button>
+        </div>
     </div>
-    </div>
-
 
     <canvas baseChart
             [data]="chartTurnosEspecialidad"
             [type]="chartType"
             [options]="chartOptions">
     </canvas>
-  </div>
+    </div>
+
 
     <!-- filtro por rango de fechas para turnos por día -->
-    <div class="filtro-fechas mb-4 mt-5">
-        <h5>Filtrar Turnos por Días</h5>
-        <label for="fechaDesde">Desde:</label>
-        <input type="date" id="fechaDesde" [(ngModel)]="fechaDesde">
+<div class="filtro-fechas mb-4 mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5>Filtrar Turnos por Días</h5>
 
-        <label for="fechaHasta">Hasta:</label>
-        <input type="date" id="fechaHasta" [(ngModel)]="fechaHasta">
+    <div class="d-flex flex-column align-items-end">
+    <!-- Botón descargar Excel -->
+    <button class="btn btn-descargar mb-2" (click)="exportarTurnosPorDia()">
+        {{ botonDescargarTurnosTexto }}
+    </button>
 
-        <button class="btn btn-primary me-2" (click)="filtrarTurnosPorDia()">Filtrar</button>
+    <!-- Botón descargar Gráfico -->
+    <button class="btn btn-descargar" (click)="descargarGraficoTurnosPorDia()">
+        {{ botonDescargarGraficoTexto }}
+    </button>
+    </div>
 
-        <!-- filtro por fecha específica para turnos por día -->
-        <div class="filtro-fecha-especifica mb-4 mt-5">
-            <h5>Ver Un Dia</h5>
-            <input type="date" [(ngModel)]="fechaEspecifica" class="form-control d-inline-block w-auto me-2">
-            <button class="btn btn-violet" (click)="verTurnosPorFechaEspecifica()">Ver Fecha</button>
-        </div>
-        
-        <button class="btn btn-violet" (click)="verTodosLosTurnosPorDia()">Ver Todos</button>
+    </div>
 
-        <!-- grafico de turnos por día -->
-        <div class="grafico-container mb-4 mt-5">
-            <h4>Turnos por Día</h4>
-            <canvas baseChart
-                    [data]="chartTurnosPorDia"
-                    [type]="chartType"
-                    [options]="chartOptions">
-            </canvas>
-        </div>
+
+    <label for="fechaDesde">Desde:</label>
+    <input type="date" id="fechaDesde" [(ngModel)]="fechaDesde">
+
+    <label for="fechaHasta">Hasta:</label>
+    <input type="date" id="fechaHasta" [(ngModel)]="fechaHasta">
+
+    <button class="btn btn-primary me-2" (click)="filtrarTurnosPorDia()">Filtrar</button>
+
+    <!-- filtro por fecha específica para turnos por día -->
+    <div class="filtro-fecha-especifica mb-4 mt-5">
+        <h5>Ver Un Día</h5>
+        <input type="date" [(ngModel)]="fechaEspecifica" class="form-control d-inline-block w-auto me-2">
+        <button class="btn btn-violet" (click)="verTurnosPorFechaEspecifica()">Ver Fecha</button>
+    </div>
+
+    <button class="btn btn-violet" (click)="verTodosLosTurnosPorDia()">Ver Todos</button>
+
+    <!-- gráfico -->
+    <div class="grafico-container mb-4 mt-5" id="grafico-turnos-por-dia">
+        <h4>Turnos por Día</h4>
+        <canvas #graficoTurnosPorDia
+                baseChart
+                [data]="chartTurnosPorDia"
+                [type]="chartType"
+                [options]="chartOptions">
+        </canvas>
+    </div>
 
         <!-- filtro por especialista en rango (unificado) -->
         <div class="filtro-medico-rango mb-4 mt-5">
@@ -107,11 +151,11 @@
         <!-- checkbox para ver finalizados -->
         <div class="form-check form-switch d-inline-block ms-3">
             <input class="form-check-input" type="checkbox" id="soloFinalizados" [(ngModel)]="soloFinalizados">
-            <label class="form-check-label" for="soloFinalizados">Solo finalizados</label>
+            <label class="form-check-label" for="soloFinalizados">Turnos Finalizados</label>
         </div>
 
         <div class="mt-2">
-            <button class="btn btn-primary me-2" (click)="filtrarTurnosPorMedicoEnRango()">Ver Cantidad en Rango</button>
+            <button class="btn btn-primary me-2" (click)="filtrarTurnosPorMedicoEnRango()">Ver</button>
         </div>
     </div>
 

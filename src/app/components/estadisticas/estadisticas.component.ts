@@ -1,22 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgChartsModule } from 'ng2-charts';
 import { AuthService } from '../../services/auth.service';
 import { TurnosService } from '../../services/turnos.service';
 import { ChartConfiguration, ChartType, ChartData } from 'chart.js';
 import { HeaderComponent } from "../header/header.component";
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
+import { FormatearHoraPipe } from '../../pipes/formatear-hora.pipe';
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
+
 
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule],
+  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule, NgIf, FormatearFechaPipe, FormatearHoraPipe],
   templateUrl: './estadisticas.component.html',
   styleUrl: './estadisticas.component.css'
 })
 export class EstadisticasComponent implements OnInit {
+
+  @ViewChild('graficoIngresos') graficoIngresos!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('graficoTurnosPorDia') graficoTurnosPorDia!: ElementRef;
+
 
   formatearFechaPipe = new FormatearFechaPipe();
 
@@ -33,6 +41,11 @@ export class EstadisticasComponent implements OnInit {
   especialistasDisponibles: string[] = [];
 
   soloFinalizados: boolean = false;
+
+  cantidadTurnosEspecialidad: number = 0;
+
+  botonDescargarTurnosTexto: string = '📉 Descargar Excel de Turnos 📉';
+  botonDescargarGraficoTexto: string = '📊 Descargar Gráfico 📊';
 
 
   chartData: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -73,7 +86,6 @@ export class EstadisticasComponent implements OnInit {
     await this.cargarTurnosPorDia();
     await this.cargarEspecialidades();
     await this.cargarEspecialistas();
-
   }
 
   convertirFechaArgentina(fechaUTC: string) {
@@ -92,6 +104,8 @@ export class EstadisticasComponent implements OnInit {
       labels: Array.from(map.keys()),
       datasets: [{ label: 'Turnos por Especialidad', data: Array.from(map.values()) }]
     };
+
+    this.cantidadTurnosEspecialidad = Array.from(map.values()).reduce((acc, val) => acc + val, 0);
   }
 
   async cargarTurnosPorDia() {
@@ -99,18 +113,16 @@ export class EstadisticasComponent implements OnInit {
     const map = new Map<string, number>();
 
     for (const turno of turnos) {
-      // Pipe
-      const fechaArg = this.formatearFechaPipe.transform(turno.fecha);
+      const fechaArg = turno.fecha; // formato yyyy-mm-dd
       map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
     }
-
 
     const sortedEntries = Array.from(map.entries()).sort(([fechaA], [fechaB]) =>
       fechaA.localeCompare(fechaB)
     );
 
     this.chartTurnosPorDia = {
-      labels: sortedEntries.map(([fecha]) => fecha),
+      labels: sortedEntries.map(([fecha]) => this.formatearFechaPipe.transform(fecha)),
       datasets: [{
         label: 'Turnos por día',
         data: sortedEntries.map(([, cantidad]) => cantidad)
@@ -119,6 +131,9 @@ export class EstadisticasComponent implements OnInit {
   }
 
   async filtrarTurnosPorDia() {
+
+    this.fechaEspecifica = '';
+
     if (!this.fechaDesde || !this.fechaHasta) {
       Swal.fire({
         icon: 'warning',
@@ -156,20 +171,33 @@ export class EstadisticasComponent implements OnInit {
       map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
     }
 
-    const sortedEntries = Array.from(map.entries()).sort(([fechaA], [fechaB]) =>
-      fechaA.localeCompare(fechaB)
-    );
+    const sortedEntries = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
 
     this.chartTurnosPorDia = {
-      labels: sortedEntries.map(([fecha]) => fecha),
-      datasets: [{
-        label: 'Turnos por día',
-        data: sortedEntries.map(([, cantidad]) => cantidad)
-      }]
+      labels: sortedEntries.map(([fecha]) => this.formatearFechaPipe.transform(fecha)),
+      datasets: [{ label: 'Turnos por día', data: sortedEntries.map(([, c]) => c) }]
     };
+
+    const desdeArg = this.formatearFechaPipe.transform(this.fechaDesde);
+    const hastaArg = this.formatearFechaPipe.transform(this.fechaHasta);
+
+    this.botonDescargarTurnosTexto = `📉 Descargar Excel de Turnos - ${desdeArg} a ${hastaArg} 📉`;
+    this.botonDescargarGraficoTexto = `📊 Descargar Gráfico - ${desdeArg} a ${hastaArg} 📊`;
+
+    setTimeout(() => {
+      const grafico = document.getElementById('grafico-turnos-por-dia');
+      if (grafico) {
+        grafico.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   }
 
+
   async verTurnosPorFechaEspecifica() {
+
+    this.fechaDesde = '';
+    this.fechaHasta = '';
+
     if (!this.fechaEspecifica) {
       Swal.fire({
         icon: 'warning',
@@ -184,20 +212,30 @@ export class EstadisticasComponent implements OnInit {
 
     const map = new Map<string, number>();
     for (const turno of turnos) {
-       // usar directamente como string
       const fechaArg = turno.fecha;
       map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
     }
 
     this.chartTurnosPorDia = {
-      labels: Array.from(map.keys()),
+      labels: Array.from(map.keys()).map(fecha => this.formatearFechaPipe.transform(fecha)),
       datasets: [{
-        label: `Turnos del ${this.fechaEspecifica}`,
+        label: `Turnos del ${this.formatearFechaPipe.transform(this.fechaEspecifica)}`,
         data: Array.from(map.values())
       }]
     };
-  }
 
+    const fechaArg = this.formatearFechaPipe.transform(this.fechaEspecifica);
+
+    this.botonDescargarTurnosTexto = `📉 Descargar Excel de Turnos - ${fechaArg} 📉`;
+    this.botonDescargarGraficoTexto = `📊 Descargar Gráfico - ${fechaArg} 📊`;
+
+    setTimeout(() => {
+      const grafico = document.getElementById('grafico-turnos-por-dia');
+      if (grafico) {
+        grafico.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
 
   async cargarEspecialidades() {
     const data = await this.turnosService.obtenerTodasLasEspecialidades();
@@ -224,12 +262,18 @@ export class EstadisticasComponent implements OnInit {
         data: [turnos.length]
       }]
     };
+
+    this.cantidadTurnosEspecialidad = turnos.length;
   }
 
   async verTodosLosTurnosPorDia() {
     this.fechaDesde = '';
     this.fechaHasta = '';
     await this.cargarTurnosPorDia();
+    this.botonDescargarTurnosTexto = '📉 Descargar Excel de Turnos 📉';
+    this.botonDescargarGraficoTexto = '📊 Descargar Gráfico 📊';
+
+
   }
 
   async verTodasLasEspecialidades() {
@@ -262,7 +306,7 @@ export class EstadisticasComponent implements OnInit {
     }
 
     this.chartTurnosPorDia = {
-      labels: Array.from(map.keys()),
+      labels: Array.from(map.keys()).map(fecha => this.formatearFechaPipe.transform(fecha)),
       datasets: [{
         label: `Turnos de ${this.especialistaSeleccionado}`,
         data: Array.from(map.values())
@@ -270,66 +314,300 @@ export class EstadisticasComponent implements OnInit {
     };
   }
 
-async filtrarTurnosPorMedicoEnRango() {
+  async filtrarTurnosPorMedicoEnRango() {
+    const desdeFormateada = this.formatearFechaPipe.transform(this.fechaDesde);
+    const hastaFormateada = this.formatearFechaPipe.transform(this.fechaHasta);
 
-  // con Pipe Personaliado
-  const desdeFormateada = this.formatearFechaPipe.transform(this.fechaDesde);
-  const hastaFormateada = this.formatearFechaPipe.transform(this.fechaHasta);
+    if (!this.especialistaSeleccionado || !this.fechaDesde || !this.fechaHasta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Datos requeridos',
+        text: 'Seleccioná un especialista y un rango de fechas.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
 
-  if (!this.especialistaSeleccionado || !this.fechaDesde || !this.fechaHasta) {
+    const desde = new Date(this.fechaDesde);
+    const hasta = new Date(this.fechaHasta);
+
+    if (hasta < desde) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Rango inválido',
+        text: 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const hastaInclusive = new Date(hasta);
+    hastaInclusive.setDate(hastaInclusive.getDate() + 1);
+
+    let turnos;
+
+    if (this.soloFinalizados) {
+      turnos = await this.turnosService.obtenerTurnosFinalizadosPorMedicoEnRango(
+        this.especialistaSeleccionado,
+        this.fechaDesde,
+        hastaInclusive.toISOString().split('T')[0]
+      );
+    } else {
+      turnos = await this.turnosService.obtenerTurnosPorMedicoEnRango(
+        this.especialistaSeleccionado,
+        this.fechaDesde,
+        hastaInclusive.toISOString().split('T')[0]
+      );
+    }
+
+    const cantidad = turnos.length;
+
     Swal.fire({
-      icon: 'warning',
-      title: 'Datos requeridos',
-      text: 'Seleccioná un especialista y un rango de fechas.',
+      icon: 'info',
+      title: this.soloFinalizados ? 'Turnos Finalizados' : 'Turnos Totales',
+      html: `<b>${this.especialistaSeleccionado}</b> ${this.soloFinalizados ? 'finalizó' : 'tiene'} <b>${cantidad}</b> turnos entre <b>${desdeFormateada}</b> y <b>${hastaFormateada}</b>.`,
       confirmButtonColor: '#8A2BE2'
     });
-    return;
   }
 
-  const desde = new Date(this.fechaDesde);
-  const hasta = new Date(this.fechaHasta);
+  descargarGraficoIngresos() {
+    const canvas: HTMLCanvasElement = this.graficoIngresos.nativeElement;
 
-  if (hasta < desde) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Rango inválido',
-      text: 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
-      confirmButtonColor: '#8A2BE2'
-    });
-    return;
+    const canvasConFondo = document.createElement('canvas');
+    const ctx = canvasConFondo.getContext('2d');
+
+    canvasConFondo.width = canvas.width;
+    canvasConFondo.height = canvas.height;
+
+    if (ctx) {
+      //  fondo negro
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // dibujar el grafico arriba
+      ctx.drawImage(canvas, 0, 0);
+
+      // crear enlace de descarga
+      const enlace = document.createElement('a');
+      enlace.href = canvasConFondo.toDataURL('image/png');
+      enlace.download = 'grafico_ingresos.png';
+      enlace.click();
+    }
   }
 
-  const hastaInclusive = new Date(hasta);
-  hastaInclusive.setDate(hastaInclusive.getDate() + 1);
+  exportarDetalleIngresos() {
+    const worksheetData = this.logs.map(log => ({
+      Email: log.email,
+      Fecha: this.formatearFechaPipe.transform(log.fecha_hora),
+      Hora: new Date(log.fecha_hora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    }));
 
-  let turnos;
-
-  if (this.soloFinalizados) {
-    turnos = await this.turnosService.obtenerTurnosFinalizadosPorMedicoEnRango(
-      this.especialistaSeleccionado,
-      this.fechaDesde,
-      hastaInclusive.toISOString().split('T')[0]
-    );
-  } else {
-    turnos = await this.turnosService.obtenerTurnosPorMedicoEnRango(
-      this.especialistaSeleccionado,
-      this.fechaDesde,
-      hastaInclusive.toISOString().split('T')[0]
-    );
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = { Sheets: { 'Detalle de Ingresos': worksheet }, SheetNames: ['Detalle de Ingresos'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    FileSaver.saveAs(data, 'detalle_ingresos.xlsx');
   }
 
-  const cantidad = turnos.length;
+  exportarTurnosPorEspecialidad() {
+    let worksheetData;
+    let nombreArchivo = 'turnos_por_especialidad.xlsx';
 
-  Swal.fire({
-    icon: 'info',
-    title: this.soloFinalizados ? 'Turnos Finalizados' : 'Turnos Totales',
-    html: `<b>${this.especialistaSeleccionado}</b> ${this.soloFinalizados ? 'finalizó' : 'tiene'} <b>${cantidad}</b> turnos entre <b>${desdeFormateada}</b> y <b>${hastaFormateada}</b>.`,
-    confirmButtonColor: '#8A2BE2'
-  });
-}
+    if (this.especialidadSeleccionada) {
+      // filtrafo por especialidad
+      worksheetData = [{
+        Especialidad: this.especialidadSeleccionada,
+        'Cantidad de Turnos': this.cantidadTurnosEspecialidad
+      }];
+
+      // especialidad al nombre del archivo (remplazar espacios por guiones bajos)
+      const especialidadNombre = this.especialidadSeleccionada.replace(/\s+/g, '_').toLowerCase();
+      nombreArchivo = `turnos_${especialidadNombre}.xlsx`;
+    } else {
+      // todos-  recorrer chartTurnosEspecialidad
+      const labels = this.chartTurnosEspecialidad.labels as string[] ?? [];
+      const data = this.chartTurnosEspecialidad.datasets[0]?.data ?? [];
+
+      worksheetData = labels.map((label, index) => ({
+        Especialidad: label,
+        'Cantidad de Turnos': (data[index] as number) ?? 0
+      }));
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = { Sheets: { 'Turnos por Especialidad': worksheet }, SheetNames: ['Turnos por Especialidad'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    FileSaver.saveAs(blob, nombreArchivo);
+  }
 
 
+  exportarTurnosPorDia() {
+    let worksheetData: any[] = [];
+
+    if (this.fechaDesde && this.fechaHasta) {
+      // Filtrado por rango de fechas
+      const desde = new Date(this.fechaDesde);
+      const hasta = new Date(this.fechaHasta);
+
+      if (hasta < desde) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Rango inválido',
+          text: 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
+          confirmButtonColor: '#8A2BE2'
+        });
+        return;
+      }
+
+      const hastaInclusive = new Date(hasta);
+      hastaInclusive.setDate(hastaInclusive.getDate() + 1);
+
+      this.turnosService.obtenerTurnosPorDiaEnRango(
+        this.fechaDesde,
+        hastaInclusive.toISOString().split('T')[0]
+      ).then(turnos => {
+        if (!turnos || turnos.length === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Sin turnos',
+            text: 'No hay turnos en el rango seleccionado.',
+            confirmButtonColor: '#8A2BE2'
+          });
+          return;
+        }
+
+        const map = new Map<string, number>();
+        for (const turno of turnos) {
+          const fechaArg = turno.fecha;
+          map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
+        }
+
+        worksheetData = Array.from(map.entries()).map(([fecha, cantidad]) => ({
+          Fecha: this.formatearFechaPipe.transform(fecha),
+          'Cantidad de Turnos': cantidad
+        }));
+
+        this.generarExcel(worksheetData, `turnos_${this.fechaDesde}_a_${this.fechaHasta}`);
+      });
+    }
+
+    else if (this.fechaEspecifica) {
+      // Filtrado por una sola fecha
+      this.turnosService.obtenerTurnosPorFechaEspecifica(this.fechaEspecifica).then(turnos => {
+        const fechaFormateada = this.formatearFechaPipe.transform(this.fechaEspecifica);
+
+        if (!turnos || turnos.length === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Sin turnos',
+            text: `No hay turnos para la fecha ${fechaFormateada}.`,
+            confirmButtonColor: '#8A2BE2'
+          });
+          return;
+        }
+
+        const cantidad = turnos.length;
+        worksheetData = [{
+          Fecha: fechaFormateada,
+          'Cantidad de Turnos': cantidad
+        }];
+
+        this.generarExcel(worksheetData, `turnos_${this.fechaEspecifica}`);
+      });
+    }
+
+    else if (!this.fechaDesde && !this.fechaHasta && !this.fechaEspecifica) {
+      // Exportar todos los turnos por día (vista por defecto)
+      const labels = this.chartTurnosPorDia.labels as string[] ?? [];
+      const data = this.chartTurnosPorDia.datasets[0]?.data ?? [];
+
+      if (labels.length === 0) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Sin turnos',
+          text: 'No hay turnos cargados.',
+          confirmButtonColor: '#8A2BE2'
+        });
+        return;
+      }
+
+      worksheetData = labels.map((label, index) => ({
+        Fecha: label,
+        'Cantidad de Turnos': (data[index] as number) ?? 0
+      }));
+
+      this.generarExcel(worksheetData, 'turnos_todos');
+    }
+
+    else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Fechas requeridas',
+        text: 'Seleccioná un rango o una fecha específica para exportar.',
+        confirmButtonColor: '#8A2BE2'
+      });
+    }
+  }
 
 
+  private generarExcel(data: any[], filename: string) {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = { Sheets: { 'Turnos': worksheet }, SheetNames: ['Turnos'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    FileSaver.saveAs(blob, `${filename}.xlsx`);
+  }
+
+  descargarGraficoTurnosPorDia() {
+    if (!this.graficoTurnosPorDia) return;
+
+    // Validar si el gráfico tiene datos
+    const tieneDatos = this.chartTurnosPorDia?.labels && this.chartTurnosPorDia.labels.length > 0;
+
+    if (!tieneDatos) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin datos',
+        text: 'No hay datos para generar el gráfico en este filtro.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const canvas: HTMLCanvasElement = this.graficoTurnosPorDia.nativeElement;
+
+    // Crear un canvas temporal con el mismo tamaño
+    const canvasConFondo = document.createElement('canvas');
+    const ctx = canvasConFondo.getContext('2d');
+
+    canvasConFondo.width = canvas.width;
+    canvasConFondo.height = canvas.height;
+
+    if (ctx) {
+      // Pintar fondo negro
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Dibujar el gráfico arriba
+      ctx.drawImage(canvas, 0, 0);
+
+      // Crear enlace de descarga
+      const enlace = document.createElement('a');
+
+      // Nombre dinámico según filtro
+      let nombreArchivo = 'turnos_por_dia';
+      if (this.fechaEspecifica) {
+        nombreArchivo += `_${this.formatearFechaPipe.transform(this.fechaEspecifica)}`;
+      } else if (this.fechaDesde && this.fechaHasta) {
+        nombreArchivo += `_${this.formatearFechaPipe.transform(this.fechaDesde)}_a_${this.formatearFechaPipe.transform(this.fechaHasta)}`;
+      }
+
+      // Descargar como PNG
+      enlace.href = canvasConFondo.toDataURL('image/png');
+      enlace.download = `${nombreArchivo}.png`;
+      enlace.click();
+    }
+  }
 
 }
