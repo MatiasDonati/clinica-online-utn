@@ -74,6 +74,11 @@ export const routes: Routes = [
     data: { animation: 'Pacientes' }
   },
   {
+    path: 'estadisticas',
+    canMatch: [canMatchGuardSoloAdmin],
+    loadComponent: () => import('./components/estadisticas/estadisticas.component').then(c => c.EstadisticasComponent),
+  },
+  {
     path: '**',
     redirectTo: 'home'
   }

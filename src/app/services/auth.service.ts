@@ -334,7 +334,6 @@ export class AuthService {
     };
   }
 
-
   async obtenerEspecialidadesPorEmail(email: string): Promise<string[]> {
     const { data, error } = await supabase
       .from('especialistas_especialidades')
@@ -350,40 +349,38 @@ export class AuthService {
     return data.map((item: any) => item.especialidad);
   }
 
+    async obtenerEspecialistasPorEspecialidadCompleto(especialidad: string): Promise<{ nombre: string, apellido: string, email: string, imagen1: string }[]> {
+    // 1. Obtener los mails de los especialistas para esa especialidad
+    const { data: relaciones, error: errorRelaciones } = await supabase
+      .from('especialistas_especialidades')
+      .select('especialista_email')
+      .eq('especialidad', especialidad);
 
-  async obtenerEspecialistasPorEspecialidadCompleto(especialidad: string): Promise<{ nombre: string, apellido: string, email: string, imagen1: string }[]> {
-  // 1. Obtener los mails de los especialistas para esa especialidad
-  const { data: relaciones, error: errorRelaciones } = await supabase
-    .from('especialistas_especialidades')
-    .select('especialista_email')
-    .eq('especialidad', especialidad);
+    if (errorRelaciones || !relaciones) {
+      console.error('Error al obtener relaciones:', errorRelaciones?.message);
+      return [];
+    }
 
-  if (errorRelaciones || !relaciones) {
-    console.error('Error al obtener relaciones:', errorRelaciones?.message);
-    return [];
+    const emails = relaciones.map(r => r.especialista_email);
+
+    // 2. Traer los datos desde la tabla especialistas
+    const { data: especialistas, error: errorEspecialistas } = await supabase
+      .from('especialistas')
+      .select('nombre, apellido, mail, imagen1')
+      .in('mail', emails);
+
+    if (errorEspecialistas || !especialistas) {
+      console.error('Error al obtener especialistas:', errorEspecialistas?.message);
+      return [];
+    }
+
+    return especialistas.map((esp: any) => ({
+      nombre: esp.nombre,
+      apellido: esp.apellido,
+      email: esp.mail,
+      imagen1: esp.imagen1
+    }));
   }
-
-  const emails = relaciones.map(r => r.especialista_email);
-
-  // 2. Traer los datos desde la tabla especialistas
-  const { data: especialistas, error: errorEspecialistas } = await supabase
-    .from('especialistas')
-    .select('nombre, apellido, mail, imagen1')
-    .in('mail', emails);
-
-  if (errorEspecialistas || !especialistas) {
-    console.error('Error al obtener especialistas:', errorEspecialistas?.message);
-    return [];
-  }
-
-  return especialistas.map((esp: any) => ({
-    nombre: esp.nombre,
-    apellido: esp.apellido,
-    email: esp.mail,
-    imagen1: esp.imagen1
-  }));
-}
-
 
   async obtenerTodosLosEspecialistas(): Promise<any[]> {
     const { data, error } = await this.supabase
@@ -461,6 +458,30 @@ export class AuthService {
       console.error(`Excepción al obtener especialidades de ${email}:`, err);
       return [];
     }
+  }
+
+  async logIngreso(email: string) {
+    const { error } = await this.supabase
+      .from('logs_ingresos')
+      .insert({ email });
+
+    if (error) {
+      console.log('Error al registrar log de ingreso:', error);
+    }
+  }
+
+  async obtenerLogsIngresos() {
+    const { data, error } = await this.supabase
+      .from('logs_ingresos')
+      .select('*')
+      .order('fecha_hora', { ascending: false });
+
+    if (error) {
+      console.error('Error al obtener logs de ingresos:', error);
+      return [];
+    }
+
+    return data;
   }
 
 

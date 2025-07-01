@@ -240,7 +240,6 @@ export class TurnosService {
     return data || [];
   }
 
-
   async obtenerTurnosPorFechaYHora(fecha: string, hora: string) {
     const { data, error } = await supabase
       .from('turnos')
@@ -251,7 +250,6 @@ export class TurnosService {
 
     return data || [];
   }
-
 
   async obtenerTurnosPacienteEnFechaHora(fecha: string, hora: string, emailPaciente: string) {
     const { data, error } = await supabase
@@ -298,7 +296,6 @@ export class TurnosService {
 
     return (data || []).some(t => t.especialista_email !== especialistaEmail);
   }
-
 
 
   async agregarHorarioEspecialista(email: string, dia: string, desde: string, hasta: string) {
@@ -354,6 +351,155 @@ export class TurnosService {
       .insert([historia]);
     return { error };
   }
+
+
+  async obtenerTurnosPorEspecialidad() {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('especialidad');
+
+    if (error) {
+      console.error('Error al obtener turnos por especialidad:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTurnosPorDia() {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha');
+
+    if (error) {
+      console.error('Error al obtener turnos por día:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTurnosPorDiaEnRango(desde: string, hasta: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha')
+      .gte('fecha', desde)
+      .lte('fecha', hasta);
+
+    if (error) {
+      console.error('Error al obtener turnos por día en rango:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+
+  async obtenerTurnosPorEspecialidadYDia(especialidad: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha, especialidad')
+      .eq('especialidad', especialidad);
+
+    if (error) {
+      console.error('Error al obtener turnos por especialidad y día:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTodasLasEspecialidades() {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('especialidad');
+
+    if (error) {
+      console.error('Error al obtener especialidades:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerTurnosPorFechaEspecifica(fecha: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha')
+      .eq('fecha', fecha);
+
+    if (error) {
+      console.error('Error al obtener turnos por fecha específica:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async obtenerEspecialistasDeTurnos() {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('especialista_email')
+      .neq('especialista_email', null);
+
+    if (error) {
+      console.error('Error al obtener especialistas de turnos:', error);
+      return [];
+    }
+
+    // Retornar emails únicos
+    return Array.from(new Set(data.map(e => e.especialista_email)));
+  }
+
+  async obtenerTurnosPorEspecialista(especialista_email: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha')
+      .eq('especialista_email', especialista_email);
+
+    if (error) {
+      console.error('Error al obtener turnos por especialista:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+
+  async obtenerTurnosFinalizadosPorMedicoEnRango(especialista: string, desde: string, hasta: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha, especialista_email, estado')
+      .eq('especialista_email', especialista)
+      .eq('estado', 'realizado')
+      .gte('fecha', desde)
+      .lte('fecha', hasta);
+
+    if (error) {
+      console.error('Error al obtener turnos finalizados por médico en rango:', error);
+      return [];
+    }
+
+    return data;
+  }
+  async obtenerTurnosPorMedicoEnRango(especialista: string, desde: string, hasta: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha, especialista_email')
+      .eq('especialista_email', especialista)
+      .gte('fecha', desde)
+      .lte('fecha', hasta);
+
+    if (error) {
+      console.error('Error al obtener turnos por médico en rango:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+
+
 
 
 } 

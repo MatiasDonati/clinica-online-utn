@@ -130,6 +130,7 @@ async ngOnInit() {
       localStorage.setItem('tipoUsuario', tipoData.tipo);
       this.authService.userEmailSignal.set(email!);
 
+      await this.authService.logIngreso(email!);
 
       console.log('Tipo de usuario:', tipoData.tipo);
 

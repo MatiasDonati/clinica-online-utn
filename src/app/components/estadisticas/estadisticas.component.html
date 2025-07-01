@@ -1,0 +1,118 @@
+<app-header></app-header>
+
+<div class="container my-5 text-center">
+  <h2 class="mb-4">Estadísticas y Gráficos</h2>
+
+  <!-- grafico de ingresos por día -->
+  <div class="grafico-container mb-4">
+    <h4>Ingresos al sistema por día</h4>
+    <canvas baseChart
+            [data]="chartData"
+            [type]="chartType"
+            [options]="chartOptions">
+    </canvas>
+  </div>
+
+  <!-- tabla de detalle de ingresos -->
+  <div class="tabla-container mt-4">
+    <h4>Detalle de ingresos</h4>
+    <table class="table table-dark table-striped">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Fecha y Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td>{{ log.email }}</td>
+          <td>{{ convertirFechaArgentina(log.fecha_hora) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- grafico de turnos por especialidad -->
+  <div class="grafico-container mb-4 mt-5">
+    <h4>Turnos por Especialidad</h4>
+
+    <!-- fikltro especialidad -->
+    <div class="filtro-especialidad mb-4 mt-4">
+    <h5>Filtrar Turnos por Especialidad</h5>
+    <select id="especialidad" [(ngModel)]="especialidadSeleccionada" class="form-select">
+        <option value="">Seleccioná una especialidad</option>
+        <option *ngFor="let esp of especialidadesDisponibles" [value]="esp">{{ esp }}</option>
+    </select>
+
+    <div class="mt-2">
+        <button class="btn btn-primary me-2" (click)="filtrarTurnosPorEspecialidad()">Filtrar</button>
+        <button class="btn btn-violet" (click)="verTodasLasEspecialidades()">ver Todos</button>
+    </div>
+    </div>
+
+
+    <canvas baseChart
+            [data]="chartTurnosEspecialidad"
+            [type]="chartType"
+            [options]="chartOptions">
+    </canvas>
+  </div>
+
+    <!-- filtro por rango de fechas para turnos por día -->
+    <div class="filtro-fechas mb-4 mt-5">
+        <h5>Filtrar Turnos por Días</h5>
+        <label for="fechaDesde">Desde:</label>
+        <input type="date" id="fechaDesde" [(ngModel)]="fechaDesde">
+
+        <label for="fechaHasta">Hasta:</label>
+        <input type="date" id="fechaHasta" [(ngModel)]="fechaHasta">
+
+        <button class="btn btn-primary me-2" (click)="filtrarTurnosPorDia()">Filtrar</button>
+
+        <!-- filtro por fecha específica para turnos por día -->
+        <div class="filtro-fecha-especifica mb-4 mt-5">
+            <h5>Ver Un Dia</h5>
+            <input type="date" [(ngModel)]="fechaEspecifica" class="form-control d-inline-block w-auto me-2">
+            <button class="btn btn-violet" (click)="verTurnosPorFechaEspecifica()">Ver Fecha</button>
+        </div>
+        
+        <button class="btn btn-violet" (click)="verTodosLosTurnosPorDia()">Ver Todos</button>
+
+        <!-- grafico de turnos por día -->
+        <div class="grafico-container mb-4 mt-5">
+            <h4>Turnos por Día</h4>
+            <canvas baseChart
+                    [data]="chartTurnosPorDia"
+                    [type]="chartType"
+                    [options]="chartOptions">
+            </canvas>
+        </div>
+
+        <!-- filtro por especialista en rango (unificado) -->
+        <div class="filtro-medico-rango mb-4 mt-5">
+        <h5>Turnos por Especialista entre fechas</h5>
+
+        <label for="medicoRango">Especialista:</label>
+        <select id="medicoRango" [(ngModel)]="especialistaSeleccionado" class="form-select d-inline-block w-auto me-2">
+            <option value="">Seleccioná un especialista</option>
+            <option *ngFor="let esp of especialistasDisponibles" [value]="esp">{{ esp }}</option>
+        </select>
+
+        <label for="fechaDesdeMedico">Desde:</label>
+        <input type="date" id="fechaDesdeMedico" [(ngModel)]="fechaDesde" class="form-control d-inline-block w-auto me-2">
+
+        <label for="fechaHastaMedico">Hasta:</label>
+        <input type="date" id="fechaHastaMedico" [(ngModel)]="fechaHasta" class="form-control d-inline-block w-auto me-2">
+
+        <!-- checkbox para ver finalizados -->
+        <div class="form-check form-switch d-inline-block ms-3">
+            <input class="form-check-input" type="checkbox" id="soloFinalizados" [(ngModel)]="soloFinalizados">
+            <label class="form-check-label" for="soloFinalizados">Solo finalizados</label>
+        </div>
+
+        <div class="mt-2">
+            <button class="btn btn-primary me-2" (click)="filtrarTurnosPorMedicoEnRango()">Ver Cantidad en Rango</button>
+        </div>
+    </div>
+
+</div>

@@ -72,7 +72,7 @@
           <!-- boontes de acceso rapido -->
           <div *ngIf="!cargandoAccesos" class="acceso-rapido-container d-flex justify-content-center flex-wrap gap-3 my-4">
             <div *ngFor="let user of usuariosRapidos" class="d-flex flex-column align-items-center">
-              <button class="btn-acceso-rapido" (click)="loginRapido(user.email, user.password)">
+              <button type="button" class="btn-acceso-rapido" (click)="loginRapido(user.email, user.password)">
                 <img [src]="user.imagenUrl" [alt]="user.alt" />
               </button>
               <span class="text-white small mt-1 text-center">{{ user.alt }}</span>

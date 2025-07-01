@@ -1,0 +1,179 @@
+.container {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 40px;
+  border-radius: 20px;
+  color: #ffffff;
+  backdrop-filter: blur(5px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  color: #e0b3ff;
+  margin-bottom: 30px;
+}
+
+h4 {
+  color: #e0b3ff;
+  margin-bottom: 20px;
+}
+
+.grafico-container {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+canvas {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.filtro-fechas h5,
+.filtro-especialidad h5 {
+  color: #e0b3ff;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.filtro-fechas input[type="date"] {
+  margin: 0 10px;
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.filtro-fechas input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.filtro-fechas label,
+.filtro-especialidad label {
+  margin: 0 5px;
+  font-weight: bold;
+  color: #e0b3ff;
+}
+
+.filtro-fechas .btn-primary,
+.filtro-especialidad .btn-primary {
+  background-color: #8A2BE2;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.filtro-fechas .btn-primary:hover,
+.filtro-especialidad .btn-primary:hover {
+  background-color: #7A26C4;
+  transform: translateY(-2px);
+}
+
+.filtro-fechas .btn-primary:active,
+.filtro-especialidad .btn-primary:active {
+  background-color: #6A1FA7;
+  transform: translateY(0px);
+}
+
+.filtro-especialidad .btn-secondary {
+  background-color: #ffffff;
+  color: #8A2BE2;
+  border: 2px solid #8A2BE2;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.filtro-especialidad .btn-secondary:hover {
+  background-color: #f2f2f2;
+  transform: translateY(-2px);
+}
+
+.filtro-especialidad .btn-secondary:active {
+  background-color: #e6e6e6;
+  transform: translateY(0px);
+}
+
+.filtro-especialidad select.form-select {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  width: auto;
+  display: inline-block;
+  min-width: 200px; 
+  max-width: 300px;
+}
+
+
+.filtro-especialidad select.form-select option {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+
+.btn-violet {
+  background-color: #8A2BE2;
+  border: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-transform: uppercase;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-violet:hover {
+  background-color: #7A26C4;
+  transform: translateY(-2px);
+}
+
+.btn-violet:active {
+  background-color: #6A1FA7;
+  transform: translateY(0px);
+}
+
+.filtro-medico-rango select.form-select,
+.filtro-medico-finalizados select.form-select {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  width: auto;
+  display: inline-block;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.filtro-medico-rango select.form-select option,
+.filtro-medico-finalizados select.form-select option {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+
+.form-check-input:checked {
+  background-color: #8A2BE2;
+  border-color: #8A2BE2;
+}
+
+.form-check-input:checked:focus {
+  box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+}

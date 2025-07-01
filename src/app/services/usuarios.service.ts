@@ -75,7 +75,6 @@ export class UsuariosService {
     return data.map(e => e.especialidad);
   }
 
-
   async obtenerPacientesAtendidosPorEspecialista(especialistaEmail: string): Promise<any[]> {
     // 🔹 Todas las historias clínicas del especialista
     const { data: historias, error } = await supabase
@@ -123,7 +122,6 @@ export class UsuariosService {
 
     return data;
   }
-
 
   async obtenerResenaYDiagnosticoDeTurno(turnoId: number): Promise<{ resena: string, diagnostico: string } | null> {
     const { data, error } = await supabase
@@ -223,8 +221,5 @@ export class UsuariosService {
 
     return (data as Record<string, any>)[campo] as string;
   }
-
-
-
 
 }
