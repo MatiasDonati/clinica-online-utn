@@ -610,4 +610,87 @@ export class EstadisticasComponent implements OnInit {
     }
   }
 
+ async exportarTurnosPorMedicoEnRangoExcel() {
+    if (!this.especialistaSeleccionado || !this.fechaDesde || !this.fechaHasta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Datos requeridos',
+        text: 'Seleccioná un especialista y un rango de fechas.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const desde = new Date(this.fechaDesde);
+    const hasta = new Date(this.fechaHasta);
+
+    if (hasta < desde) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Rango inválido',
+        text: 'La fecha "Hasta" no puede ser anterior a la fecha "Desde".',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const hastaInclusive = new Date(hasta);
+    hastaInclusive.setDate(hastaInclusive.getDate() + 1);
+
+    let turnos;
+
+    if (this.soloFinalizados) {
+      turnos = await this.turnosService.obtenerTurnosFinalizadosPorMedicoEnRango(
+        this.especialistaSeleccionado,
+        this.fechaDesde,
+        hastaInclusive.toISOString().split('T')[0]
+      );
+    } else {
+      turnos = await this.turnosService.obtenerTurnosPorMedicoEnRango(
+        this.especialistaSeleccionado,
+        this.fechaDesde,
+        hastaInclusive.toISOString().split('T')[0]
+      );
+    }
+
+    if (!turnos || turnos.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin turnos',
+        text: 'No hay turnos para el especialista y rango seleccionados.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    // mapear datos para Excel
+    const map = new Map<string, number>();
+    for (const turno of turnos) {
+      const fecha = turno.fecha;
+      map.set(fecha, (map.get(fecha) || 0) + 1);
+    }
+
+    const worksheetData = Array.from(map.entries()).map(([fecha, cantidad]) => ({
+      Especialista: this.especialistaSeleccionado,
+      Fecha: this.formatearFechaPipe.transform(fecha),
+      'Cantidad de Turnos': cantidad,
+      Estado: this.soloFinalizados ? 'Finalizado' : 'Pendiente'
+    }));
+
+    // generar Excel
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = { Sheets: { 'Turnos Especialista': worksheet }, SheetNames: ['Turnos Especialista'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+    const desdeFormateada = this.formatearFechaPipe.transform(this.fechaDesde);
+    const hastaFormateada = this.formatearFechaPipe.transform(this.fechaHasta);
+    const estadoNombre = this.soloFinalizados ? '_finalizados' : '';
+
+    const nombreArchivo = `turnos_${this.especialistaSeleccionado.replace(/\s+/g, '_').toLowerCase()}_${desdeFormateada}_a_${hastaFormateada}${estadoNombre}.xlsx`;
+
+    FileSaver.saveAs(blob, nombreArchivo);
+  }
+
+
 }

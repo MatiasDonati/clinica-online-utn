@@ -133,8 +133,17 @@
     </div>
 
         <!-- filtro por especialista en rango (unificado) -->
-        <div class="filtro-medico-rango mb-4 mt-5">
-        <h5>Turnos por Especialista entre fechas</h5>
+    <div class="filtro-medico-rango mb-4 mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Turnos por Especialista entre fechas</h5>
+
+            <button class="btn btn-descargar mt-3"
+                    (click)="exportarTurnosPorMedicoEnRangoExcel()">
+                📥 Descargar Excel de Turnos
+                <span *ngIf="soloFinalizados"> Finalizados</span>
+            </button>
+        </div>
+
 
         <label for="medicoRango">Especialista:</label>
         <select id="medicoRango" [(ngModel)]="especialistaSeleccionado" class="form-select d-inline-block w-auto me-2">
