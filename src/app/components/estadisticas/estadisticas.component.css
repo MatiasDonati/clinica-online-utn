@@ -286,3 +286,9 @@ canvas {
   background-color: #922f42;
   transform: translateY(0px);
 }
+
+.titulo-seccion {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #e0b3ff; /* o el color que uses para títulos */
+}

@@ -222,4 +222,17 @@ export class UsuariosService {
     return (data as Record<string, any>)[campo] as string;
   }
 
+  async obtenerTiposUsuarios(): Promise<{ mail: string, tipo: string }[]> {
+    const { data, error } = await supabase
+      .from('users_data')
+      .select('mail, tipo');
+
+    if (error) {
+      console.error('Error al obtener tipos de usuarios:', error.message);
+      return [];
+    }
+
+    return data;
+  }
+
 }

@@ -482,6 +482,8 @@ export class TurnosService {
 
     return data;
   }
+
+
   async obtenerTurnosPorMedicoEnRango(especialista: string, desde: string, hasta: string) {
     const { data, error } = await supabase
       .from('turnos')
@@ -498,6 +500,19 @@ export class TurnosService {
     return data;
   }
 
+
+  async obtenerTurnosPorEspecialidadPorDia(especialidad: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('fecha')
+      .eq('especialidad', especialidad);
+
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return data;
+  }
 
 
 

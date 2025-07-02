@@ -47,6 +47,16 @@ export class EstadisticasComponent implements OnInit {
   botonDescargarTurnosTexto: string = '📉 Descargar Excel de Turnos 📉';
   botonDescargarGraficoTexto: string = '📊 Descargar Gráfico 📊';
 
+  cantidadTurnosMostrados: number = 0;
+
+  totalIngresos: number = 0;
+
+  cantidadTurnosEspecialistaRango: number | null = null;
+
+  busquedaRealizada: boolean = false;
+
+  ultimoFiltroFinalizados: boolean = false;
+
 
   chartData: ChartData<'bar'> = { labels: [], datasets: [] };
   chartTurnosEspecialidad: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -81,6 +91,8 @@ export class EstadisticasComponent implements OnInit {
       labels: Array.from(map.keys()).reverse(),
       datasets: [{ label: 'Ingresos por día', data: Array.from(map.values()).reverse() }]
     };
+
+    this.totalIngresos = Array.from(map.values()).reduce((a, b) => a + b, 0);
 
     await this.cargarTurnosPorEspecialidad();
     await this.cargarTurnosPorDia();
@@ -128,7 +140,11 @@ export class EstadisticasComponent implements OnInit {
         data: sortedEntries.map(([, cantidad]) => cantidad)
       }]
     };
+
+    // cantidad de turnos mostrados
+    this.cantidadTurnosMostrados = Array.from(map.values()).reduce((acc, val) => acc + val, 0);
   }
+
 
   async filtrarTurnosPorDia() {
 
@@ -184,6 +200,10 @@ export class EstadisticasComponent implements OnInit {
     this.botonDescargarTurnosTexto = `📉 Descargar Excel de Turnos - ${desdeArg} a ${hastaArg} 📉`;
     this.botonDescargarGraficoTexto = `📊 Descargar Gráfico - ${desdeArg} a ${hastaArg} 📊`;
 
+    // // // // // // 
+    // // // // // // 
+    this.cantidadTurnosMostrados = Array.from(map.values()).reduce((a, b) => a + b, 0);
+
     setTimeout(() => {
       const grafico = document.getElementById('grafico-turnos-por-dia');
       if (grafico) {
@@ -226,6 +246,8 @@ export class EstadisticasComponent implements OnInit {
 
     const fechaArg = this.formatearFechaPipe.transform(this.fechaEspecifica);
 
+    this.cantidadTurnosMostrados = Array.from(map.values()).reduce((a, b) => a + b, 0);
+
     this.botonDescargarTurnosTexto = `📉 Descargar Excel de Turnos - ${fechaArg} 📉`;
     this.botonDescargarGraficoTexto = `📊 Descargar Gráfico - ${fechaArg} 📊`;
 
@@ -236,6 +258,7 @@ export class EstadisticasComponent implements OnInit {
       }
     }, 100);
   }
+
 
   async cargarEspecialidades() {
     const data = await this.turnosService.obtenerTodasLasEspecialidades();
@@ -253,18 +276,28 @@ export class EstadisticasComponent implements OnInit {
       return;
     }
 
-    const turnos = await this.turnosService.obtenerTurnosPorEspecialidadYDia(this.especialidadSeleccionada);
+    const turnos = await this.turnosService.obtenerTurnosPorEspecialidadPorDia(this.especialidadSeleccionada);
+
+    const map = new Map<string, number>();
+    for (const turno of turnos) {
+      const fechaArg = turno.fecha;
+      map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
+    }
+
+    const sortedEntries = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
 
     this.chartTurnosEspecialidad = {
-      labels: [this.especialidadSeleccionada],
+      labels: sortedEntries.map(([fecha]) => this.formatearFechaPipe.transform(fecha)),
       datasets: [{
-        label: `Total de turnos (${this.especialidadSeleccionada})`,
-        data: [turnos.length]
+        label: `Turnos por día (${this.especialidadSeleccionada})`,
+        data: sortedEntries.map(([, c]) => c)
       }]
     };
 
+    // total de turnos
     this.cantidadTurnosEspecialidad = turnos.length;
   }
+
 
   async verTodosLosTurnosPorDia() {
     this.fechaDesde = '';
@@ -272,7 +305,6 @@ export class EstadisticasComponent implements OnInit {
     await this.cargarTurnosPorDia();
     this.botonDescargarTurnosTexto = '📉 Descargar Excel de Turnos 📉';
     this.botonDescargarGraficoTexto = '📊 Descargar Gráfico 📊';
-
 
   }
 
@@ -331,6 +363,8 @@ export class EstadisticasComponent implements OnInit {
     const desde = new Date(this.fechaDesde);
     const hasta = new Date(this.fechaHasta);
 
+    
+
     if (hasta < desde) {
       Swal.fire({
         icon: 'error',
@@ -361,6 +395,14 @@ export class EstadisticasComponent implements OnInit {
     }
 
     const cantidad = turnos.length;
+    this.cantidadTurnosEspecialistaRango = cantidad;
+    //  busqueda realizada
+    //  busqueda realizada
+    this.busquedaRealizada = true; 
+
+    // guarda si en la búsqueda estaba marcado
+    this.ultimoFiltroFinalizados = this.soloFinalizados; 
+
 
     Swal.fire({
       icon: 'info',
