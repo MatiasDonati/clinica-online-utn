@@ -60,9 +60,7 @@ export class EstadisticasComponent implements OnInit {
 
   // // // // 
   // // // // 
-  // // // // 
   turnosFiltradosEspecialidad: any[] = [];
-  // // // // 
   // // // // 
   // // // // 
 
@@ -833,7 +831,9 @@ async verTodasLasEspecialidades() {
         <br>👤 Paciente: ${t.paciente_email}
         <br>👨‍⚕️ Especialista: ${t.especialista_email}
         <br>📌 Estado: ${t.estado}
-        <br>💬 Comentario: ${t.comentario_paciente || 'Sin comentario'}
+        <br>💬 Comentario: ${t.resena_especialista || 'Sin reseña'}
+        <br>🩺 Diagnostico: ${t.diagnostico || 'Sin diagnostico'}
+        <br>⭐ Calificación: ${t.calificacion || 'Sin calificación'}
         <hr>
       </div>
     `).join('');
