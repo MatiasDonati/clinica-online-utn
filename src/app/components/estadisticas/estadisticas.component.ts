@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { TurnosService } from '../../services/turnos.service';
 import { ChartConfiguration, ChartType, ChartData } from 'chart.js';
 import { HeaderComponent } from "../header/header.component";
-import { NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
@@ -16,7 +16,7 @@ import * as FileSaver from 'file-saver';
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule, NgIf, FormatearFechaPipe, FormatearHoraPipe],
+  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule, NgIf, FormatearFechaPipe, FormatearHoraPipe, NgClass],
   templateUrl: './estadisticas.component.html',
   styleUrl: './estadisticas.component.css'
 })
@@ -24,6 +24,7 @@ export class EstadisticasComponent implements OnInit {
 
   @ViewChild('graficoIngresos') graficoIngresos!: ElementRef<HTMLCanvasElement>;
   @ViewChild('graficoTurnosPorDia') graficoTurnosPorDia!: ElementRef;
+  @ViewChild('graficoTurnosEspecialidad') graficoTurnosEspecialidad!: ElementRef<HTMLCanvasElement>;
 
 
   formatearFechaPipe = new FormatearFechaPipe();
@@ -63,6 +64,12 @@ export class EstadisticasComponent implements OnInit {
   chartTurnosPorDia: ChartData<'bar'> = { labels: [], datasets: [] };
 
   chartType: ChartType = 'bar';
+
+  // tipos de gráficos
+  chartTypeTurnosEspecialidad: ChartType = 'bar';
+  chartTypeTurnosPorDia: ChartType = 'bar';
+
+
 
   chartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -732,6 +739,40 @@ export class EstadisticasComponent implements OnInit {
     const nombreArchivo = `turnos_${this.especialistaSeleccionado.replace(/\s+/g, '_').toLowerCase()}_${desdeFormateada}_a_${hastaFormateada}${estadoNombre}.xlsx`;
 
     FileSaver.saveAs(blob, nombreArchivo);
+  }
+
+  cambiarTipoGraficoEspecialidad(tipo: ChartType) {
+  this.chartTypeTurnosEspecialidad = tipo;
+}
+
+
+  descargarGraficoTurnosEspecialidad() {
+    if (!this.graficoTurnosEspecialidad) return;
+
+    const canvas: HTMLCanvasElement = this.graficoTurnosEspecialidad.nativeElement;
+
+    const canvasConFondo = document.createElement('canvas');
+    const ctx = canvasConFondo.getContext('2d');
+
+    canvasConFondo.width = canvas.width;
+    canvasConFondo.height = canvas.height;
+
+    if (ctx) {
+      // fondo negro
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.drawImage(canvas, 0, 0);
+
+      const enlace = document.createElement('a');
+      enlace.href = canvasConFondo.toDataURL('image/png');
+      enlace.download = 'turnos_por_especialidad.png';
+      enlace.click();
+    }
+  }
+
+  cambiarTipoGraficoTurnosPorDia(tipo: ChartType) {
+    this.chartTypeTurnosPorDia = tipo;
   }
 
 

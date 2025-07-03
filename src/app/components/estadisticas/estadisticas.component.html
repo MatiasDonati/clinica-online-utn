@@ -62,21 +62,24 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="titulo-seccion">Turnos por Especialidad</h3>
 
-    <button class="btn btn-descargar" (click)="exportarTurnosPorEspecialidad()">
+    <div class="d-flex flex-column align-items-end mb-2">
+    <button class="btn btn-descargar mb-2"
+            (click)="exportarTurnosPorEspecialidad()">
         📉 Descargar Excel 
         <span *ngIf="especialidadSeleccionada"> {{ especialidadSeleccionada }} 📉</span>
         <span *ngIf="!especialidadSeleccionada"> Todas 📉</span>
     </button>
+
+    <button class="btn btn-descargar"
+            (click)="descargarGraficoTurnosEspecialidad()">
+        📊 Descargar Gráfico 📊
+         <span *ngIf="especialidadSeleccionada"> {{ especialidadSeleccionada }} 📉</span>
+        <span *ngIf="!especialidadSeleccionada"> Todas 📉</span>
+    </button>
     </div>
 
-    <div class="cantidad-turnos text-center mb-3">
-    <ng-container *ngIf="especialidadSeleccionada; else total">
-        Turnos "{{ especialidadSeleccionada }}": {{ cantidadTurnosEspecialidad }}
-    </ng-container>
-    <ng-template #total>
-        Turnos Totales: {{ cantidadTurnosEspecialidad }}
-    </ng-template>
     </div>
+
 
 
 
@@ -92,6 +95,15 @@
         <option *ngFor="let esp of especialidadesDisponibles" [value]="esp">{{ esp }}</option>
         </select>
 
+        <div class="cantidad-turnos text-center mb-3 ms-3">
+            <ng-container *ngIf="especialidadSeleccionada; else total">
+                Turnos "{{ especialidadSeleccionada }}": {{ cantidadTurnosEspecialidad }}
+            </ng-container>
+            <ng-template #total>
+                Turnos Totales: {{ cantidadTurnosEspecialidad }}
+            </ng-template>
+        </div>
+
         <!-- <div class="cantidad-turnos mt-2 ms-2">
         Turnos
         <span *ngIf="especialidadSeleccionada">"{{especialidadSeleccionada}}"</span>
@@ -102,12 +114,43 @@
         <button class="btn btn-violet" (click)="verTodasLasEspecialidades()">ver Todos</button>
         </div>
     </div>
+    
+        <div class="d-flex justify-content-end mb-2">
+        
+        <button class="btn btn-violet me-2"
+                (click)="cambiarTipoGraficoEspecialidad('bar')"
+                [ngClass]="{'btn-seleccionado': chartTypeTurnosEspecialidad === 'bar'}">
+        📊 Gráfico Barra
+        </button>
 
-    <canvas baseChart
+        <button class="btn btn-violet"
+                (click)="cambiarTipoGraficoEspecialidad('pie')"
+                [ngClass]="{'btn-seleccionado': chartTypeTurnosEspecialidad === 'pie'}">
+        🥧 Gráfico Torta
+        </button>
+
+    </div>
+
+    <div *ngIf="chartTypeTurnosEspecialidad === 'pie'; else noPie" class="w-100" style="max-width: 50%; margin: auto;">
+        
+    <canvas #graficoTurnosEspecialidad
+            baseChart
             [data]="chartTurnosEspecialidad"
-            [type]="chartType"
+            [type]="chartTypeTurnosEspecialidad"
+            [options]="chartOptions"
+            [height]="300">
+    </canvas>
+    </div>
+
+    <ng-template #noPie>
+    <canvas #graficoTurnosEspecialidad
+            baseChart
+            [data]="chartTurnosEspecialidad"
+            [type]="chartTypeTurnosEspecialidad"
             [options]="chartOptions">
     </canvas>
+    </ng-template>
+
     </div>
 
 
@@ -166,10 +209,25 @@
     <!-- gráfico -->
     <div class="grafico-container mb-4 mt-5" id="grafico-turnos-por-dia">
         <h3 class="titulo-seccion">Turnos por Día</h3>
+
+        <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-violet me-2"
+                    (click)="cambiarTipoGraficoTurnosPorDia('bar')"
+                    [ngClass]="{'btn-seleccionado': chartTypeTurnosPorDia === 'bar'}">
+                📊 Gráfico de Barra
+            </button>
+
+            <button class="btn btn-violet"
+                    (click)="cambiarTipoGraficoTurnosPorDia('line')"
+                    [ngClass]="{'btn-seleccionado': chartTypeTurnosPorDia === 'line'}">
+                📈 Gráfico de Lineas
+            </button>
+        </div>
+
         <canvas #graficoTurnosPorDia
                 baseChart
                 [data]="chartTurnosPorDia"
-                [type]="chartType"
+                [type]="chartTypeTurnosPorDia"
                 [options]="chartOptions">
         </canvas>
     </div>
@@ -218,7 +276,7 @@
         <div class="cantidad-turnos mt-2" *ngIf="cantidadTurnosEspecialistaRango !== null">
         <ng-container *ngIf="cantidadTurnosEspecialistaRango > 0; else sinTurnos">
             Turnos
-            <span *ngIf="ultimoFiltroFinalizados" class="fw-bold">"FINALIZADOS"</span>
+            <span *ngIf="ultimoFiltroFinalizados" class="fw-bold">"FINALIZADOS" </span>
             <span *ngIf="especialistaSeleccionado">de "{{ especialistaSeleccionado }}"</span>
             entre "{{ formatearFechaPipe.transform(fechaDesde) }}" y "{{ formatearFechaPipe.transform(fechaHasta) }}"
             : {{ cantidadTurnosEspecialistaRango }}

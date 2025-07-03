@@ -290,5 +290,12 @@ canvas {
 .titulo-seccion {
   font-weight: bold;
   font-size: 1.5rem;
-  color: #e0b3ff; /* o el color que uses para títulos */
+  color: #e0b3ff;
+}
+
+.btn-seleccionado {
+  background-color: #8A2BE2;
+  color: white;
+  font-weight: bold;
+  border: 2px solid #e0b3ff;
 }
