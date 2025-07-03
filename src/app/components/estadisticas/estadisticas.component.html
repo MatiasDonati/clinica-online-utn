@@ -213,11 +213,12 @@
                     [ngClass]="{'btn-seleccionado': chartTypeTurnosPorDia === 'line'}">
             📈 Gráfico de Líneas
             </button>
-            <button class="btn btn-violet"
-                    (click)="cambiarTipoGraficoTurnosPorDia('pie')"
-                    [ngClass]="{'btn-seleccionado': chartTypeTurnosPorDia === 'pie'}">
-            🥧 Gráfico Torta
+            <button class="btn btn-violet ms-2"
+                (click)="cambiarTipoGraficoTurnosPorDia('pie')"
+                [ngClass]="{'btn-seleccionado': chartTypeTurnosPorDia === 'pie'}">
+                🥧 Gráfico Torta
             </button>
+
         </div>
 
         <canvas #graficoTurnosPorDia
