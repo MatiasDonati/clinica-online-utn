@@ -515,6 +515,31 @@ export class TurnosService {
   }
 
 
+  async obtenerTurnosPorEspecialidadCompleto(especialidad: string) {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*')
+      .eq('especialidad', especialidad);
+
+    if (error) {
+      console.error('Error al obtener turnos por especialidad:', error.message);
+      return [];
+    }
+    return data;
+  }
+
+  async obtenerTurnosCompletos() {
+    const { data, error } = await supabase
+      .from('turnos')
+      .select('*');
+
+    if (error) {
+      console.error('Error al obtener todos los turnos:', error.message);
+      return [];
+    }
+    return data;
+  }
+
 
 
 } 

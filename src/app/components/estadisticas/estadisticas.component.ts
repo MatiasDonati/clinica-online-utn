@@ -4,7 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { TurnosService } from '../../services/turnos.service';
 import { ChartConfiguration, ChartType, ChartData } from 'chart.js';
 import { HeaderComponent } from "../header/header.component";
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { FormatearFechaPipe } from '../../pipes/formatear-fecha.pipe';
@@ -16,7 +16,7 @@ import * as FileSaver from 'file-saver';
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule, NgIf, FormatearFechaPipe, FormatearHoraPipe, NgClass],
+  imports: [NgChartsModule, HeaderComponent, NgFor, FormsModule, NgIf, FormatearFechaPipe, FormatearHoraPipe, NgClass, NgStyle],
   templateUrl: './estadisticas.component.html',
   styleUrl: './estadisticas.component.css'
 })
@@ -57,6 +57,14 @@ export class EstadisticasComponent implements OnInit {
   busquedaRealizada: boolean = false;
 
   ultimoFiltroFinalizados: boolean = false;
+
+  // // // // 
+  // // // // 
+  // // // // 
+  turnosFiltradosEspecialidad: any[] = [];
+  // // // // 
+  // // // // 
+  // // // // 
 
 
   chartData: ChartData<'bar'> = { labels: [], datasets: [] };
@@ -112,9 +120,11 @@ export class EstadisticasComponent implements OnInit {
   }
 
   async cargarTurnosPorEspecialidad() {
-    const turnos = await this.turnosService.obtenerTurnosPorEspecialidad();
-    const map = new Map<string, number>();
+    const turnos = await this.turnosService.obtenerTurnosCompletos();
 
+    this.turnosFiltradosEspecialidad = turnos;
+
+    const map = new Map<string, number>();
     for (const turno of turnos) {
       map.set(turno.especialidad, (map.get(turno.especialidad) || 0) + 1);
     }
@@ -126,6 +136,7 @@ export class EstadisticasComponent implements OnInit {
 
     this.cantidadTurnosEspecialidad = Array.from(map.values()).reduce((acc, val) => acc + val, 0);
   }
+
 
   async cargarTurnosPorDia() {
     const turnos = await this.turnosService.obtenerTurnosPorDia();
@@ -272,38 +283,50 @@ export class EstadisticasComponent implements OnInit {
     this.especialidadesDisponibles = Array.from(new Set(data.map(e => e.especialidad)));
   }
 
-  async filtrarTurnosPorEspecialidad() {
-    if (!this.especialidadSeleccionada) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Especialidad requerida',
-        text: 'Seleccioná una especialidad para filtrar.',
-        confirmButtonColor: '#8A2BE2'
-      });
-      return;
-    }
-
-    const turnos = await this.turnosService.obtenerTurnosPorEspecialidadPorDia(this.especialidadSeleccionada);
-
-    const map = new Map<string, number>();
-    for (const turno of turnos) {
-      const fechaArg = turno.fecha;
-      map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
-    }
-
-    const sortedEntries = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-
-    this.chartTurnosEspecialidad = {
-      labels: sortedEntries.map(([fecha]) => this.formatearFechaPipe.transform(fecha)),
-      datasets: [{
-        label: `Turnos por día (${this.especialidadSeleccionada})`,
-        data: sortedEntries.map(([, c]) => c)
-      }]
-    };
-
-    // total de turnos
-    this.cantidadTurnosEspecialidad = turnos.length;
+async filtrarTurnosPorEspecialidad() {
+  if (!this.especialidadSeleccionada) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Especialidad requerida',
+      text: 'Seleccioná una especialidad para filtrar.',
+      confirmButtonColor: '#8A2BE2'
+    });
+    return;
   }
+
+  // 🔑 Trae turnos completos filtrados
+  const turnos = await this.turnosService.obtenerTurnosPorEspecialidadCompleto(this.especialidadSeleccionada);
+
+  // Guarda todos los turnos completos filtrados
+  this.turnosFiltradosEspecialidad = turnos;
+
+  // Procesa los datos para el gráfico
+  const map = new Map<string, number>();
+  for (const turno of turnos) {
+    const fechaArg = turno.fecha;
+    map.set(fechaArg, (map.get(fechaArg) || 0) + 1);
+  }
+
+  const sortedEntries = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+
+  this.chartTurnosEspecialidad = {
+    labels: sortedEntries.map(([fecha]) => this.formatearFechaPipe.transform(fecha)),
+    datasets: [{
+      label: `Turnos por día (${this.especialidadSeleccionada})`,
+      data: sortedEntries.map(([, c]) => c)
+    }]
+  };
+
+  this.cantidadTurnosEspecialidad = turnos.length;
+
+  // Swal.fire({
+  //   icon: 'info',
+  //   title: 'Turnos filtrados',
+  //   html: `Hay <b>${this.cantidadTurnosEspecialidad}</b> turnos de <b>${this.especialidadSeleccionada}</b>.`,
+  //   confirmButtonText: 'Aceptar'
+  // });
+}
+
 
 
   async verTodosLosTurnosPorDia() {
@@ -315,10 +338,28 @@ export class EstadisticasComponent implements OnInit {
 
   }
 
-  async verTodasLasEspecialidades() {
-    this.especialidadSeleccionada = '';
-    await this.cargarTurnosPorEspecialidad();
+async verTodasLasEspecialidades() {
+  this.especialidadSeleccionada = '';
+
+  // 🔑 Trae todos los turnos completos sin filtrar
+  const turnos = await this.turnosService.obtenerTurnosCompletos();
+
+  this.turnosFiltradosEspecialidad = turnos; // guarda todos
+
+  // Procesa para el gráfico
+  const map = new Map<string, number>();
+  for (const turno of turnos) {
+    map.set(turno.especialidad, (map.get(turno.especialidad) || 0) + 1);
   }
+
+  this.chartTurnosEspecialidad = {
+    labels: Array.from(map.keys()),
+    datasets: [{ label: 'Turnos por Especialidad', data: Array.from(map.values()) }]
+  };
+
+  this.cantidadTurnosEspecialidad = Array.from(map.values()).reduce((acc, val) => acc + val, 0);
+}
+
 
   async cargarEspecialistas() {
     const data = await this.turnosService.obtenerEspecialistasDeTurnos();
@@ -774,6 +815,84 @@ export class EstadisticasComponent implements OnInit {
   cambiarTipoGraficoTurnosPorDia(tipo: ChartType) {
     this.chartTypeTurnosPorDia = tipo;
   }
+
+  verDetalleTurnosEspecialidad() {
+    if (!this.turnosFiltradosEspecialidad || this.turnosFiltradosEspecialidad.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin datos',
+        text: 'No hay turnos para mostrar.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const detalleHtml = this.turnosFiltradosEspecialidad.map(t => `
+      <div style="text-align:left; margin-bottom:6px;">
+        🗓️ <b>${this.formatearFechaPipe.transform(t.fecha)}</b> 🕒 ${t.hora}
+        <br>👤 Paciente: ${t.paciente_email}
+        <br>👨‍⚕️ Especialista: ${t.especialista_email}
+        <br>📌 Estado: ${t.estado}
+        <br>💬 Comentario: ${t.comentario_paciente || 'Sin comentario'}
+        <hr>
+      </div>
+    `).join('');
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Detalle de Turnos',
+      html: detalleHtml,
+      width: 700,
+      confirmButtonColor: '#8A2BE2'
+    });
+  }
+
+
+    exportarDetalleTurnosEspecialidad() {
+    if (!this.turnosFiltradosEspecialidad || this.turnosFiltradosEspecialidad.length === 0) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Sin datos',
+        text: 'No hay turnos para exportar.',
+        confirmButtonColor: '#8A2BE2'
+      });
+      return;
+    }
+
+    const worksheetData = this.turnosFiltradosEspecialidad.map(t => ({
+      ID: t.id,
+      Fecha: this.formatearFechaPipe.transform(t.fecha),
+      Hora: t.hora,
+      Especialidad: t.especialidad,
+      'Especialista Email': t.especialista_email,
+      'Paciente Email': t.paciente_email,
+      Estado: t.estado,
+      'Comentario Cancelación': t.comentario_cancelacion || '',
+      'Reseña Especialista': t.resena_especialista || '',
+      'Comentario Paciente': t.comentario_paciente || '',
+      Encuesta: t.encuesta_completada ? 'Sí' : 'No',
+      Calificación: t.calificacion || '',
+      Diagnóstico: t.diagnostico || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = { Sheets: { 'Turnos Especialidad': worksheet }, SheetNames: ['Turnos Especialidad'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+    let nombreArchivo = 'detalle_turnos';
+    if (this.especialidadSeleccionada) {
+      nombreArchivo += `_${this.especialidadSeleccionada.replace(/\s+/g, '_').toLowerCase()}`;
+    }
+
+    FileSaver.saveAs(blob, `${nombreArchivo}.xlsx`);
+  }
+
+  tieneDatosGraficoTurnosPorDia(): boolean {
+    return !!(this.chartTurnosPorDia && this.chartTurnosPorDia.labels && this.chartTurnosPorDia.labels.length > 0);
+  }
+
+
 
 
 }
